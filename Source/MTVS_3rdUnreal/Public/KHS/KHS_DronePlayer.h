@@ -31,6 +31,17 @@ public:
 	//인스턴스
 	//==============================================
 
+	//충돌체, 메시, 카메라
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* SphereComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UCameraComponent* CameraComp;
+
+
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
 	FVector DroneCurrentSpeed;
@@ -59,6 +70,9 @@ public:
 	class UInputMappingContext* IMC_Drone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+    class UInputAction* IA_DroneLook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     class UInputAction* IA_DroneFwd;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -75,14 +89,11 @@ public:
 	//==============================================
 
 	//드론 이동함수
-	void DroneMoveFwdPressed(const FInputActionValue& Value);
-	void DroneMoveFwdReleased(const FInputActionValue& Value);
-	void DroneMoveRightPressed(const FInputActionValue& Value);
-	void DroneMoveRightReleased(const FInputActionValue& Value);
-	void DroneMoveUpPressed(const FInputActionValue& Value);
-	void DroneMoveUpReleased(const FInputActionValue& Value);
-	void DroneMoveDownPressed(const FInputActionValue& Value);
-	void DroneMoveDownReleased(const FInputActionValue& Value);
+	void DroneLook(const FInputActionValue& Value);
+	void DroneMoveFwd(const FInputActionValue& Value);
+	void DroneMoveRight(const FInputActionValue& Value);
+	void DroneMoveUp(const FInputActionValue& Value);
+	void DroneMoveDown(const FInputActionValue& Value);
 
 
 };
