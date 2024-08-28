@@ -95,7 +95,28 @@ public:
 	//카메라쉐이크 인스턴스(움직임)
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
 	TSubclassOf<UCameraShakeBase> DroneCameraShake;
+	//쉐이크 주기
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
+	float DroneShakeInterval;
+	//마지막 쉐이크 후 경과시간
+	float TimeSinceLastShake;
 
+	//Hovering 메시 흔들림 변수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float HoverAmplitude; //상하흔들림 진폭(메시가 움직이는 범위)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float HoverFrequency; //상하흔들림 주파수(움직이는 속도)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float RollAmplitude; //좌우회전 진폭
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float RollFrequency; //좌우회전 주파수
+
+	FVector OriginalMeshLocation; //메시 기존위치 저장
+	FRotator OriginalMeshRotation; //메시 기존회전 저장
+
+	//Post Process Radial Blur 강도 결정 변수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
+	class UMaterialParameterCollection* MPC_DroneBlur;
 
 	//==============================================
 	//함수

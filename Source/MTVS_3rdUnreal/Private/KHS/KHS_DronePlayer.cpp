@@ -11,6 +11,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Components/TextBlock.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -37,9 +39,19 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 		MeshComp->SetRelativeScale3D(FVector(0.15f));
 	}
 
+	//카메라쉐이크 스탯
+	DroneShakeInterval = 0.5f;  //0.5초마다 카메라쉐이크
+	TimeSinceLastShake = 0.0f;
+
+	//Hovering 스탯
+	HoverAmplitude = 3.0f;
+	HoverFrequency = 1.0f;
+	RollAmplitude = 3.0f;
+	RollFrequency = 1.0f;
+
 	//Drone 스탯 초기화
-	DroneMaxSpeed = 1000.0f;
-	DroneAccelerateRate = 400.0f;
+	DroneMaxSpeed = 3000.0f;
+	DroneAccelerateRate = 450.0f;
 	DroneDecelerateRate = 400.0f;
 	DroneCurrentSpeed = FVector::ZeroVector;
 	DroneAcceleration = FVector::ZeroVector;
@@ -67,6 +79,14 @@ void AKHS_DronePlayer::BeginPlay()
 		DroneMainUI = CreateWidget(GetWorld(), DroneMainUIFactory);
 		DroneMainUI->AddToViewport(0); 
 	}
+
+	//메시 위치, 회전 저장
+	OriginalMeshLocation = MeshComp->GetRelativeLocation();
+	OriginalMeshRotation = MeshComp->GetRelativeRotation();
+
+	//Post Process Radial Blur 강도 결정 변수
+	MPC_DroneBlur = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Script/Engine.MaterialParameterCollection'/Game/Blueprints/UI/KHS/MPC_DroneBlur.MPC_DroneBlur'"));
+
 
 }
 
@@ -127,6 +147,41 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
 	}
 
+	//카메라쉐이크 타이머 업데이트
+	TimeSinceLastShake += DeltaTime;
+	if (TimeSinceLastShake >= DroneShakeInterval)
+	{
+		PlayDroneCameraShake();
+		TimeSinceLastShake = 0.0f; //타이머 초기화
+	}
+
+	// 상하 Hovering 효과 적용
+	float HoverOffset = HoverAmplitude * FMath::Sin(GetWorld()->TimeSeconds * HoverFrequency);
+	FVector NewLocation = OriginalMeshLocation + FVector(0, 0, HoverOffset);
+	MeshComp->SetRelativeLocation(NewLocation);
+
+	// 좌우 파도 효과 적용
+	float RollOffset = RollAmplitude * FMath::Sin(GetWorld()->TimeSeconds * RollFrequency);
+	float PitchOffset = RollAmplitude * FMath::Cos(GetWorld()->TimeSeconds * RollFrequency);
+	FRotator NewRotation = OriginalMeshRotation + FRotator(PitchOffset, 0, RollOffset);
+	MeshComp->SetRelativeRotation(NewRotation);
+
+	//Post Process Radial Blur효과 강도 결정(속도에 따라)
+	// 드론의 현재 속도 계산
+	//float CurrentSpeed = GetVelocity().Size();
+	float CurrentSpeed = DroneCurrentSpeed.Size();
+	GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
+
+	// BlurAmount를 속도에 따라 설정
+	float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
+
+	// Material Parameter Collection에 속도값전달
+	UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
+	if (MaterialParamInstance)
+	{
+		MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
+	}
+
 }
 
 // Called to bind functionality to input
@@ -159,9 +214,6 @@ void AKHS_DronePlayer::DroneLook(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveFwd(const FInputActionValue& Value)
 {
-	//카메라쉐이크 재생
-	PlayDroneCameraShake();
-
 	float ForwardValue = Value.Get<float>();
 
 	// 카메라의 방향을 기반으로 이동 벡터를 계산
@@ -175,9 +227,6 @@ void AKHS_DronePlayer::DroneMoveFwd(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveRight(const FInputActionValue& Value)
 {
-	//카메라쉐이크 재생
-	PlayDroneCameraShake();
-
 	float RightValue = Value.Get<float>();
 
 	// 카메라의 방향을 기반으로 이동 벡터를 계산
@@ -191,18 +240,12 @@ void AKHS_DronePlayer::DroneMoveRight(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveUp(const FInputActionValue& Value)
 {
-	//카메라쉐이크 재생
-	PlayDroneCameraShake();
-
 	float UpValue = Value.Get<float>();
 	DroneAcceleration.Z += UpValue * DroneAccelerateRate;
 }
 
 void AKHS_DronePlayer::DroneMoveDown(const FInputActionValue& Value)
 {
-	//카메라쉐이크 재생
-	PlayDroneCameraShake();
-
 	float DownValue = Value.Get<float>();
 	DroneAcceleration.Z -= DownValue * DroneAccelerateRate;
 }
