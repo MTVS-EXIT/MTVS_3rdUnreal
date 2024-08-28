@@ -38,7 +38,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCameraComponent* CameraComp;
 
 
@@ -83,6 +83,14 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_DroneDown;
+
+	//MainUI 인스턴스
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> MainUIFactory;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	class UKHS_DroneMainUI* DroneMainUI;
+
 
 	//==============================================
 	//함수
