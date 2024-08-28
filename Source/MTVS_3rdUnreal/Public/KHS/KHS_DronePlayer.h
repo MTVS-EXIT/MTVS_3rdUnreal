@@ -42,6 +42,7 @@ public:
 	class UCameraComponent* CameraComp;
 
 
+
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
 	FVector DroneCurrentSpeed;
@@ -86,10 +87,14 @@ public:
 
 	//MainUI 인스턴스
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UUserWidget> MainUIFactory;
+	TSubclassOf<class UUserWidget> DroneMainUIFactory;
 
-	UPROPERTY(EditAnywhere, Category = "UI")
-	class UKHS_DroneMainUI* DroneMainUI;
+	UPROPERTY(EditDefaultsOnly)
+	class UUserWidget* DroneMainUI;
+
+	//카메라쉐이크 인스턴스(움직임)
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
+	TSubclassOf<UCameraShakeBase> DroneCameraShake;
 
 
 	//==============================================
@@ -103,5 +108,6 @@ public:
 	void DroneMoveUp(const FInputActionValue& Value);
 	void DroneMoveDown(const FInputActionValue& Value);
 
-
+	//카메라쉐이크 재생함수
+	void PlayDroneCameraShake();
 };

@@ -2,12 +2,15 @@
 
 
 #include "KHS/KHS_DronePlayer.h"
+#include "KHS/KHS_DroneMainUI.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "Components/SphereComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraShakeBase.h"
+#include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Components/TextBlock.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -57,6 +60,13 @@ void AKHS_DronePlayer::BeginPlay()
 			subsys->AddMappingContext(IMC_Drone, 0);
 		}
 	}
+	
+	//드론 Main UI초기화
+	if(nullptr != DroneMainUI) 
+	{ 
+		DroneMainUI = CreateWidget(GetWorld(), DroneMainUIFactory);
+		DroneMainUI->AddToViewport(0); 
+	}
 
 }
 
@@ -102,6 +112,21 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	// 프레임이 끝날 때 가속도 초기화
 	DroneAcceleration = FVector::ZeroVector;
 
+
+	//Drone고도계 업데이트
+	FVector s = GetActorLocation();
+	FVector e = s - FVector(0, 0, 10000); //아래로 N만큼 라인트레이스 발사
+	FHitResult HItResult;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HItResult,s,e,ECC_Visibility, params);
+	if (bHit)
+	{
+		float Altitude = s.Z - HItResult.Location.Z;
+		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+	}
+
 }
 
 // Called to bind functionality to input
@@ -134,6 +159,9 @@ void AKHS_DronePlayer::DroneLook(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveFwd(const FInputActionValue& Value)
 {
+	//카메라쉐이크 재생
+	PlayDroneCameraShake();
+
 	float ForwardValue = Value.Get<float>();
 
 	// 카메라의 방향을 기반으로 이동 벡터를 계산
@@ -147,6 +175,9 @@ void AKHS_DronePlayer::DroneMoveFwd(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveRight(const FInputActionValue& Value)
 {
+	//카메라쉐이크 재생
+	PlayDroneCameraShake();
+
 	float RightValue = Value.Get<float>();
 
 	// 카메라의 방향을 기반으로 이동 벡터를 계산
@@ -160,14 +191,29 @@ void AKHS_DronePlayer::DroneMoveRight(const FInputActionValue& Value)
 
 void AKHS_DronePlayer::DroneMoveUp(const FInputActionValue& Value)
 {
+	//카메라쉐이크 재생
+	PlayDroneCameraShake();
+
 	float UpValue = Value.Get<float>();
 	DroneAcceleration.Z += UpValue * DroneAccelerateRate;
 }
 
 void AKHS_DronePlayer::DroneMoveDown(const FInputActionValue& Value)
 {
+	//카메라쉐이크 재생
+	PlayDroneCameraShake();
+
 	float DownValue = Value.Get<float>();
 	DroneAcceleration.Z -= DownValue * DroneAccelerateRate;
 }
 
 #pragma endregion
+
+void AKHS_DronePlayer::PlayDroneCameraShake()
+{
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc && DroneCameraShake)
+	{
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
+	}
+}
