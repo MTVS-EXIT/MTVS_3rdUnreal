@@ -14,4 +14,16 @@ class MTVS_3RDUNREAL_API UKHS_DroneAIVisionUI : public UUserWidget
 {
 	GENERATED_BODY()
 	
+
+public:
+	
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* PercentText;
+
+	void SetPercentBlock();
+
+	float CurrentTime = 0;
+
 };
