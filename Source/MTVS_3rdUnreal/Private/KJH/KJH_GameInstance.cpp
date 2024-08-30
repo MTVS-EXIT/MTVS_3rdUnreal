@@ -61,6 +61,12 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 
 	// 내가 설정한 맵으로 listen 서버를 열어준다.
 	GetWorld()->ServerTravel("/Game/MAPS/KJH/KJH_TestMap?listen");
+
+	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
+	if (ServerUI)
+	{
+		ServerUI->Teardown();
+	}
 }
 
 
@@ -99,7 +105,6 @@ void UKJH_GameInstance::Host()
 	if (SessionInterface.IsValid())
 	{
 		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME); // 현재 세션 정보 얻기
-		check(ExistingSession);
 		if (ExistingSession) // 만약, 현재 세션이 존재하면
 		{
 			SessionInterface->DestroySession(SESSION_NAME); // 기존에 명명된 세션을 파괴
@@ -149,28 +154,10 @@ void UKJH_GameInstance::LoadMenu()
 {
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
-	UKJH_UserWidget* ServerUI = CreateWidget<UKJH_UserWidget>(this, ServerUIFactory);
+	ServerUI = CreateWidget<UKJH_MainServerUI>(this, ServerUIFactory);
 
-		// 생성된 ServerUI 가 유효하다면,
-		if (ServerUI)
-		{
-			ServerUI->AddToViewport(); // Viewport 상에 노출
-		}
-
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	check(PlayerController);
-
-	if (PlayerController)
-	{
-	FInputModeUIOnly InputModeData; // UI와 상호작용
-	InputModeData.SetWidgetToFocus(ServerUI->TakeWidget()); // 포커스를 받을 위젯을 설정. 즉, 마우스 입력은 ServerUI 에만 가능함. 다른 곳은 클릭 막음.
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); // 마우스가 Viewport 화면 밖을 벗어날 수 있는가? DoNotLock : 허용
-
-	PlayerController->SetInputMode(InputModeData); // UI 전용 입력 모드 적용. 플레이어는 게임 월드와 상호작용 불가하고 UI하고만 상호작용 할 수 있게함.
-
-	PlayerController -> bShowMouseCursor = true;
+	ServerUI -> Setup();
 
 	ServerUI -> SetMyInterface(this);
 
-	}
 }

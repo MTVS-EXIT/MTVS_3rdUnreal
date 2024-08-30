@@ -9,3 +9,8 @@ void IKJH_Interface::Host()
 {
 
 }
+
+void IKJH_Interface::Join(const FString& Address)
+{
+
+}

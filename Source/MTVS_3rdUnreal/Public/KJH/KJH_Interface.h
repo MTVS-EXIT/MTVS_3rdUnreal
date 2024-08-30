@@ -23,6 +23,8 @@ class MTVS_3RDUNREAL_API IKJH_Interface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void Host() = 0; // = 0 을 하면 비어져 있는 구현을 가지고 있다는 뜻. 실제로는 GameInstance에서 구현해줄거다.
+	virtual void Host() = 0; // = 0 을 하면 비어져 있는 구현을 가지고 있다는 뜻. (순수가상) 실제로는 GameInstance에서 구현해줄거다.
+
+	virtual void Join(const FString& Address) = 0; 
 
 };
