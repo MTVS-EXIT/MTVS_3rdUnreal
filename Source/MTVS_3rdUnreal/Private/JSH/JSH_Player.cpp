@@ -53,8 +53,10 @@ AJSH_Player::AJSH_Player()
 
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(GetMesh(), FName("VB Vhead_root"));
-	SpringArm->SetRelativeLocation(FVector(0, 23.5f, 168));
+	SpringArm->SetupAttachment(GetMesh(), FName("neck_02"));
+	SpringArm->SetRelativeLocation(FVector(10.0f, 23.5f, -2.0f));
+	// SpringArm->SetupAttachment(GetMesh(), FName("VB Vhead_root"));
+	// SpringArm->SetRelativeLocation(FVector(0, 23.5f, 168));
 	// SpringArm->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("pelvis"));
 	SpringArm->TargetArmLength = 0.f; 
 	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
