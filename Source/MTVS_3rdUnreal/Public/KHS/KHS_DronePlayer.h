@@ -31,6 +31,18 @@ public:
 	//인스턴스
 	//==============================================
 
+	//충돌체, 메시, 카메라
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* SphereComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UCameraComponent* CameraComp;
+
+
+
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
 	FVector DroneCurrentSpeed;
@@ -59,6 +71,9 @@ public:
 	class UInputMappingContext* IMC_Drone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+    class UInputAction* IA_DroneLook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     class UInputAction* IA_DroneFwd;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -70,19 +85,50 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_DroneDown;
 
+	//MainUI 인스턴스
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> DroneMainUIFactory;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UUserWidget* DroneMainUI;
+
+	//카메라쉐이크 인스턴스(움직임)
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
+	TSubclassOf<UCameraShakeBase> DroneCameraShake;
+	//쉐이크 주기
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
+	float DroneShakeInterval;
+	//마지막 쉐이크 후 경과시간
+	float TimeSinceLastShake;
+
+	//Hovering 메시 흔들림 변수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float HoverAmplitude; //상하흔들림 진폭(메시가 움직이는 범위)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float HoverFrequency; //상하흔들림 주파수(움직이는 속도)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float RollAmplitude; //좌우회전 진폭
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
+	float RollFrequency; //좌우회전 주파수
+
+	FVector OriginalMeshLocation; //메시 기존위치 저장
+	FRotator OriginalMeshRotation; //메시 기존회전 저장
+
+	//Post Process Radial Blur 강도 결정 변수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
+	class UMaterialParameterCollection* MPC_DroneBlur;
+
 	//==============================================
 	//함수
 	//==============================================
 
 	//드론 이동함수
-	void DroneMoveFwdPressed(const FInputActionValue& Value);
-	void DroneMoveFwdReleased(const FInputActionValue& Value);
-	void DroneMoveRightPressed(const FInputActionValue& Value);
-	void DroneMoveRightReleased(const FInputActionValue& Value);
-	void DroneMoveUpPressed(const FInputActionValue& Value);
-	void DroneMoveUpReleased(const FInputActionValue& Value);
-	void DroneMoveDownPressed(const FInputActionValue& Value);
-	void DroneMoveDownReleased(const FInputActionValue& Value);
+	void DroneLook(const FInputActionValue& Value);
+	void DroneMoveFwd(const FInputActionValue& Value);
+	void DroneMoveRight(const FInputActionValue& Value);
+	void DroneMoveUp(const FInputActionValue& Value);
+	void DroneMoveDown(const FInputActionValue& Value);
 
-
+	//카메라쉐이크 재생함수
+	void PlayDroneCameraShake();
 };

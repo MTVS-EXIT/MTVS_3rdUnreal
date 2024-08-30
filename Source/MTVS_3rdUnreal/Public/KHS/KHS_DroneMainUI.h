@@ -14,4 +14,11 @@ class MTVS_3RDUNREAL_API UKHS_DroneMainUI : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	//드론 고도계 처리
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* HeightText;
+
+
 };
