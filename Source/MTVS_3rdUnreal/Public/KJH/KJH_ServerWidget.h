@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "KJH_Interface.h"
-#include "KJH_UserWidget.generated.h"
+#include "KJH_ServerWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MTVS_3RDUNREAL_API UKJH_UserWidget : public UUserWidget
+class MTVS_3RDUNREAL_API UKJH_ServerWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

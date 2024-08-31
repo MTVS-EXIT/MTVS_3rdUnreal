@@ -53,7 +53,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> ServerUIFactory; // ServerUI 공장
 
-	class UKJH_MainServerUI* ServerUI; // ServerUI 선언
+	class UKJH_ServerWidget* ServerUI; // ServerUI 선언
 
 ////////// 전역 변수 & 인스턴스 구간 -----------------------------------------------------------------------------------------
 

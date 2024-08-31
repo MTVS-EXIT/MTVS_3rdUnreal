@@ -1,52 +1,52 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KJH/KJH_UserWidget.h"
+#include "KJH/KJH_ServerWidget.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Widget.h"
 #include "Components/EditableTextBox.h"
 
-void UKJH_UserWidget::NativeConstruct()
+void UKJH_ServerWidget::NativeConstruct()
 {
 
 }
 
-bool UKJH_UserWidget::Initialize()
+bool UKJH_ServerWidget::Initialize()
 {
 	Super::Initialize();
 
 	if (MainMenu_HostButton)
 	{
-	MainMenu_HostButton->OnClicked.AddDynamic(this, &UKJH_UserWidget::HostServer); // Host 버튼 눌렀을 때 HostServer 함수 호출
+	MainMenu_HostButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::HostServer); // Host 버튼 눌렀을 때 HostServer 함수 호출
 	}
 
 	if (MainMenu_JoinButton)
 	{
-		MainMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_UserWidget::OpenLobbyMenu); // Join 버튼 눌렀을 때 OpenJoinMenu 함수 호출
+		MainMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenLobbyMenu); // Join 버튼 눌렀을 때 OpenJoinMenu 함수 호출
 	}
 
 	if (LobbyMenu_CancelButton)
 	{
-		LobbyMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_UserWidget::OpenMainMenu); // Join 버튼 눌렀을 때 OpenMainMenu 함수 호출
+		LobbyMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenMainMenu); // Join 버튼 눌렀을 때 OpenMainMenu 함수 호출
 	}
 
 	if (LobbyMenu_JoinButton)
 	{
-		LobbyMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_UserWidget::JoinServer); // Join 버튼 눌렀을 때 JoinServer 함수 호출
+		LobbyMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::JoinServer); // Join 버튼 눌렀을 때 JoinServer 함수 호출
 	}
 
 	return true;
 
 }
 
-void UKJH_UserWidget::SetMyInterface(IKJH_Interface* Interface)
+void UKJH_ServerWidget::SetMyInterface(IKJH_Interface* Interface)
 {
 	this -> MyInterface = Interface;
 }
 
 ////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
-void UKJH_UserWidget::HostServer()
+void UKJH_ServerWidget::HostServer()
 {
 	if (MyInterface)
 	{
@@ -55,7 +55,7 @@ void UKJH_UserWidget::HostServer()
 }
 
 ////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
-void UKJH_UserWidget::JoinServer()
+void UKJH_ServerWidget::JoinServer()
 {
 	if (MyInterface)
 	{
@@ -68,7 +68,7 @@ void UKJH_UserWidget::JoinServer()
 }
 
 
-void UKJH_UserWidget::Setup()
+void UKJH_ServerWidget::Setup()
 {
 
 	// UI 가 유효하다면,
@@ -94,7 +94,7 @@ void UKJH_UserWidget::Setup()
 
 }
 
-void UKJH_UserWidget::Teardown() // UI 제거 함수
+void UKJH_ServerWidget::Teardown() // UI 제거 함수
 {
 	this -> RemoveFromParent(); // Viewport 상에 UI를 제거
 
@@ -110,7 +110,7 @@ void UKJH_UserWidget::Teardown() // UI 제거 함수
 	}
 }
 
-void UKJH_UserWidget::OpenLobbyMenu()
+void UKJH_ServerWidget::OpenLobbyMenu()
 {
 	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
 	if (MenuSwitcher)
@@ -120,7 +120,7 @@ void UKJH_UserWidget::OpenLobbyMenu()
 	}
 }
 
-void UKJH_UserWidget::OpenMainMenu()
+void UKJH_ServerWidget::OpenMainMenu()
 {
 	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
 	if (MenuSwitcher)
