@@ -46,14 +46,22 @@ public:
 	void CreateSession(); // 세션을 만드는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu(); // 서버 접속 UI를 불러오는 함수
+	void LoadMenu(); // 시작화면 UI를 불러오는 함수
 
+	UFUNCTION(BlueprintCallable)
+	void LoadInGameMenu(); // 인게임 UI를 불러오는 함수
+
+	UFUNCTION(BlueprintCallable)
+	void LoadServerMenuMap(); // 인게임 UI를 불러오는 함수
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUserWidget> ServerUIFactory; // ServerUI 공장
+	TSubclassOf<class UUserWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
+	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 선언
 
-	class UKJH_ServerWidget* ServerUI; // ServerUI 선언
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
+	class UKJH_WidgetSystem* InGameWidget; // InGameWidget(UI) 선언
 
 ////////// 전역 변수 & 인스턴스 구간 -----------------------------------------------------------------------------------------
 

@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Widget.h"
+#include "KJH/KJH_WidgetSystem.h"
 #include "Components/EditableTextBox.h"
 
 void UKJH_ServerWidget::NativeConstruct()
@@ -16,6 +17,7 @@ bool UKJH_ServerWidget::Initialize()
 {
 	Super::Initialize();
 
+////////// 메인메뉴 버튼 바인딩 구간 ----------------------------------------------------------------------------------------------------------------
 	if (MainMenu_HostButton)
 	{
 	MainMenu_HostButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::HostServer); // Host 버튼 눌렀을 때 HostServer 함수 호출
@@ -26,87 +28,46 @@ bool UKJH_ServerWidget::Initialize()
 		MainMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenLobbyMenu); // Join 버튼 눌렀을 때 OpenJoinMenu 함수 호출
 	}
 
-	if (LobbyMenu_CancelButton)
+	if (MainMenu_QuitButton)
 	{
-		LobbyMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenMainMenu); // Join 버튼 눌렀을 때 OpenMainMenu 함수 호출
+		MainMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::QuitPressed); // Quit 버튼 눌렀을 때 QuitPressed 함수 호출
 	}
 
+////////// 로비메뉴 버튼 바인딩 구간 ----------------------------------------------------------------------------------------------------------------
 	if (LobbyMenu_JoinButton)
 	{
 		LobbyMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::JoinServer); // Join 버튼 눌렀을 때 JoinServer 함수 호출
 	}
 
+	if (LobbyMenu_CancelButton)
+	{
+		LobbyMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenMainMenu); // Cancel 버튼 눌렀을 때 OpenMainMenu 함수 호출
+	}
+
+
+
 	return true;
 
-}
-
-void UKJH_ServerWidget::SetMyInterface(IKJH_Interface* Interface)
-{
-	this -> MyInterface = Interface;
 }
 
 ////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
 void UKJH_ServerWidget::HostServer()
 {
-	if (MyInterface)
+	if (MenuInterface)
 	{
-		MyInterface->Host();
+		MenuInterface->Host();
 	}
 }
 
-////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
 void UKJH_ServerWidget::JoinServer()
 {
-	if (MyInterface)
+	if (MenuInterface)
 	{
 		if (IPAddressField)
 		{
 			const FString& Address = IPAddressField->GetText().ToString();
-			MyInterface->Join(Address);
+			MenuInterface->Join(Address);
 		}
-	}
-}
-
-
-void UKJH_ServerWidget::Setup()
-{
-
-	// UI 가 유효하다면,
-	if (this)
-	{
-		this->AddToViewport(); // Viewport 상에 UI를 노출
-	}
-
-	UWorld* World = GetWorld();
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	check(PlayerController);
-
-	if (PlayerController)
-	{
-		FInputModeUIOnly InputUIModeData; // UI와 상호작용을 할 수 있는 입력모드를 'InputUIModeData'란 이름으로 설정
-
-		InputUIModeData.SetWidgetToFocus(this->TakeWidget()); // 포커스를 받을 위젯을 설정. 즉, 마우스 입력은 ServerUI 에만 가능함. 다른 곳은 클릭 막음.
-		InputUIModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); // 마우스가 Viewport 화면 밖을 벗어날 수 있는가? DoNotLock : 허용
-
-		PlayerController->SetInputMode(InputUIModeData); // UI 전용 입력 모드 적용. 플레이어는 게임 월드와 상호작용 불가하고 UI하고만 상호작용 할 수 있게함.
-		PlayerController->bShowMouseCursor = true; // 마우스 커서를 보이게 함.
-	}
-
-}
-
-void UKJH_ServerWidget::Teardown() // UI 제거 함수
-{
-	this -> RemoveFromParent(); // Viewport 상에 UI를 제거
-
-	UWorld* World = GetWorld();
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-
-	if (PlayerController)
-	{
-		FInputModeGameOnly InputGameModeData; // Game과 상호작용을 할 수 있는 입력모드를 'InputGameModeData'란 이름으로 설정
-
-		PlayerController->SetInputMode(InputGameModeData); // 입력 모드를 게임 모드로 설정
-		PlayerController->bShowMouseCursor = false; // 마우스 커서를 보이게 하지 않음.
 	}
 }
 
@@ -127,4 +88,12 @@ void UKJH_ServerWidget::OpenMainMenu()
 	{
 		MenuSwitcher->SetActiveWidget(MainMenu); // MainMenu로 전환하여 활성화한다.
 	}
+}
+
+void UKJH_ServerWidget::QuitPressed()
+{
+	UWorld* World = GetWorld();
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+
+	PlayerController->ConsoleCommand("quit"); // 게임을 종료시킨다.
 }

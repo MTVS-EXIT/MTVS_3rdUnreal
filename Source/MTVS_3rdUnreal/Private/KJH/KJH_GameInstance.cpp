@@ -8,6 +8,8 @@
 #include "Blueprint/UserWidget.h"
 #include "KJH/KJH_Interface.h"
 #include "KJH/KJH_ServerWidget.h"
+#include "KJH/KJH_InGameWidget.h"
+#include "KJH/KJH_WidgetSystem.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -62,11 +64,11 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	// 내가 설정한 맵으로 listen 서버를 열어준다.
 	GetWorld()->ServerTravel("/Game/MAPS/KJH/KJH_TestMap?listen");
 
-	//// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
-	//if (ServerUI)
-	//{
-	//	ServerUI->Teardown();
-	//}
+	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
+	if (ServerWidget)
+	{
+		ServerWidget->Teardown();
+	}
 }
 
 
@@ -154,10 +156,32 @@ void UKJH_GameInstance::LoadMenu()
 {
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
-	ServerUI = CreateWidget<UKJH_ServerWidget>(this, ServerUIFactory);
+	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
 
-	ServerUI -> Setup();
+	ServerWidget -> SetMyInterface(this);
+	ServerWidget -> Setup();
 
-	ServerUI -> SetMyInterface(this);
 
+}
+
+void UKJH_GameInstance::LoadInGameMenu()
+{
+
+	// ServerUIFactory를 통해 ServerUI 위젯 생성
+	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
+
+	InGameWidget->SetMyInterface(this);
+	InGameWidget->Setup();
+
+}
+
+void UKJH_GameInstance::LoadServerMenuMap()
+{
+	// 플레이어의 첫번째 컨트롤러를 가져온다.
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (PlayerController) // 컨트롤러가 있으면,
+	{
+		// ServerUI가 있는 맵으로 이동시킨다.
+		PlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap.ServerWidgetMap", ETravelType::TRAVEL_Absolute);
+	}
 }
