@@ -27,5 +27,6 @@ public:
 
 	virtual void Join(const FString& Address) = 0; // 위와 같은 로직
 	virtual void LoadServerMenuMap() = 0; // 위와 같은 로직
+	virtual void RefreshServerList() = 0; // 위와 같은 로직
 
 };

@@ -46,13 +46,17 @@ public:
 	void CreateSession(); // 세션을 만드는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu(); // 시작화면 UI를 불러오는 함수
+	void LoadStartMenu(); // 시작화면 UI를 불러오는 함수
+
+	UFUNCTION()
+	void RefreshServerList();
 
 	UFUNCTION(BlueprintCallable)
 	void LoadInGameMenu(); // 인게임 UI를 불러오는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void LoadServerMenuMap(); // 인게임 UI를 불러오는 함수
+	void LoadServerMenuMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
+
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere)

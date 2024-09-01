@@ -7,8 +7,12 @@
 #include "Components/Widget.h"
 #include "KJH/KJH_WidgetSystem.h"
 #include "Components/EditableTextBox.h"
+#include "UObject/ConstructorHelpers.h"
+#include "KJH/KJH_ServerRow.h"
+#include "Components/TextBlock.h"
 
-void UKJH_ServerWidget::NativeConstruct()
+ ////////// 생성자 구간 ----------------------------------------------------------------------------------------------------------------------------
+UKJH_ServerWidget::UKJH_ServerWidget(const FObjectInitializer& ObjectInitialize)
 {
 
 }
@@ -59,15 +63,41 @@ void UKJH_ServerWidget::HostServer()
 	}
 }
 
+void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
+{
+	ServerList->ClearChildren();
+
+	uint32 i = 0;
+	for (const FString& ServerName : ServerNames)
+	{
+	// ServerRowFactory를 통해 ServerRowUI 위젯 생성
+	ServerRow = CreateWidget<UKJH_ServerRow>(this, ServerRowFactory);
+
+	// 텍스트의 이름을 설정
+	ServerRow->ServerName->SetText(FText::FromString(ServerName));
+	ServerRow->Setup(this, i);
+	++i;
+
+	// 버튼 누를 시, 서버목록 생성
+	ServerList->AddChild(ServerRow);
+	}
+
+}
+
+void UKJH_ServerWidget::SelecetIndex(uint32 Index)
+{
+	SelectedIndex = Index;
+}
+
 void UKJH_ServerWidget::JoinServer()
 {
 	if (MenuInterface)
 	{
-		if (IPAddressField)
-		{
-			const FString& Address = IPAddressField->GetText().ToString();
-			MenuInterface->Join(Address);
-		}
+		//if (IPAddressField)
+		//{
+		//	const FString& Address = IPAddressField->GetText().ToString();
+			MenuInterface->Join("");
+
 	}
 }
 
@@ -78,6 +108,12 @@ void UKJH_ServerWidget::OpenLobbyMenu()
 	{
 		MenuSwitcher->SetActiveWidget(LobbyMenu); // LobbyMenu로 전환하여 활성화한다.
 		UE_LOG(LogTemp, Warning, TEXT("LobbyMenu is Activate"));
+
+		if (MenuInterface)
+		{
+			MenuInterface->RefreshServerList();
+
+		}
 	}
 }
 

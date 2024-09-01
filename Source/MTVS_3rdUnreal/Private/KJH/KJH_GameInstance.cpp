@@ -35,18 +35,6 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnFindSessionComplete);
 
-			SessionSearch = MakeShareable(new FOnlineSessionSearch());
-
-			if (SessionSearch.IsValid())
-			{
-
-			SessionSearch->bIsLanQuery = true;
-			
-			SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-			// ToSharedRef -> TSharedPtr 을 항상 유효하게 바꿔주는 메서드. TSharedptr 은 Null일 수도 있는데, 
-			// FindSession이란 메서드는 Null이면 위험하니까 애초에 유효한 녀석만 넣게 요청한다. 그래서 우리가 항상 유효하게 ToSharedRef로 변환해줘야한다.
-			}
-
 		}
 	}
 }
@@ -82,16 +70,35 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 }
 
 
+void UKJH_GameInstance::RefreshServerList()
+{
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+	if (SessionSearch.IsValid())
+	{
+		SessionSearch->bIsLanQuery = true;
+		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+		// ToSharedRef -> TSharedPtr 을 항상 유효하게 바꿔주는 메서드. TSharedptr 은 Null일 수도 있는데, 
+		// FindSession이란 메서드는 Null이면 위험하니까 애초에 유효한 녀석만 넣게 요청한다. 
+		// 그래서 우리가 항상 유효하게 ToSharedRef로 변환해줘야한다.
+	}
+}
+
 void UKJH_GameInstance::OnFindSessionComplete( bool Success)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
-	if (Success && SessionSearch.IsValid())
+	if (Success && SessionSearch.IsValid() && ServerWidget != nullptr)
 	{
-		for (auto& SearchResult : SessionSearch->SearchResults)
+		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+
+		TArray<FString> ServerNames;
+		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Names : %s"), *SearchResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found Session Names S: %s"), *SearchResult.GetSessionIdStr());
+			ServerNames.Add(SearchResult.GetSessionIdStr());
 		}
+
+		ServerWidget -> SetServerList(ServerNames);
 	}
 }
 
@@ -123,6 +130,12 @@ void UKJH_GameInstance::Host()
 // 서버 접속 함수
 void UKJH_GameInstance::Join(const FString& Address)
 {
+
+
+	if (ServerWidget)
+	{
+		ServerWidget->SetServerList({ "Project Exit", "Test2" });
+	}
 	GEngine->AddOnScreenDebugMessage(0, 10, FColor::Green, FString::Printf(TEXT("Joining %s"), *Address));
 
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
@@ -152,7 +165,7 @@ void UKJH_GameInstance::CreateSession()
 }
 
 // UI 함수 (테스트용)
-void UKJH_GameInstance::LoadMenu()
+void UKJH_GameInstance::LoadStartMenu()
 {
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
@@ -163,6 +176,7 @@ void UKJH_GameInstance::LoadMenu()
 
 
 }
+
 
 void UKJH_GameInstance::LoadInGameMenu()
 {
