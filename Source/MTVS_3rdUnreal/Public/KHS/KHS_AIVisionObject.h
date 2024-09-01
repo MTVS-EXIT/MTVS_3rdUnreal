@@ -27,6 +27,9 @@ public:
 	class USphereComponent* SphereComp;
 
 	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(EditDefaultsOnly)
 	class UWidgetComponent* WidgetComp;
 
 };

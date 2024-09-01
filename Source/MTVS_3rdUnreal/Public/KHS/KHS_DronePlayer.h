@@ -120,6 +120,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
 	class UMaterialParameterCollection* MPC_DroneBlur;
 
+	//감지된 Actors를 추적하기 위한 TSet
+	TSet<class AKHS_AIVisionObject*> DetectedAIVisionObjects;
+
+	//현재 감지할 태그 저장변수
+	FString CurrentTag;
+
+	//태그가 설정되었는지 여부
+	bool bIsTagSet;
+
+	//태그를 사용하여 감지 중인지 여부
+	bool bIsCurrentlyDetecting;
 
 	//==============================================
 	//함수
@@ -147,4 +158,9 @@ public:
 	// 로컬 플레이어가 제어 중인지 체크
 	bool IsLocallyControlled() const;
 
+	// 감지된 액터를 주기적으로 확인하는 함수
+	//void PeriodicallyCheckVision();
+
+	//태그를 전달받아 Actor를 검사할 함수
+	void CheckVisionForTag(FString Tag);
 };

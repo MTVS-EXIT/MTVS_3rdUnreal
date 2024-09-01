@@ -16,6 +16,8 @@ AKHS_AIVisionObject::AKHS_AIVisionObject()
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SetRootComponent(SphereComp);
 
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetupAttachment(RootComponent);
 
 	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
 	WidgetComp->SetupAttachment(RootComponent);
@@ -36,8 +38,10 @@ void AKHS_AIVisionObject::BeginPlay()
 		{
 			// UserWidget을 통해 원하는 작업 수행
 			UserWidget->SetVisibility(ESlateVisibility::Visible);
+			WidgetComp->SetVisibility(false);
 		}
 	}
+
 }
 
 // Called every frame
