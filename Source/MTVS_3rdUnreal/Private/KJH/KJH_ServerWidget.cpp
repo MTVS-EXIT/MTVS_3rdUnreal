@@ -91,13 +91,17 @@ void UKJH_ServerWidget::SelecetIndex(uint32 Index)
 
 void UKJH_ServerWidget::JoinServer()
 {
-	if (MenuInterface)
+	if (SelectedIndex.IsSet() && MenuInterface != nullptr)
 	{
-		//if (IPAddressField)
-		//{
-		//	const FString& Address = IPAddressField->GetText().ToString();
-			MenuInterface->Join("");
+		MenuInterface->Join(SelectedIndex.GetValue());
+		UE_LOG(LogTemp, Warning, TEXT("Selected Index is %d."), SelectedIndex.GetValue());
 
+
+	}
+
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Selected Index not set"));
 	}
 }
 

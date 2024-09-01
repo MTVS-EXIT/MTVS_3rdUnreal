@@ -28,13 +28,12 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 		
 		// 만약, 세션 인터페이스가 유효하다면,
 		if (SessionInterface.IsValid())
-		{
+		{									// 1번은 예를 들어, CreateSession의 정보값을 받아서 OnCreateSessionComplete 함수 실행한다는 뜻. 
+											// (Enhanced Input 처럼 바인딩한다고 생각하면 쉽다. 나머지도 비슷하게 바인딩.
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnCreateSessionComplete);
-																// CreateSession의 정보값을 받아서 OnCreateSessionComplete 함수 실행
-
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnFindSessionComplete);
-
+			SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnJoinSessionComplete);
 		}
 	}
 }
@@ -76,7 +75,8 @@ void UKJH_GameInstance::RefreshServerList()
 
 	if (SessionSearch.IsValid())
 	{
-		SessionSearch->bIsLanQuery = true;
+		SessionSearch->bIsLanQuery = true; // true 시 같은 네트워크에 있는 사람을 찾음 (로컬) / false 시 다른 네트워크와도 연결됨 (공식플랫폼 호스팅 등)
+
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 		// ToSharedRef -> TSharedPtr 을 항상 유효하게 바꿔주는 메서드. TSharedptr 은 Null일 수도 있는데, 
 		// FindSession이란 메서드는 Null이면 위험하니까 애초에 유효한 녀석만 넣게 요청한다. 
@@ -102,6 +102,32 @@ void UKJH_GameInstance::OnFindSessionComplete( bool Success)
 	}
 }
 
+// 세션에 들어올 경우 호출되는 함수
+void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+
+	FString Address;
+
+	if (SessionInterface.IsValid())
+	{
+		if (!SessionInterface->GetResolvedConnectString(SessionName, Address))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Could Not Get Connect String"));
+			return;
+		}
+	}
+
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	
+	if (PlayerController)
+	{
+		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+													// 해당 옵션은 절대 경로를 사용하여 이동하는 것을 의미
+													// 즉, 클라이언트를 명시된 정확한 맵이나 서버로 이동시킨다. 
+													// 이 옵션을 사용할 때는 URL이 완전히 지정되어야 한다.
+	}
+}
+
 ////////// 델리게이트 바인딩 함수 구간 종료 ------------------------------------------------------------------------------
 
 
@@ -113,39 +139,44 @@ void UKJH_GameInstance::Host()
 	// 만약, 세션 인터페이스가 유효하다면,
 	if (SessionInterface.IsValid())
 	{
-		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME); // 현재 세션 정보 얻기
-		if (ExistingSession) // 만약, 현재 세션이 존재하면
+		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);  // 현재 세션 정보 얻기
+		if (ExistingSession) // 세션이 이미 존재한다면
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Existing session found. Destroying the session..."));
 			SessionInterface->DestroySession(SESSION_NAME); // 기존에 명명된 세션을 파괴
 															// 실행되면 'DestroySession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.
 		}
 
-		else // 만약, 현재 세션이 없다면,
+		else // 세션이 없을 경우
 		{
-			CreateSession(); // 세션을 만든다.
+			UE_LOG(LogTemp, Warning, TEXT("No existing session found. Creating a new session..."));
+			CreateSession(); // 새로운 세션 생성
 		}
 	}
 }
 
 // 서버 접속 함수
-void UKJH_GameInstance::Join(const FString& Address)
+void UKJH_GameInstance::Join(uint32 Index)
 {
+	// SessionInterface 또는 SessionSearch가 유효하지 않다면, return
+	if (!SessionInterface.IsValid() || !SessionSearch.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SessionInterface or SessionSearch is not valid."));
+		return;
+	}
 
+	if (SessionInterface->GetNamedSession(SESSION_NAME)) // 이미 세션에 접속되어 있는지 확인
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Already connected to a session. Cannot join again."));
+		return; // 이미 접속된 세션이 있다면 다시 접속하지 않도록 방지
+	}
 
 	if (ServerWidget)
 	{
-		ServerWidget->SetServerList({ "Project Exit", "Test2" });
+		ServerWidget->Teardown();
 	}
-	GEngine->AddOnScreenDebugMessage(0, 10, FColor::Green, FString::Printf(TEXT("Joining %s"), *Address));
 
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (PlayerController)
-	{
-		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-													// 해당 옵션은 절대 경로를 사용하여 이동하는 것을 의미
-													// 즉, 클라이언트를 명시된 정확한 맵이나 서버로 이동시킨다. 
-													// 이 옵션을 사용할 때는 URL이 완전히 지정되어야 한다.
-	}
+	SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
 }
 
 // 세션 생성 함수

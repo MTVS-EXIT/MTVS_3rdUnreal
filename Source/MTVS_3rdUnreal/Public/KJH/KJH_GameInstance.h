@@ -34,13 +34,14 @@ public:
 	void OnFindSessionComplete(bool Success); // 세션 찾기 완료 시 호출될 함수. Success 인자만 있으면 된다.
 											  // 발견된 세션 목록은 SeesionSearch TSharedRef 포인터에 있기 때문이다.
 
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 ////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------
 	UFUNCTION(Exec) // Exec: 콘솔창에 입력할 수 있도록 만든다.
 	void Host(); // 서버 열기 함수
 
 	UFUNCTION(Exec)
-	void Join(const FString& Address); // 서버 접속 함수
+	void Join(uint32 Index); // 서버 접속 함수
 
 	UFUNCTION()
 	void CreateSession(); // 세션을 만드는 함수
@@ -71,6 +72,4 @@ public:
 
 	IOnlineSessionPtr SessionInterface; // 세션 인터페이스를 전역인수로 선언
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch; // 온라인 세션 검색을 할 수 있는 클래스 인스턴스 선언
-	
-
 };

@@ -10,7 +10,7 @@ void IKJH_Interface::Host()
 
 }
 
-void IKJH_Interface::Join(const FString& Address)
+void IKJH_Interface::Join(uint32 Index)
 {
 
 }

@@ -25,7 +25,7 @@ public:
 
 	virtual void Host() = 0; // = 0 을 하면 비어져 있는 구현을 가지고 있다는 뜻. (순수가상) 실제로는 GameInstance에서 구현해줄거다.
 
-	virtual void Join(const FString& Address) = 0; // 위와 같은 로직
+	virtual void Join(uint32 Index) = 0; // 위와 같은 로직
 	virtual void LoadServerMenuMap() = 0; // 위와 같은 로직
 	virtual void RefreshServerList() = 0; // 위와 같은 로직
 
