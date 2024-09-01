@@ -13,6 +13,7 @@
 #include "Components/TextBlock.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
+#include "Net/VoiceConfig.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -38,6 +39,9 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 		MeshComp->SetRelativeLocationAndRotation(FVector(-10, -2, -10), FRotator(0, -90, 0));
 		MeshComp->SetRelativeScale3D(FVector(0.15f));
 	}
+
+	// VOIP Talker 컴포넌트를 생성하고, VOIPTalkerComponent 포인터에 할당합니다.
+	VOIPTalkerComp = CreateDefaultSubobject<UVOIPTalker>(TEXT("VOIPTalkerComp"));
 
 	//카메라쉐이크 스탯
 	DroneShakeInterval = 0.5f;  //0.5초마다 카메라쉐이크
@@ -87,7 +91,8 @@ void AKHS_DronePlayer::BeginPlay()
 	//Post Process Radial Blur 강도 결정 변수
 	MPC_DroneBlur = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Script/Engine.MaterialParameterCollection'/Game/Blueprints/UI/KHS/MPC_DroneBlur.MPC_DroneBlur'"));
 
-
+	// VOIP 초기화 작업 호출
+	InitializeVOIP();
 }
 
 // Called every frame
@@ -260,3 +265,56 @@ void AKHS_DronePlayer::PlayDroneCameraShake()
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
 }
+
+#pragma region VOIP Talker Setting
+
+//마이크 임계값 설정
+void AKHS_DronePlayer::SetMicThreshold(float Threshold)
+{
+	if (VOIPTalkerComp)
+	{
+		UVOIPStatics::SetMicThreshold(Threshold);
+	}
+}
+//플레이어 State 등록
+void AKHS_DronePlayer::RegisterWithPlayerState()
+{
+	if (VOIPTalkerComp && GetPlayerState())
+	{
+		VOIPTalkerComp->RegisterWithPlayerState(GetPlayerState());
+	}
+}
+//로컬 플레이어가 제어중인지 체크
+bool AKHS_DronePlayer::IsLocallyControlled() const
+{
+	return IsPlayerControlled();
+}
+//VOIP관련 초기화 작업
+void AKHS_DronePlayer::InitializeVOIP()
+{
+	if (VOIPTalkerComp)
+	{
+		// VOIPTalkerComponent가 유효한지 확인
+		if (IsValid(VOIPTalkerComp))
+		{
+			// 플레이어 상태에 VOIPTalker를 등록
+			RegisterWithPlayerState();
+
+			// 마이크 임계값을 설정
+			SetMicThreshold(-1.0f);
+
+			// 로컬 플레이어가 제어 중일 때만 VOIP 관련 설정을 진행
+			if (IsLocallyControlled())
+			{
+				// 콘솔 명령을 실행하여 VOIP를 활성화
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				if (PlayerController)
+				{
+					PlayerController->ConsoleCommand("OSS.VoiceLoopback 1");
+				}
+			}
+		}
+	}
+}
+
+#pragma endregion

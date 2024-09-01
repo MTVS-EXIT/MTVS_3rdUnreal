@@ -32,7 +32,7 @@ public:
 	//==============================================
 
 	//충돌체, 메시, 카메라
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USphereComponent* SphereComp;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -41,7 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCameraComponent* CameraComp;
 
-
+	// VOIP Talker 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voice Chat", meta = (AllowPrivateAccess = "true"))
+	class UVOIPTalker* VOIPTalkerComp;
 
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
@@ -118,6 +120,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
 	class UMaterialParameterCollection* MPC_DroneBlur;
 
+
 	//==============================================
 	//함수
 	//==============================================
@@ -131,4 +134,17 @@ public:
 
 	//카메라쉐이크 재생함수
 	void PlayDroneCameraShake();
+
+	// VOIP 관련 초기화 작업을 수행
+	void InitializeVOIP();
+
+	// 마이크 임계값을 설정
+	void SetMicThreshold(float Threshold);
+
+	// 플레이어 상태에 등록
+	void RegisterWithPlayerState();
+
+	// 로컬 플레이어가 제어 중인지 체크
+	bool IsLocallyControlled() const;
+
 };
