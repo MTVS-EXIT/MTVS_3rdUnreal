@@ -2,14 +2,15 @@
 
 
 #include "KJH/KJH_GameInstance.h"
-#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
-#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSessionSettings.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "KJH/KJH_Interface.h"
 #include "KJH/KJH_ServerWidget.h"
 #include "KJH/KJH_InGameWidget.h"
 #include "KJH/KJH_WidgetSystem.h"
+#include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -75,7 +76,9 @@ void UKJH_GameInstance::RefreshServerList()
 
 	if (SessionSearch.IsValid())
 	{
-		SessionSearch->bIsLanQuery = true; // true 시 같은 네트워크에 있는 사람을 찾음 (로컬) / false 시 다른 네트워크와도 연결됨 (공식플랫폼 호스팅 등)
+		//SessionSearch->bIsLanQuery = true; // LAN 사용 여부, true 면 LAN 세션을 찾고 false 면 인터넷 세션을 찾음.
+		SessionSearch->MaxSearchResults = 100;
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 		// ToSharedRef -> TSharedPtr 을 항상 유효하게 바꿔주는 메서드. TSharedptr 은 Null일 수도 있는데, 
@@ -185,9 +188,11 @@ void UKJH_GameInstance::CreateSession()
 	if (SessionInterface.IsValid())
 	{
 		FOnlineSessionSettings SessionSettings; // CreateSession을 위해 임의로 세션세팅을 만들어준다.
-		SessionSettings.bIsLANMatch = true ; // 로컬에서 찾을 것인가?
+		SessionSettings.bIsLANMatch = false ; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
+											 // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
 		SessionSettings.NumPublicConnections = 5; // 플레이어 수
-		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고함'
+		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
+		SessionSettings.bUsesPresence = true;
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
 																		   // 실행되면 'CreateSession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.
