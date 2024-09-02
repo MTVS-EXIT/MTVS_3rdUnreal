@@ -23,7 +23,31 @@
 			]
 		},
 		{
-			"Name": "RigLogic",
+			"Name": "MotionTrajectory",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationLocomotionLibrary",
+			"Enabled": true
+		},
+		{
+			"Name": "PoseSearch",
+			"Enabled": true
+		},
+		{
+			"Name": "Chooser",
+			"Enabled": true
+		},
+		{
+			"Name": "DeformerGraph",
 			"Enabled": true
 		},
 		{
@@ -31,22 +55,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "LiveLinkControlRig",
-			"Enabled": true
-		},
-		{
-			"Name": "AppleARKitFaceSupport",
-			"Enabled": true,
-			"SupportedTargetPlatforms": [
-				"IOS",
-				"Win64",
-				"Mac",
-				"Linux",
-				"Android"
-			]
-		},
-		{
-			"Name": "HairStrands",
+			"Name": "RigLogic",
 			"Enabled": true
 		}
 	]
