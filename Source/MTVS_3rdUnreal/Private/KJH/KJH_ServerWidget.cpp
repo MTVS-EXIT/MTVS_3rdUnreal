@@ -87,6 +87,7 @@ void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
 void UKJH_ServerWidget::SelecetIndex(uint32 Index)
 {
 	SelectedIndex = Index;
+	UpdateChildren();
 }
 
 void UKJH_ServerWidget::JoinServer()
@@ -136,4 +137,16 @@ void UKJH_ServerWidget::QuitPressed()
 	APlayerController* PlayerController = World->GetFirstPlayerController();
 
 	PlayerController->ConsoleCommand("quit"); // 게임을 종료시킨다.
+}
+
+void UKJH_ServerWidget::UpdateChildren()
+{
+	for (int32 i = 0; i < ServerList->GetChildrenCount(); ++i)
+	{
+		UKJH_ServerRow* Row = Cast<UKJH_ServerRow>(ServerList -> GetChildAt(i));
+		if (Row)
+		{
+			Row->Selected = (SelectedIndex.IsSet() && SelectedIndex.GetValue( )== i);
+		}
+	}
 }

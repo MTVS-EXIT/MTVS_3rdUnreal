@@ -7,6 +7,17 @@
 #include "KJH_Interface.h"
 #include "KJH_ServerWidget.generated.h"
 
+USTRUCT()
+struct FServerData
+{
+	GENERATED_BODY()
+
+	FString Name;
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUserName;
+};
+
 /**
  * 
  */
@@ -84,5 +95,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void QuitPressed(); // 게임을 종료하는 함수
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateChildren(); // 
 
 };

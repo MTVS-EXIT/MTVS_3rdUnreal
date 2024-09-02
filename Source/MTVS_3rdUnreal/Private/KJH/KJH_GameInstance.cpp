@@ -95,6 +95,10 @@ void UKJH_GameInstance::OnFindSessionComplete( bool Success)
 		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
 		TArray<FString> ServerNames;
+		//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
+		//ServerNames.Add("Test Servr2");
+		//ServerNames.Add("Test Servr3");
+
 		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Found Session Names S: %s"), *SearchResult.GetSessionIdStr());
@@ -188,8 +192,16 @@ void UKJH_GameInstance::CreateSession()
 	if (SessionInterface.IsValid())
 	{
 		FOnlineSessionSettings SessionSettings; // CreateSession을 위해 임의로 세션세팅을 만들어준다.
-		SessionSettings.bIsLANMatch = false ; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
-											 // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
+		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem 이 NULL 로 세팅되면 (NULL : 로컬 연결 설정)
+		{
+			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
+		}
+
+		else
+		{
+			SessionSettings.bIsLANMatch = false; // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
+		}
+
 		SessionSettings.NumPublicConnections = 5; // 플레이어 수
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
 		SessionSettings.bUsesPresence = true;

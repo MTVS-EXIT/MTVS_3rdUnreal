@@ -1,11 +1,11 @@
-"C:\Project\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\UnrealEditor\Inc\AdvancedSteamSessions\UHT\SteamNotificationsSubsystem.gen.cpp"
-/FI"C:\Project\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/FI"C:\Project\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\Definitions.AdvancedSteamSessions.h"
-/Yu"C:\Project\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/Fp"C:\Project\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
-/Fo"C:\Project\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\SteamNotificationsSubsystem.gen.cpp.obj"
-/sourceDependencies "C:\Project\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\SteamNotificationsSubsystem.gen.cpp.dep.json"
-@"C:\Project\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\AdvancedSteamSessions.Shared.rsp"
+"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\UnrealEditor\Inc\AdvancedSteamSessions\UHT\SteamNotificationsSubsystem.gen.cpp"
+/FI"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/FI"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\Definitions.AdvancedSteamSessions.h"
+/Yu"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/Fp"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
+/Fo"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\SteamNotificationsSubsystem.gen.cpp.obj"
+/sourceDependencies "C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\SteamNotificationsSubsystem.gen.cpp.dep.json"
+@"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\AdvancedSteamSessions.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi
