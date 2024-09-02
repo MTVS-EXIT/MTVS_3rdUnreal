@@ -9,11 +9,13 @@
 #include "Camera/CameraShakeBase.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Components/TextBlock.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Net/VoiceConfig.h"
+#include "KHS/KHS_AIVisionObject.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -187,6 +189,19 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 		MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
 	}
 
+	
+
+	// 시야에 있는 특정 태그를 가진 Actor를 감지하고 위젯 컴포넌트를 활성화/비활성화
+	FString DesiredTag = TEXT("Danger");  // 검사할 태그 설정
+	CheckVisionForTag(DesiredTag);
+
+	//// 매 프레임마다 감지된 액터를 체크
+	//if (bIsCurrentlyDetecting)
+	//{
+	//	PeriodicallyCheckVision();
+	//}
+
+
 }
 
 // Called to bind functionality to input
@@ -202,6 +217,15 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneRight, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveRight);
 		input->BindAction(IA_DroneUp, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveUp);
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
+	}
+}
+
+void AKHS_DronePlayer::PlayDroneCameraShake()
+{
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc && DroneCameraShake)
+	{
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
 }
 
@@ -257,15 +281,6 @@ void AKHS_DronePlayer::DroneMoveDown(const FInputActionValue& Value)
 
 #pragma endregion
 
-void AKHS_DronePlayer::PlayDroneCameraShake()
-{
-	APlayerController* pc = Cast<APlayerController>(GetController());
-	if (pc && DroneCameraShake)
-	{
-		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
-	}
-}
-
 #pragma region VOIP Talker Setting
 
 //마이크 임계값 설정
@@ -318,3 +333,198 @@ void AKHS_DronePlayer::InitializeVOIP()
 }
 
 #pragma endregion
+
+
+void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
+{
+	//새로운 태그가 전달되었을 때만 태그를 업데이트하고 감지 시작
+	if (false == Tag.IsEmpty())
+	{
+		CurrentTag = Tag;
+		bIsTagSet = true;
+		bIsCurrentlyDetecting = true;  // 감지 기능 활성화
+	}
+
+	//태그가 설정되지 않았거나 이미 감지 기능이 중지된 경우 함수 종료
+	if (false == bIsTagSet || false == bIsCurrentlyDetecting)
+	{
+		return;
+	}
+
+	// 라인트레이스 범위 내에서 감지된 새로운 액터를 추적할 임시 변수
+	TSet<AKHS_AIVisionObject*> CurrentlyDetectedAIVisionObjects;
+
+	// 카메라 위치와 방향
+	FVector Start = CameraComp->GetComponentLocation();
+	FVector ForwardVector = CameraComp->GetForwardVector();
+
+	// 카메라의 시야각(FOV)을 기준으로 여러 방향으로 라인트레이스 발사
+	float FOV = CameraComp->FieldOfView; // 카메라의 시야각
+	int32 NumRays = 30; // 발사할 라인트레이스의 개수
+	float MaxDistance = 5000.0f; // 라인트레이스의 최대 거리
+
+	bool bAnyActorDetected = false;
+
+	for (int32 i = 0; i < NumRays; i++)
+	{
+		// 시야각 범위 내에서 라인트레이스 방향 계산
+		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
+		FRotator Rotator = FRotator(0, Angle, 0);
+		FVector Direction = Rotator.RotateVector(ForwardVector);
+		FVector End = Start + (Direction * MaxDistance);
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);  // 자신을 무시
+
+		// 라인트레이스 실행
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+		{
+			AActor* HitActor = HitResult.GetActor();
+
+			// 라인트레이스에 맞은 액터가 있는지 확인
+			if (HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
+			{
+				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
+				if (HitAIVisionObject)
+				{
+					// 액터의 태그가 전달받은 태그와 일치하는지 확인
+					if (HitAIVisionObject->ActorHasTag(FName(*CurrentTag)))
+					{
+						// 현재 감지된 액터를 임시 변수에 추가
+						CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
+
+						// 위젯 컴포넌트를 Visible로 설정
+						if (HitAIVisionObject->WidgetComp)
+						{
+							HitAIVisionObject->WidgetComp->SetVisibility(true);
+						}
+
+						// 최소 하나의 액터가 감지됨
+						bAnyActorDetected = true;
+					}
+				}
+			}
+		}
+	}
+
+	// 현재 태그와 일치하는 액터가 감지되지 않은 경우 감지 중지
+	if (!bAnyActorDetected)
+	{
+		bIsCurrentlyDetecting = false;  // 감지 기능 비활성화
+	}
+
+	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 UI를 숨김
+	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
+	{
+		if (!CurrentlyDetectedAIVisionObjects.Contains(DetectedObject))
+		{
+			if (DetectedObject && DetectedObject->WidgetComp)
+			{
+				DetectedObject->WidgetComp->SetVisibility(false);
+			}
+		}
+	}
+
+	// 현재 감지된 액터들로 추적 세트 업데이트
+	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
+}
+
+//void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
+//{
+//	//새로운 태그가 전달되었을 때만 태그를 업데이트하고 감지 시작
+//	if (false == Tag.IsEmpty())
+//	{
+//		CurrentTag = Tag;
+//		bIsTagSet = true;
+//		bIsCurrentlyDetecting = true;  // 감지 기능 활성화
+//	}
+//
+//	//태그가 설정되지 않았거나 이미 감지 기능이 중지된 경우 함수 종료
+//	if (false == bIsTagSet || false == bIsCurrentlyDetecting)
+//	{
+//		return;
+//	}
+//
+//	// 즉시 한번 감지 상태 확인
+//	PeriodicallyCheckVision();
+//}
+//
+//void AKHS_DronePlayer::PeriodicallyCheckVision()
+//{
+//	// 라인트레이스 범위 내에서 감지된 새로운 액터를 추적할 임시 변수
+//	TSet<AKHS_AIVisionObject*> CurrentlyDetectedAIVisionObjects;
+//
+//	// 카메라 위치와 방향
+//	FVector Start = CameraComp->GetComponentLocation();
+//	FVector ForwardVector = CameraComp->GetForwardVector();
+//
+//	// 카메라의 시야각(FOV)을 기준으로 여러 방향으로 라인트레이스 발사
+//	float FOV = CameraComp->FieldOfView; // 카메라의 시야각
+//	int32 NumRays = 30; // 발사할 라인트레이스의 개수
+//	float MaxDistance = 5000.0f; // 라인트레이스의 최대 거리
+//
+//	bool bAnyActorDetected = false;
+//
+//	for (int32 i = 0; i < NumRays; i++)
+//	{
+//		// 시야각 범위 내에서 라인트레이스 방향 계산
+//		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
+//		FRotator Rotator = FRotator(0, Angle, 0);
+//		FVector Direction = Rotator.RotateVector(ForwardVector);
+//		FVector End = Start + (Direction * MaxDistance);
+//		FHitResult HitResult;
+//		FCollisionQueryParams CollisionParams;
+//		CollisionParams.AddIgnoredActor(this);  // 자신을 무시
+//
+//		// 라인트레이스 실행
+//		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+//		{
+//			AActor* HitActor = HitResult.GetActor();
+//
+//			// 라인트레이스에 맞은 액터가 있는지 확인
+//			if (HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
+//			{
+//				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
+//				if (HitAIVisionObject)
+//				{
+//					// 액터의 태그가 전달받은 태그와 일치하는지 확인
+//					if (HitAIVisionObject->ActorHasTag(FName(*CurrentTag)))
+//					{
+//						// 현재 감지된 액터를 임시 변수에 추가
+//						CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
+//
+//						// 위젯 컴포넌트를 Visible로 설정
+//						if (HitAIVisionObject->WidgetComp)
+//						{
+//							HitAIVisionObject->WidgetComp->SetVisibility(true);
+//						}
+//
+//						// 최소 하나의 액터가 감지됨
+//						bAnyActorDetected = true;
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	// 현재 태그와 일치하는 액터가 감지되지 않은 경우 감지 중지
+//	if (!bAnyActorDetected)
+//	{
+//		bIsCurrentlyDetecting = false;  // 감지 기능 비활성화
+//	}
+//
+//	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 UI를 숨김
+//	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
+//	{
+//		if (!CurrentlyDetectedAIVisionObjects.Contains(DetectedObject))
+//		{
+//			if (DetectedObject && DetectedObject->WidgetComp)
+//			{
+//				DetectedObject->WidgetComp->SetVisibility(false);
+//			}
+//		}
+//	}
+//
+//	// 현재 감지된 액터들로 추적 세트 업데이트
+//	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
+//}
