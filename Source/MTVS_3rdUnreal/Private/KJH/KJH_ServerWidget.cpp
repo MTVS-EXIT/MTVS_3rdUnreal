@@ -182,6 +182,10 @@ void UKJH_ServerWidget::SelectPersonCharacter()
 		GameInstance->OnCharacterSelected(true); // Person Player 버튼 선택 시 사람 캐릭터 선택을 게임인스턴스에 알림
 		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
 		UpdateSelectButtonStates();
+
+
+		// 캐릭터 선택 후 UI 제거
+		Teardown(); // UI가 선택 후 사라지도록 처리
 	}
 }
 
@@ -193,6 +197,10 @@ void UKJH_ServerWidget::SelectDroneCharacter()
 		GameInstance->OnCharacterSelected(false); // Drone Player 버튼 선택 시 드론 캐릭터 선택을 게임인스턴스에 알림
 		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
 		UpdateSelectButtonStates();
+
+
+		// 캐릭터 선택 후 UI 제거
+		Teardown(); // UI가 선택 후 사라지도록 처리
 	}
 }
 
