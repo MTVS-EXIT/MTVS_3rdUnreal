@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputLibrary.h"
+#include "Engine/Scene.h"
 #include "KHS_DronePlayer.generated.h"
 
 UCLASS()
@@ -94,6 +95,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UUserWidget* DroneMainUI;
 
+	//AI HUD UI 설정 변수 Set
+
 	//카메라쉐이크 인스턴스(움직임)
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
 	TSubclassOf<UCameraShakeBase> DroneCameraShake;
@@ -117,9 +120,21 @@ public:
 	FRotator OriginalMeshRotation; //메시 기존회전 저장
 
 	//Post Process Radial Blur 강도 결정 변수
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PoProcess")
 	class UMaterialParameterCollection* MPC_DroneBlur;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PoProcess")
+	class UMaterialInterface* RadialBlurMaterial;
+
+	//Post Process Depth Of Field(심도) 결정 변수
+	// 포스트 프로세스 설정
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PoProcess")
+    FPostProcessSettings PostProcessSettings;
+
+    // 현재 초점 거리
+    float FocusDistance;
+
+	//Drone AI Objection 설정 변수 Set
 	//감지된 Actors를 추적하기 위한 TSet
 	TSet<class AKHS_AIVisionObject*> DetectedAIVisionObjects;
 
@@ -145,6 +160,9 @@ public:
 
 	//카메라쉐이크 재생함수
 	void PlayDroneCameraShake();
+
+	//Post Process(Radial Blur, Depth of Field) 설정 함수
+	void SetDronePostProcess();
 
 	// VOIP 관련 초기화 작업을 수행
 	void InitializeVOIP();

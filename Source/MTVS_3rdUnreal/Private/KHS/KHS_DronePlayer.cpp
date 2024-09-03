@@ -12,6 +12,7 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Components/TextBlock.h"
+#include "Materials/MaterialInterface.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Net/VoiceConfig.h"
@@ -90,8 +91,20 @@ void AKHS_DronePlayer::BeginPlay()
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
 	OriginalMeshRotation = MeshComp->GetRelativeRotation();
 
-	//Post Process Radial Blur 강도 결정 변수
-	MPC_DroneBlur = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Script/Engine.MaterialParameterCollection'/Game/Blueprints/UI/KHS/MPC_DroneBlur.MPC_DroneBlur'"));
+
+	// Radial Blur Material을 카메라의 포스트 프로세스에 적용
+	//UMaterialInterface* RadialBlurMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Script/Engine.Material'/Game/Blueprints/UI/KHS/M_DroneCameraBlur.M_DroneCameraBlur'"));
+
+	//if (RadialBlurMaterial)
+	//{
+	//	FWeightedBlendable Blendable;
+	//	Blendable.Object = RadialBlurMaterial;
+	//	Blendable.Weight = 1.0f; // 필요에 따라 조정 가능
+	//	CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
+	//}
+
+	////Post Process Radial Blur 강도 결정 변수
+	//MPC_DroneBlur = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Script/Engine.MaterialParameterCollection'/Game/Blueprints/UI/KHS/MPC_DroneBlur.MPC_DroneBlur'"));
 
 	// VOIP 초기화 작업 호출
 	InitializeVOIP();
@@ -176,18 +189,18 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	//Post Process Radial Blur효과 강도 결정(속도에 따라)
 	// 드론의 현재 속도 계산
 	//float CurrentSpeed = GetVelocity().Size();
-	float CurrentSpeed = DroneCurrentSpeed.Size();
-	GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
+	//float CurrentSpeed = DroneCurrentSpeed.Size();
+	//GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
 
-	// BlurAmount를 속도에 따라 설정
-	float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
+	//// BlurAmount를 속도에 따라 설정
+	//float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
 
-	// Material Parameter Collection에 속도값전달
-	UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
-	if (MaterialParamInstance)
-	{
-		MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
-	}
+	//// Material Parameter Collection에 속도값전달
+	//UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
+	//if (MaterialParamInstance)
+	//{
+	//	MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
+	//}
 
 	
 
@@ -200,6 +213,9 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	//{
 	//	PeriodicallyCheckVision();
 	//}
+
+	//Post Process(Radial Blur, Depth of Field) 설정 함수
+	SetDronePostProcess();
 
 
 }
@@ -219,7 +235,7 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
 	}
 }
-
+//카메라쉐이크 재생함수
 void AKHS_DronePlayer::PlayDroneCameraShake()
 {
 	APlayerController* pc = Cast<APlayerController>(GetController());
@@ -227,6 +243,112 @@ void AKHS_DronePlayer::PlayDroneCameraShake()
 	{
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
+}
+//Post Process(Radial Blur, Depth of Field) 설정 함수
+void AKHS_DronePlayer::SetDronePostProcess()
+{
+	// 라인트레이스 및 초점 거리 계산
+	FVector StartLocation = CameraComp->GetComponentLocation();
+	FVector ForwardVector = CameraComp->GetForwardVector();
+	FVector EndLocation = StartLocation + (ForwardVector * 10000.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+
+	if (bHit)
+	{
+		FocusDistance = FVector::Dist(StartLocation, HitResult.Location);
+	}
+	else
+	{
+		FocusDistance = 10000.0f;
+	}
+
+	
+
+	// Radial Blur Material이 카메라에 적용된 상태인지 확인합니다.
+	if (RadialBlurMaterial && MPC_DroneBlur)
+	{
+		// 드론의 속도에 따라 Radial Blur 설정
+		float CurrentSpeed = DroneCurrentSpeed.Size();
+		float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
+
+		// Material Parameter Collection에 속도 값을 전달
+		UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
+		if (MaterialParamInstance)
+		{
+			MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
+		}
+
+		// Radial Blur을 포스트 프로세스 설정에 반영 
+		PostProcessSettings.bOverride_BloomIntensity = true;
+		PostProcessSettings.BloomIntensity = 1;//SpeedBlurAmount;
+
+		// 포스트 프로세스 설정 업데이트
+		PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+		PostProcessSettings.DepthOfFieldFocalDistance = FocusDistance;
+
+		// Aperture (F-Stop) 값을 설정
+		PostProcessSettings.bOverride_DepthOfFieldFstop = true;
+		PostProcessSettings.DepthOfFieldFstop = 1.0f;  // F-Stop 값 설정
+
+		// Maximum Aperture (Min F-Stop) 값을 설정
+		PostProcessSettings.bOverride_DepthOfFieldMinFstop = true;
+		PostProcessSettings.DepthOfFieldMinFstop = 11.0f;  // Min Aperture 값 설정
+
+		// 드론의 카메라에 포스트 프로세스 설정 적용
+		CameraComp->PostProcessSettings = PostProcessSettings;
+
+		FWeightedBlendable Blendable;
+		Blendable.Object = RadialBlurMaterial;
+		Blendable.Weight = 1.0f; // 필요에 따라 조정 가능
+		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
+
+
+		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
+	}
+
+
+	// Debugging - 속도 정보 출력 
+
+	
+	//// 라인트레이스 및 초점 거리 계산
+	//FVector StartLocation = CameraComp->GetComponentLocation();
+	//FVector ForwardVector = CameraComp->GetForwardVector();
+	//FVector EndLocation = StartLocation + (ForwardVector * 10000.0f);
+
+	//FHitResult HitResult;
+	//FCollisionQueryParams Params;
+	//Params.AddIgnoredActor(this);
+
+	//bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+
+	//if (bHit)
+	//{
+	//	FocusDistance = FVector::Dist(StartLocation, HitResult.Location);
+	//}
+	//else
+	//{
+	//	FocusDistance = 10000.0f;
+	//}
+
+	//// 포스트 프로세스 설정 업데이트
+	//PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+	//PostProcessSettings.DepthOfFieldFocalDistance = FocusDistance;
+
+	//// Aperture (F-Stop) 값을 설정.
+	//PostProcessSettings.bOverride_DepthOfFieldFstop = true;
+	//PostProcessSettings.DepthOfFieldFstop = 1.0f;  // 여기에 원하는 F-Stop 값을 설정
+
+	//// Maximum Aperture (Min F-Stop) 값을 설정
+	//PostProcessSettings.bOverride_DepthOfFieldMinFstop = true;
+	//PostProcessSettings.DepthOfFieldMinFstop = 11.0f;  // 여기에 원하는 Min Aperture 값을 설정
+
+	//// 드론의 카메라에 포스트 프로세스 설정 적용
+	//CameraComp->PostProcessSettings = PostProcessSettings;
 }
 
 #pragma region Drone Move Settings
