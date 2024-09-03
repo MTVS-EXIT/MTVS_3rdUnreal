@@ -58,18 +58,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadServerMenuMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
 
+	// 캐릭터 선택 관련 함수 //
+	UFUNCTION(BlueprintCallable, Category = "Character Selection")
+	void OnCharacterSelected(bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
+
+
+////////// 사용자 정의형 서버 함수 구간 --------------------------------------------------------------------------------
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
-	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 선언
+	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 참조 선언
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
-	class UKJH_WidgetSystem* InGameWidget; // InGameWidget(UI) 선언
+	class UKJH_WidgetSystem* InGameWidget; // InGameWidget(UI) 참조 선언
+
+	class AKJH_PlayerState* PlayerState; // PlayerState 참조 선언
+
+	class AKJH_GameModeBase* GameMode; // GameMode 참조
 
 ////////// 전역 변수 & 인스턴스 구간 -----------------------------------------------------------------------------------------
 
 	IOnlineSessionPtr SessionInterface; // 세션 인터페이스를 전역인수로 선언
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch; // 온라인 세션 검색을 할 수 있는 클래스 인스턴스 선언
+
+	// 캐릭터 선택 상태 관리
+	bool bIsPersonSelected = false; // UI 상에서 사람이 선택되었는지 체크
+	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 };

@@ -11,6 +11,10 @@
 #include "KJH/KJH_InGameWidget.h"
 #include "KJH/KJH_WidgetSystem.h"
 #include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
+#include "JSH/JSH_Player.h"
+#include "KHS/KHS_DronePlayer.h"
+#include "KJH/KJH_PlayerState.h"
+#include "KJH/KJH_GameModeBase.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -209,6 +213,12 @@ void UKJH_GameInstance::CreateSession()
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
 																		   // 실행되면 'CreateSession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.
 																		   // 인자(플레이어번호, TEXT("세션이름"), 세션세팅)
+
+	// ServerUIFactory를 통해 ServerUI 위젯 생성
+		ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
+		ServerWidget->SetMyInterface(this);
+		ServerWidget->Setup();
+		ServerWidget->ShowCharacterSelect();
 	}
 }
 
@@ -246,4 +256,29 @@ void UKJH_GameInstance::LoadServerMenuMap()
 		// ServerUI가 있는 맵으로 이동시킨다.
 		PlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap.ServerWidgetMap", ETravelType::TRAVEL_Absolute);
 	}
+}
+
+////////// 캐릭터 선택 관련 함수 ----------------------------------------------------------------------------------------------------------------
+void UKJH_GameInstance::OnCharacterSelected(bool bIsSelectedPersonFromUI)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!PlayerController) return;
+
+	// 플레이어 상태 가져오기
+	PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
+	if (!PlayerState) return;
+
+	// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
+	PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
+
+	// 설정된 값을 기반으로 RestartPlayer 호출
+	GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->RestartPlayer(PlayerController);
+	}
+
+	// UI 선택 상태를 업데이트
+	bIsPersonSelected = bIsSelectedPersonFromUI; // UI로부터 사람을 선택한 것이 true 면 사람을 선택했다는 값도 true로 설정하고, false라면 선택했다는 값도 false로 설정
+	bIsDroneSelected = !bIsSelectedPersonFromUI; // Drone은 반대로 UI로부터 false로 설정했다고 값을 넣음.
 }
