@@ -30,6 +30,7 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
 	if (Subsystem) // 만약, Subsystem이 유효하다면,
 	{
+
 		SessionInterface = Subsystem->GetSessionInterface(); // 세션 인터페이스 가져오기
 		
 		// 만약, 세션 인터페이스가 유효하다면,
