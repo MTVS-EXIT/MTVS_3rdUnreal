@@ -31,5 +31,17 @@ public:
 	virtual void RestartPlayer(AController* NewPlayer) override;
 
 
+////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
+	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 참조 선언
+	
 	class AKJH_PlayerState* PlayerState; // PlayerState 참조 선언
+
+	// Player와 Drone BP 클래스 참조
+	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
+	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // 수정된 부분
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
+	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // 수정된 부분
 };

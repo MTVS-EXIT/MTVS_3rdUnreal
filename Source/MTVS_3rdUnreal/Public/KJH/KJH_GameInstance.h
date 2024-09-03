@@ -86,4 +86,7 @@ public:
 	// 캐릭터 선택 상태 관리
 	bool bIsPersonSelected = false; // UI 상에서 사람이 선택되었는지 체크
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
+
+////////// 타이머핸들 선언 구간 -----------------------------------------------------------------------------------------
+	FTimerHandle TimerHandle_CharacterSelect;
 };

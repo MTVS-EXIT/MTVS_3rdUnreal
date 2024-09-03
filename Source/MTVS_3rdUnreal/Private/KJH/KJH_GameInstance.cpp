@@ -15,6 +15,7 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "KJH/KJH_PlayerState.h"
 #include "KJH/KJH_GameModeBase.h"
+#include "Engine/TimerHandle.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -62,6 +63,7 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	{
 		ServerWidget->Teardown();
 	}
+
 }
 
 
@@ -214,12 +216,6 @@ void UKJH_GameInstance::CreateSession()
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
 																		   // 실행되면 'CreateSession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.
 																		   // 인자(플레이어번호, TEXT("세션이름"), 세션세팅)
-
-	// ServerUIFactory를 통해 ServerUI 위젯 생성
-		ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
-		ServerWidget->SetMyInterface(this);
-		ServerWidget->Setup();
-		ServerWidget->ShowCharacterSelect();
 	}
 }
 
@@ -229,7 +225,6 @@ void UKJH_GameInstance::LoadStartMenu()
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
-
 	ServerWidget -> SetMyInterface(this);
 	ServerWidget -> Setup();
 

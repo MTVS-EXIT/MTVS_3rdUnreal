@@ -6,12 +6,16 @@
 #include "JSH/JSH_Player.h"
 #include "KHS/KHS_DronePlayer.h"
 #include "Kismet/GameplayStatics.h"
+#include "KJH/KJH_ServerWidget.h"
+#include "KJH/KJH_WidgetSystem.h"
+#include "Blueprint/UserWidget.h"
+#include "KJH/KJH_GameInstance.h"
 
 // GameMode 생성자에서 초기 설정
 AKJH_GameModeBase::AKJH_GameModeBase()
 {
-    //// 플레이어가 게임 시작 시 자동으로 시작되지 않고 관전자로 시작되게 설정
-    //bStartPlayersAsSpectators = true;
+    // 플레이어가 게임 시작 시 자동으로 시작되지 않고 관전자로 시작되게 설정
+    bStartPlayersAsSpectators = true;
 }
 
 void AKJH_GameModeBase::BeginPlay()
@@ -21,16 +25,16 @@ void AKJH_GameModeBase::BeginPlay()
     // 기본적으로 RestartPlayer를 호출하지 않고, 특정 이벤트나 조건에서만 호출되도록 조정
     // 예를 들어, 플레이어가 캐릭터를 선택할 때 호출되도록 함
 
-    //    // 1. 플레이어를 Spectator(관전자) 모드로 시작하게 설정
-    //for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-    //{
-    //    APlayerController* PlayerController = It->Get();
-    //    if (PlayerController)
-    //    {
-    //        // 플레이어를 Spectator 모드로 설정하여 자동으로 캐릭터를 Possess하지 않도록 함
-    //        PlayerController->ChangeState(NAME_Spectating);
-    //    }
-    //}
+        // 1. 플레이어를 Spectator(관전자) 모드로 시작하게 설정
+    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        APlayerController* PlayerController = It->Get();
+        if (PlayerController)
+        {
+            // 플레이어를 Spectator 모드로 설정하여 자동으로 캐릭터를 Possess하지 않도록 함
+            PlayerController->ChangeState(NAME_Spectating);
+        }
+    }
 
     // 2. 캐릭터 선택 후에만 RestartPlayer가 호출되도록 설정
     // 실제 캐릭터 선택 로직에서 GameMode의 RestartPlayer를 호출하도록 설정함
@@ -53,14 +57,45 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
+    // GameInstance에서 ServerWidget을 가져옵니다.
+    UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
+    if (GameInstance)
+    {
+        // ServerWidget이 이미 존재하는지 확인
+        if (!ServerWidget && ServerWidgetFactory)
+        {
+            // ServerWidget 생성
+            ServerWidget = CreateWidget<UKJH_ServerWidget>(GameInstance, ServerWidgetFactory);
+            if (ServerWidget)
+            {
+                // 인터페이스 설정
+                ServerWidget->SetMyInterface(GameInstance);
 
+                // UI 세팅
+                ServerWidget->Setup(); // 이 함수가 UI를 화면에 추가하고 입력 모드를 설정합니다.
+
+                UE_LOG(LogTemp, Warning, TEXT("ServerWidget Created and Setup."));
+            }
+        }
+    }
+
+    // ServerWidget이 유효하면 ShowCharacterSelect() 호출
+    if (ServerWidget)
+    {
+        ServerWidget->ShowCharacterSelect();
+        UE_LOG(LogTemp, Warning, TEXT("Character Select UI shown."));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("ServerWidget is not valid! Cannot show character select UI."));
+    }
 }
 
 
 
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
-    //Super::RestartPlayer(NewPlayer);
+    Super::RestartPlayer(NewPlayer);
 
     // 플레이어 상태를 가져옴
     PlayerState = NewPlayer->GetPlayerState<AKJH_PlayerState>();
@@ -69,8 +104,8 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
     {
         // 선택된 캐릭터에 따라 스폰할 캐릭터 클래스를 설정
         TSubclassOf<APawn> ChosenCharacterClass = PlayerState->bIsPersonCharacterSelected
-            ? AJSH_Player::StaticClass() // true 면 사람이 선택되었다고 생각하고 사람 클래스로 설정
-            : AKHS_DronePlayer::StaticClass(); // false면 드론이 선택되었다고 생각하고 드론 클래스로 설정
+            ? BP_JSH_PlayerClass // true 면 사람이 선택되었다고 생각하고 사람 BP클래스로 설정
+            : BP_KHS_DronePlayerClass; // false면 드론이 선택되었다고 생각하고 드론 BP클래스로 설정
 
                     // 디버그 메시지로 선택된 캐릭터 클래스 출력
         GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue,
@@ -106,11 +141,11 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
                 PlayerController->ChangeState(NAME_Playing); // Spectating 상태에서 Playing 상태로 전환
                 bStartPlayersAsSpectators = false;
             }
-
         else
         {
             UE_LOG(LogTemp, Error, TEXT("Failed to spawn character!"));
         }
+
     }
     else
     {
