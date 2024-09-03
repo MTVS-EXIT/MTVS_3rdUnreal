@@ -32,7 +32,7 @@ public:
 	//==============================================
 
 	//충돌체, 메시, 카메라
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USphereComponent* SphereComp;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -41,7 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCameraComponent* CameraComp;
 
-
+	// VOIP Talker 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voice Chat", meta = (AllowPrivateAccess = "true"))
+	class UVOIPTalker* VOIPTalkerComp;
 
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
@@ -118,6 +120,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PostProcess")
 	class UMaterialParameterCollection* MPC_DroneBlur;
 
+	//감지된 Actors를 추적하기 위한 TSet
+	TSet<class AKHS_AIVisionObject*> DetectedAIVisionObjects;
+
+	//현재 감지할 태그 저장변수
+	FString CurrentTag;
+
+	//태그가 설정되었는지 여부
+	bool bIsTagSet;
+
+	//태그를 사용하여 감지 중인지 여부
+	bool bIsCurrentlyDetecting;
+
 	//==============================================
 	//함수
 	//==============================================
@@ -131,4 +145,22 @@ public:
 
 	//카메라쉐이크 재생함수
 	void PlayDroneCameraShake();
+
+	// VOIP 관련 초기화 작업을 수행
+	void InitializeVOIP();
+
+	// 마이크 임계값을 설정
+	void SetMicThreshold(float Threshold);
+
+	// 플레이어 상태에 등록
+	void RegisterWithPlayerState();
+
+	// 로컬 플레이어가 제어 중인지 체크
+	bool IsLocallyControlled() const;
+
+	// 감지된 액터를 주기적으로 확인하는 함수
+	//void PeriodicallyCheckVision();
+
+	//태그를 전달받아 Actor를 검사할 함수
+	void CheckVisionForTag(FString Tag);
 };
