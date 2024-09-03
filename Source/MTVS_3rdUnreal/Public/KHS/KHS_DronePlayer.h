@@ -88,6 +88,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_DroneDown;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Function;
+
 	//MainUI 인스턴스
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> DroneMainUIFactory;
@@ -138,14 +141,19 @@ public:
 	//감지된 Actors를 추적하기 위한 TSet
 	TSet<class AKHS_AIVisionObject*> DetectedAIVisionObjects;
 
-	//현재 감지할 태그 저장변수
-	FString CurrentTag;
-
 	//태그가 설정되었는지 여부
 	bool bIsTagSet;
 
 	//태그를 사용하여 감지 중인지 여부
 	bool bIsCurrentlyDetecting;
+
+	// SceneCapture2D 액터 참조
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
+	class ASceneCapture2D* SceneCaptureActor;
+
+	// 캡처 데이터를 저장할 텍스처 렌더 타겟
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
+	class UTextureRenderTarget2D* RenderTarget;
 
 	//==============================================
 	//함수
@@ -180,5 +188,19 @@ public:
 	//void PeriodicallyCheckVision();
 
 	//태그를 전달받아 Actor를 검사할 함수
-	void CheckVisionForTag(FString Tag);
+	void CheckVisionForTags(const TArray<FString>& TagsToCheck);
+
+	// 텍스처를 JPEG 이미지로 저장하는 함수
+	UFUNCTION(BlueprintCallable, Category="Capture")
+	void SaveCaptureToImage();
+
+	// 이미지 저장 경로를 설정하는 함수
+	FString GetImagePath(const FString& FileName) const;
+
+	// 이미지 전송 함수 (서버 전송 구현)
+	void SendImageToServer(const FString& ImagePath, const TArray<uint8>& ImageData);
+
+	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
+	void SyncSceneCaptureWithCamera();
+
 };
