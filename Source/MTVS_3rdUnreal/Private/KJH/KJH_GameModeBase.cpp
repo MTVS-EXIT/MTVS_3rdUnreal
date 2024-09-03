@@ -5,6 +5,7 @@
 #include "KJH/KJH_PlayerState.h"
 #include "JSH/JSH_Player.h"
 #include "KHS/KHS_DronePlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 // GameMode 생성자에서 초기 설정
 AKJH_GameModeBase::AKJH_GameModeBase()
@@ -35,6 +36,26 @@ void AKJH_GameModeBase::BeginPlay()
     // 실제 캐릭터 선택 로직에서 GameMode의 RestartPlayer를 호출하도록 설정함
     // 이건 GameInstance의 OnCharacterSelected 에서 처리함.
 }
+
+void AKJH_GameModeBase::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+    FString Value;
+    UGameplayStatics::ParseOption(TEXT("PlayerSelected"), Value);
+
+    UE_LOG(LogTemp,Warning, TEXT("PreLogin"));
+
+    Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+}
+
+void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+
+    UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
+
+
+}
+
 
 
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
@@ -74,6 +95,7 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
         if (NewPawn)
         {
             GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Character successfully spawned!"));
+            UE_LOG(LogTemp,Warning, TEXT("Character successfully spawned!"));
             NewPlayer->Possess(NewPawn); // 플레이어가 새 캐릭터를 조종하도록 설정
         }
 
