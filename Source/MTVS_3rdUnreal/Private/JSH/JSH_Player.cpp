@@ -144,12 +144,12 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 void AJSH_Player::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+	// FVector2D LookAxisVector = Value.Get<FVector2D>();
+	//
+	// if (Controller != nullptr)
+	// {
+	// 	// add yaw and pitch input to controller
+	// 	AddControllerYawInput(LookAxisVector.X);
+	// 	AddControllerPitchInput(LookAxisVector.Y);
+	// }
 }
