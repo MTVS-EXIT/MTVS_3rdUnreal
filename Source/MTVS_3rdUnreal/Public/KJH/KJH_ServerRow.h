@@ -26,6 +26,9 @@ public:
 	class UKJH_ServerWidget* Parent;
 	uint32 Index;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool Selected = false; // 서버를 선택했는지, 아닌지 선언
+
 	void Setup(class UKJH_ServerWidget* Parent, uint32 Index);
 
 	UFUNCTION()

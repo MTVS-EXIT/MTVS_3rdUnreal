@@ -3,6 +3,7 @@
 
 #include "KHS/KHS_DronePlayer.h"
 #include "KHS/KHS_DroneMainUI.h"
+#include "KHS/KHS_AIVisionObject.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
@@ -10,18 +11,29 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
-#include "Engine/StaticMesh.h"
 #include "Components/TextBlock.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "ImageUtils.h"
+#include "Misc/FileHelper.h"
+#include "Materials/MaterialInterface.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Net/VoiceConfig.h"
-#include "KHS/KHS_AIVisionObject.h"
+#include "TextureResource.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	////////// KJH 추가 Auto Possess 설정 추가 //////////
+	AutoPossessPlayer = EAutoReceiveInput::Player0; // 첫 번째 플레이어에 대해 자동으로 Possess
+
 
 	//충돌체, 메시, 카메라
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -45,6 +57,10 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	// VOIP Talker 컴포넌트를 생성하고, VOIPTalkerComponent 포인터에 할당합니다.
 	VOIPTalkerComp = CreateDefaultSubobject<UVOIPTalker>(TEXT("VOIPTalkerComp"));
 
+	// 기본 렌더 타겟 생성 및 설정
+	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
+	RenderTarget->InitAutoFormat(1280, 720); // 원하는 해상도로 초기화
+	
 	//카메라쉐이크 스탯
 	DroneShakeInterval = 0.5f;  //0.5초마다 카메라쉐이크
 	TimeSinceLastShake = 0.0f;
@@ -90,11 +106,31 @@ void AKHS_DronePlayer::BeginPlay()
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
 	OriginalMeshRotation = MeshComp->GetRelativeRotation();
 
-	//Post Process Radial Blur 강도 결정 변수
-	MPC_DroneBlur = LoadObject<UMaterialParameterCollection>(nullptr, TEXT("/Script/Engine.MaterialParameterCollection'/Game/Blueprints/UI/KHS/MPC_DroneBlur.MPC_DroneBlur'"));
-
 	// VOIP 초기화 작업 호출
 	InitializeVOIP();
+
+	// 월드에서 SceneCapture2D 액터를 가져옴
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+	{
+		SceneCaptureActor = Cast<ASceneCapture2D>(FoundActors[0]);
+	}
+	if (SceneCaptureActor)
+	{
+		USceneCaptureComponent2D* SceneCaptureComponent = SceneCaptureActor->GetCaptureComponent2D();
+		if (SceneCaptureComponent && CameraComp)
+		{
+			// CameraComp에 SceneCaptureComponent를 Attach
+			SceneCaptureComponent->AttachToComponent(CameraComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			SceneCaptureComponent->TextureTarget = RenderTarget;
+			SceneCaptureComponent->CaptureSource = SCS_FinalColorLDR;
+			SceneCaptureComponent->FOVAngle = CameraComp->FieldOfView; // 드론 카메라와 같은 FOV
+		}
+		// 초기 SceneCaptureActor의 설정을 드론 카메라와 동기화
+		SyncSceneCaptureWithCamera();
+	}
 }
 
 // Called every frame
@@ -150,8 +186,8 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	if (bHit)
 	{
 		float Altitude = s.Z - HItResult.Location.Z;
-		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+		//UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+		//HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
 	}
 
 	//카메라쉐이크 타이머 업데이트
@@ -173,27 +209,9 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	FRotator NewRotation = OriginalMeshRotation + FRotator(PitchOffset, 0, RollOffset);
 	MeshComp->SetRelativeRotation(NewRotation);
 
-	//Post Process Radial Blur효과 강도 결정(속도에 따라)
-	// 드론의 현재 속도 계산
-	//float CurrentSpeed = GetVelocity().Size();
-	float CurrentSpeed = DroneCurrentSpeed.Size();
-	GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
-
-	// BlurAmount를 속도에 따라 설정
-	float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
-
-	// Material Parameter Collection에 속도값전달
-	UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
-	if (MaterialParamInstance)
-	{
-		MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
-	}
-
-	
-
-	// 시야에 있는 특정 태그를 가진 Actor를 감지하고 위젯 컴포넌트를 활성화/비활성화
-	FString DesiredTag = TEXT("Danger");  // 검사할 태그 설정
-	CheckVisionForTag(DesiredTag);
+	// 시야에 있는 모든 태그를 가진 Actor를 감지하고 위젯 컴포넌트를 활성화/비활성화
+	TArray<FString> TagsToCheck = { TEXT("Safe"), TEXT("Caution"), TEXT("Danger") };
+	CheckVisionForTags(TagsToCheck);
 
 	//// 매 프레임마다 감지된 액터를 체크
 	//if (bIsCurrentlyDetecting)
@@ -201,6 +219,11 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	//	PeriodicallyCheckVision();
 	//}
 
+	//Post Process(Radial Blur, Depth of Field) 설정 함수
+	SetDronePostProcess();
+
+	// 매 프레임마다 SceneCaptureActor를 드론 카메라와 동기화
+	SyncSceneCaptureWithCamera();
 
 }
 
@@ -217,9 +240,10 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneRight, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveRight);
 		input->BindAction(IA_DroneUp, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveUp);
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
+		input->BindAction(IA_Function, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::SaveCaptureToImage);
 	}
 }
-
+//카메라쉐이크 재생함수
 void AKHS_DronePlayer::PlayDroneCameraShake()
 {
 	APlayerController* pc = Cast<APlayerController>(GetController());
@@ -227,6 +251,72 @@ void AKHS_DronePlayer::PlayDroneCameraShake()
 	{
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
+}
+//Post Process(Radial Blur, Depth of Field) 설정 함수
+void AKHS_DronePlayer::SetDronePostProcess()
+{
+	// 라인트레이스 및 초점 거리 계산
+	FVector StartLocation = CameraComp->GetComponentLocation();
+	FVector ForwardVector = CameraComp->GetForwardVector();
+	FVector EndLocation = StartLocation + (ForwardVector * 10000.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+
+	if (bHit)
+	{
+		FocusDistance = FVector::Dist(StartLocation, HitResult.Location);
+	}
+	else
+	{
+		FocusDistance = 10000.0f;
+	}
+
+	// Radial Blur Material이 카메라에 적용된 상태인지 확인
+	if (RadialBlurMaterial && MPC_DroneBlur)
+	{
+		// 드론의 속도에 따라 Radial Blur 설정
+		float CurrentSpeed = DroneCurrentSpeed.Size();
+		float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
+
+		// Material Parameter Collection에 속도 값을 전달
+		UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
+		if (MaterialParamInstance)
+		{
+			MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
+		}
+
+		// Radial Blur을 포스트 프로세스 설정에 반영 
+		PostProcessSettings.bOverride_BloomIntensity = true;
+		PostProcessSettings.BloomIntensity = 1;//SpeedBlurAmount;
+
+		// 포스트 프로세스 설정 업데이트(Depth of Field)
+		PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+		PostProcessSettings.DepthOfFieldFocalDistance = FocusDistance;
+
+		// Aperture (F-Stop) 값을 설정
+		PostProcessSettings.bOverride_DepthOfFieldFstop = true;
+		PostProcessSettings.DepthOfFieldFstop = 1.0f;  // F-Stop 값 설정
+
+		// Maximum Aperture (Min F-Stop) 값을 설정
+		PostProcessSettings.bOverride_DepthOfFieldMinFstop = true;
+		PostProcessSettings.DepthOfFieldMinFstop = 11.0f;  // Min Aperture 값 설정
+
+		// 드론의 카메라에 포스트 프로세스 설정 적용
+		CameraComp->PostProcessSettings = PostProcessSettings;
+
+		FWeightedBlendable Blendable;
+		Blendable.Object = RadialBlurMaterial;
+		Blendable.Weight = 1.0f; // 필요에 따라 조정 가능
+		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
+
+		//속도값 출력
+		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
+	}
+
 }
 
 #pragma region Drone Move Settings
@@ -334,13 +424,14 @@ void AKHS_DronePlayer::InitializeVOIP()
 
 #pragma endregion
 
+#pragma region Image AI Object Detection
 
-void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
+//태그를 전달받아 Actor를 검사할 함수
+void AKHS_DronePlayer::CheckVisionForTags(const TArray<FString>& TagsToCheck)
 {
 	//새로운 태그가 전달되었을 때만 태그를 업데이트하고 감지 시작
-	if (false == Tag.IsEmpty())
+	if (false == TagsToCheck.IsEmpty())
 	{
-		CurrentTag = Tag;
 		bIsTagSet = true;
 		bIsCurrentlyDetecting = true;  // 감지 기능 활성화
 	}
@@ -387,18 +478,20 @@ void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
 				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
 				if (HitAIVisionObject)
 				{
-					// 액터의 태그가 전달받은 태그와 일치하는지 확인
-					if (HitAIVisionObject->ActorHasTag(FName(*CurrentTag)))
+					// 전달된 모든 태그에 대해 체크
+					for (const FString& Tag : TagsToCheck)
 					{
-						// 현재 감지된 액터를 임시 변수에 추가
-						CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
-
-						// 위젯 컴포넌트를 Visible로 설정
-						if (HitAIVisionObject->WidgetComp)
+						if (HitAIVisionObject->ActorHasTag(FName(*Tag)))
 						{
-							HitAIVisionObject->WidgetComp->SetVisibility(true);
+							// 현재 감지된 액터를 임시 변수에 추가
+							CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
+							// 위젯 컴포넌트를 Visible로 설정
+							if (HitAIVisionObject->WidgetComp)
+							{
+								HitAIVisionObject->WidgetComp->SetVisibility(true);
+							}
+							break; // 태그가 하나라도 일치하면 나머지 태그는 검사할 필요 없음
 						}
-
 						// 최소 하나의 액터가 감지됨
 						bAnyActorDetected = true;
 					}
@@ -427,6 +520,94 @@ void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
 
 	// 현재 감지된 액터들로 추적 세트 업데이트
 	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
+}
+
+// 텍스처를 JPEG 이미지로 저장하는 함수
+void AKHS_DronePlayer::SaveCaptureToImage()
+{
+	if (!RenderTarget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("RenderTarget is null"));
+		return;
+	}
+
+	FTextureRenderTargetResource* RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
+	TArray<FColor> Bitmap;
+	if (!RenderTargetResource->ReadPixels(Bitmap))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to read pixels from render target"));
+		return;
+	}
+
+	// 이미지 크기 설정
+	int32 Width = RenderTarget->SizeX;
+	int32 Height = RenderTarget->SizeY;
+
+	// TArray64<FColor>로 Bitmap 배열 변환
+	TArray64<FColor> Bitmap64;
+	Bitmap64.Append(Bitmap);
+
+	// 압축된 이미지 데이터
+	TArray64<uint8> CompressedData;
+	FImageUtils::PNGCompressImageArray(Width, Height, Bitmap64, CompressedData);
+
+	// TArray<uint8>로 변환
+	TArray<uint8> CompressedData32;
+	CompressedData32.Append(CompressedData);
+
+	// 파일 이름 생성
+	FString MainFileName = "CaptureImage";
+	FString FileName = FString::Printf(TEXT("%s_%s.jpg"), *MainFileName, *FDateTime::Now().ToString());
+	FString ImagePath = GetImagePath(FileName);
+
+	// 파일로 저장
+	if (FFileHelper::SaveArrayToFile(CompressedData, *ImagePath))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Image saved to %s"), *ImagePath);
+	}
+
+	// 서버로 전송 (네트워크 로직 추가 필요)
+	SendImageToServer(ImagePath, CompressedData32);
+}
+
+// 이미지 저장 경로를 설정하는 함수
+FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
+{
+	// Captured 폴더 경로 설정
+	FString CapturedFolderPath = FPaths::ProjectSavedDir() / TEXT("Captured");
+
+	// Captured 폴더가 존재하지 않으면 생성
+	if (!FPaths::DirectoryExists(CapturedFolderPath))
+	{
+		IFileManager::Get().MakeDirectory(*CapturedFolderPath, true);
+	}
+
+	// 파일 경로 반환
+	return CapturedFolderPath / FileName;
+	//return FPaths::ProjectSavedDir() + FileName;
+}
+
+// 이미지 전송 함수 (서버 전송 구현)
+void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray<uint8>& ImageData)
+{
+	UE_LOG(LogTemp, Log, TEXT("Sending image %s to server"), *ImagePath);
+
+	// HTTP 또는 WebSocket을 사용한 이미지 전송
+}
+
+// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
+void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
+{
+	if (SceneCaptureActor && CameraComp)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Syncing SceneCaptureActor with Camera."));
+		// 카메라의 위치와 회전을 SceneCaptureActor에 복사
+		SceneCaptureActor->SetActorLocationAndRotation(CameraComp->GetComponentLocation(), CameraComp->GetComponentRotation());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SceneCaptureActor or CameraComp is null."));
+	}
 }
 
 //void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
@@ -528,3 +709,5 @@ void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
 //	// 현재 감지된 액터들로 추적 세트 업데이트
 //	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
 //}
+
+#pragma endregion

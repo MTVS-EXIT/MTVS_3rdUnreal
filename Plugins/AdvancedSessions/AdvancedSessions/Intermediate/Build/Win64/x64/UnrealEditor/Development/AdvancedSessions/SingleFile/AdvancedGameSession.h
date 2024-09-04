@@ -1,0 +1,1 @@
+#include "C:/Projects/Unreal/MTVS_3rdUnreal/Plugins/AdvancedSessions/AdvancedSessions/Source/AdvancedSessions/Classes/AdvancedGameSession.h"

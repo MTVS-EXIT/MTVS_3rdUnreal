@@ -71,5 +71,8 @@ void AKHS_AIVisionObject::Tick(float DeltaTime)
 
 	// À§Á¬ ¾À ÄÄÆ÷³ÍÆ®ÀÇ ¿ùµå È¸Àü ¼³Á¤
 	WidgetComp->SetWorldRotation(NewRotation); 
+
+
 }
+
 
