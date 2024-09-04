@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -70,6 +71,18 @@ AJSH_Player::AJSH_Player()
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 
+	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
+	DigitalWatch->SetupAttachment(GetMesh(), FName("lowerarm_twist_01_l"));
+	DigitalWatch->SetRelativeLocation(FVector(2.801333f, -0.27828f, 0.180322f));
+	DigitalWatch->SetRelativeRotation(FRotator(0.592057f, 3.560301f, -74.855599f));
+	DigitalWatch->SetRelativeScale3D(FVector(1.25f, 1.25f, 1.25f));
+
+
+	WatchWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WatchWidget"));
+	WatchWidget->SetupAttachment(DigitalWatch);
+	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
+	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
+
 }
 
 // Called when the game starts or when spawned
@@ -112,12 +125,23 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJSH_Player::Look);
+
+		// Looking
+		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 
+}
+
+void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(AJSH_Player, WatchSee);
 }
 
 
@@ -147,12 +171,45 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 void AJSH_Player::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	// FVector2D LookAxisVector = Value.Get<FVector2D>();
+	//
+	// if (Controller != nullptr)
+	// {
+	// 	// add yaw and pitch input to controller
+	// 	AddControllerYawInput(LookAxisVector.X);
+	// 	AddControllerPitchInput(LookAxisVector.Y);
+	// }
+}
 
-	if (Controller != nullptr)
+
+
+// 시계 UI 보기 ------------------------------------------------------------------
+void AJSH_Player::Watch(const FInputActionValue& Value)
+{
+	Server_WatchSee();
+}
+
+void AJSH_Player::Server_WatchSee_Implementation()
+{
+	NetMulti_WatchSee();
+}
+
+void AJSH_Player::NetMulti_WatchSee_Implementation()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (MeshComp && MeshComp->GetAnimInstance())
 	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		// Flip-Flop
+		if (WatchSee)
+		{
+			MeshComp->GetAnimInstance()->Montage_Play(WatchMontage, 1.0f);
+		}
+		else
+		{
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 1.0f);
+		}
+
+		WatchSee = !WatchSee;
 	}
 }
+// ----------------------------------------------------------------------------

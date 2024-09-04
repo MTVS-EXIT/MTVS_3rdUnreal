@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "JSH_Player.generated.h"
@@ -44,6 +45,10 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* WatchAction;
+
 public:
 	// Sets default values for this character's properties
 	AJSH_Player();
@@ -55,6 +60,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	/** Called for looking input */
+	void Watch(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -73,4 +81,32 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Network Bool Replicated
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
+	// 시계
+
+	UPROPERTY(EditAnywhere, Category=Watch)
+	UChildActorComponent* DigitalWatch;
+
+	UPROPERTY(EditAnywhere, Category=Watch)
+	UWidgetComponent* WatchWidget;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WatchAnimations")
+	UAnimMontage* WatchMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WatchAnimations")
+	UAnimMontage* WatchReverseMontage;
+	
+	UPROPERTY(Replicated)
+	bool WatchSee = true;
+	
+	UFUNCTION(Server, Reliable)
+	void Server_WatchSee();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_WatchSee();
+	
 };
