@@ -11,6 +11,11 @@
 #include "KJH/KJH_InGameWidget.h"
 #include "KJH/KJH_WidgetSystem.h"
 #include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
+#include "JSH/JSH_Player.h"
+#include "KHS/KHS_DronePlayer.h"
+#include "KJH/KJH_PlayerState.h"
+#include "KJH/KJH_GameModeBase.h"
+#include "Engine/TimerHandle.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -25,6 +30,7 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
 	if (Subsystem) // 만약, Subsystem이 유효하다면,
 	{
+
 		SessionInterface = Subsystem->GetSessionInterface(); // 세션 인터페이스 가져오기
 		
 		// 만약, 세션 인터페이스가 유효하다면,
@@ -50,13 +56,15 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
 	// 내가 설정한 맵으로 listen 서버를 열어준다.
-	GetWorld()->ServerTravel("/Game/MAPS/KJH/KJH_TestMap?listen");
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
+	//?PlayerSelection=%s"), PlayerState->bIsPersonCharacterSelected ? TEXT("true") : TEXT("false"));
 
 	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
 	if (ServerWidget)
 	{
 		ServerWidget->Teardown();
 	}
+
 }
 
 
@@ -95,6 +103,10 @@ void UKJH_GameInstance::OnFindSessionComplete( bool Success)
 		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
 		TArray<FString> ServerNames;
+		//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
+		//ServerNames.Add("Test Servr2");
+		//ServerNames.Add("Test Servr3");
+
 		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Found Session Names S: %s"), *SearchResult.GetSessionIdStr());
@@ -188,8 +200,16 @@ void UKJH_GameInstance::CreateSession()
 	if (SessionInterface.IsValid())
 	{
 		FOnlineSessionSettings SessionSettings; // CreateSession을 위해 임의로 세션세팅을 만들어준다.
-		SessionSettings.bIsLANMatch = false ; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
-											 // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
+		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem 이 NULL 로 세팅되면 (NULL : 로컬 연결 설정)
+		{
+			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
+		}
+
+		else
+		{
+			SessionSettings.bIsLANMatch = false; // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
+		}
+
 		SessionSettings.NumPublicConnections = 5; // 플레이어 수
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
 		SessionSettings.bUsesPresence = true;
@@ -206,7 +226,6 @@ void UKJH_GameInstance::LoadStartMenu()
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
-
 	ServerWidget -> SetMyInterface(this);
 	ServerWidget -> Setup();
 
@@ -234,4 +253,29 @@ void UKJH_GameInstance::LoadServerMenuMap()
 		// ServerUI가 있는 맵으로 이동시킨다.
 		PlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap.ServerWidgetMap", ETravelType::TRAVEL_Absolute);
 	}
+}
+
+////////// 캐릭터 선택 관련 함수 ----------------------------------------------------------------------------------------------------------------
+void UKJH_GameInstance::OnCharacterSelected(bool bIsSelectedPersonFromUI)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!PlayerController) return;
+
+	// 플레이어 상태 가져오기
+	PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
+	if (!PlayerState) return;
+
+	// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
+	PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
+
+	// 설정된 값을 기반으로 RestartPlayer 호출
+	GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->RestartPlayer(PlayerController);
+	}
+
+	// UI 선택 상태를 업데이트
+	bIsPersonSelected = bIsSelectedPersonFromUI; // UI로부터 사람을 선택한 것이 true 면 사람을 선택했다는 값도 true로 설정하고, false라면 선택했다는 값도 false로 설정
+	bIsDroneSelected = !bIsSelectedPersonFromUI; // Drone은 반대로 UI로부터 false로 설정했다고 값을 넣음.
 }

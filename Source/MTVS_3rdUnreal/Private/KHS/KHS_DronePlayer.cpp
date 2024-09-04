@@ -31,6 +31,10 @@ AKHS_DronePlayer::AKHS_DronePlayer()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	////////// KJH 추가 Auto Possess 설정 추가 //////////
+	AutoPossessPlayer = EAutoReceiveInput::Player0; // 첫 번째 플레이어에 대해 자동으로 Possess
+
+
 	//충돌체, 메시, 카메라
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SetRootComponent(SphereComp);
@@ -182,8 +186,8 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	if (bHit)
 	{
 		float Altitude = s.Z - HItResult.Location.Z;
-		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+		//UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+		//HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
 	}
 
 	//카메라쉐이크 타이머 업데이트

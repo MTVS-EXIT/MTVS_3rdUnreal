@@ -20,6 +20,9 @@ AJSH_Player::AJSH_Player()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	////////// KJH 추가 Auto Possess 설정 추가 //////////
+	AutoPossessPlayer = EAutoReceiveInput::Player0; // 첫 번째 플레이어에 대해 자동으로 Possess
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
 

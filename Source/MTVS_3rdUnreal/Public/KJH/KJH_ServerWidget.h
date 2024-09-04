@@ -7,6 +7,17 @@
 #include "KJH_Interface.h"
 #include "KJH_ServerWidget.generated.h"
 
+USTRUCT()
+struct FServerData
+{
+	GENERATED_BODY()
+
+	FString Name;
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUserName;
+};
+
 /**
  * 
  */
@@ -27,6 +38,11 @@ public:
 	class UKJH_ServerRow* ServerRow; // ServerRow(Text UI) 선언
 
 ////////// UI 바인딩 구간 ------------------------------------------------------------------------------------------------------
+
+	// 메뉴 체인지 관련 //
+	UPROPERTY(meta = (BindWidget))
+	class UWidgetSwitcher* MenuSwitcher; // UI를 체인지 시킬 수 있는 Switcher
+
 	// 메인메뉴 UI 관련 //
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* MainMenu; // 메인 메뉴 Widget UI
@@ -51,19 +67,27 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* LobbyMenu_JoinButton; // 로비에서 실제 세션으로 접속하는 버튼
 
-
-	// 메뉴 체인지 관련 //
+	// 캐릭터 선택 UI 관련
 	UPROPERTY(meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher; // UI를 체인지 시킬 수 있는 Switcher
+	class UWidget* CharacterSelectMenu;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* PersonSelectButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UButton* DroneSelectButton;
 
 
 	// 임시 //
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;
 
+
 ////////// 변수 참조 구간 -----------------------------------------------------------------------------------------------------
 
-	TOptional <uint32> SelectedIndex; // 서버의 인덱스를 참조
+	TOptional <uint32> SelectedIndex; // 서버의 인덱스를 참조 선언
+	
+	class UKJH_GameInstance* GameInstance; // GameInstance 참조 선언
 
 ////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable)
@@ -84,5 +108,21 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void QuitPressed(); // 게임을 종료하는 함수
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateChildren(); // 
+
+
+	// 캐릭터 선택 관련 함수 //
+    UFUNCTION()
+    void ShowCharacterSelect();  // 캐릭터 선택 UI를 표시하는 함수
+
+	UFUNCTION()
+    void SelectPersonCharacter(); // 사람 캐릭터 선택 처리 함수
+
+	UFUNCTION()
+    void SelectDroneCharacter(); // 사람 캐릭터 선택 처리 함수
+
+	void UpdateSelectButtonStates(); // 선택된 버튼 상태를 확인하고 그 여부에 따라 업데이트하는 함수
 
 };
