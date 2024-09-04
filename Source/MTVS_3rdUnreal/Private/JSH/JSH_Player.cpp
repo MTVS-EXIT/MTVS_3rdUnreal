@@ -68,6 +68,18 @@ AJSH_Player::AJSH_Player()
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 
+	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
+	DigitalWatch->SetupAttachment(GetMesh(), FName("lowerarm_twist_01_l"));
+	DigitalWatch->SetRelativeLocation(FVector(2.801333f, -0.27828f, 0.180322f));
+	DigitalWatch->SetRelativeRotation(FRotator(0.592057f, 3.560301f, -74.855599f));
+	DigitalWatch->SetRelativeScale3D(FVector(1.25f, 1.25f, 1.25f));
+
+
+	WatchWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WatchWidget"));
+	WatchWidget->SetupAttachment(DigitalWatch);
+	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
+	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
+
 }
 
 // Called when the game starts or when spawned

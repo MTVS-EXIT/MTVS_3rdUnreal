@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "JSH_Player.generated.h"
@@ -85,6 +86,14 @@ public:
 
 	
 	// 시계
+
+	UPROPERTY(EditAnywhere, Category=Watch)
+	UChildActorComponent* DigitalWatch;
+
+	UPROPERTY(EditAnywhere, Category=Watch)
+	UWidgetComponent* WatchWidget;
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WatchAnimations")
 	UAnimMontage* WatchMontage;
 	
