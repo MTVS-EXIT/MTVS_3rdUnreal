@@ -95,25 +95,59 @@ void UKJH_GameInstance::RefreshServerList()
 	}
 }
 
-void UKJH_GameInstance::OnFindSessionComplete( bool Success)
+void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 {
-
-	if (Success && SessionSearch.IsValid() && ServerWidget != nullptr)
+	if (!Success)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: Session search failed."));
+		return;
+	}
 
-		TArray<FString> ServerNames;
-		//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
-		//ServerNames.Add("Test Servr2");
-		//ServerNames.Add("Test Servr3");
+	if (!SessionSearch.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: SessionSearch is not valid."));
+		return;
+	}
 
-		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+	if (!ServerWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: ServerWidget is not valid."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+
+	TArray<FString> ServerNames;
+	//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
+	//ServerNames.Add("Test Servr2");
+	//ServerNames.Add("Test Servr3");
+	if (SessionSearch->SearchResults.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete: No sessions found."));
+	}
+
+	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+	{
+		FString SessionName = SearchResult.GetSessionIdStr();
+		if (SessionName.IsEmpty())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Names S: %s"), *SearchResult.GetSessionIdStr());
-			ServerNames.Add(SearchResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found session with empty name."));
 		}
+		else
+		{
+			ServerNames.Add(SessionName);
+			UE_LOG(LogTemp, Warning, TEXT("Found Session Name: %s"), *SessionName);
+		}
+	}
 
-		ServerWidget -> SetServerList(ServerNames);
+	// ServerWidget이 유효하고 SetServerList 호출이 안전한 경우에만 실행
+	if (ServerWidget)
+	{
+		ServerWidget->SetServerList(ServerNames);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ServerWidget is not valid during SetServerList call."));
 	}
 }
 

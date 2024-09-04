@@ -81,7 +81,7 @@ void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
 {
 	if (!ServerList)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ServerList is not initialized."));
+		UE_LOG(LogTemp, Error, TEXT("SetServerList failed: ServerList is not initialized."));
 		return;
 	}
 
@@ -89,29 +89,43 @@ void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
 
 	if (!ServerRowFactory)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ServerRowFactory is not valid."));
+		UE_LOG(LogTemp, Error, TEXT("SetServerList failed: ServerRowFactory is not valid."));
 		return;
 	}
 
 	uint32 i = 0;
 	for (const FString& ServerName : ServerNames)
 	{
-	// ServerRowFactory를 통해 ServerRowUI 위젯 생성
-	ServerRow = CreateWidget<UKJH_ServerRow>(this, ServerRowFactory);
+		UKJH_ServerRow* NewServerRow = CreateWidget<UKJH_ServerRow>(this, ServerRowFactory);
+		if (!NewServerRow)
+		{
+			UE_LOG(LogTemp, Error, TEXT("SetServerList failed: Failed to create ServerRow widget."));
+			continue;
+		}
 
-	// 텍스트의 이름을 설정
-	if (ServerRow->ServerName)
-	{
-		ServerRow->ServerName->SetText(FText::FromString(ServerName));
+		// 서버 이름을 설정할 수 있는지 확인
+		if (NewServerRow->ServerName)
+		{
+			NewServerRow->ServerName->SetText(FText::FromString(ServerName));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("SetServerList failed: ServerRow's ServerName TextBlock is not valid."));
+		}
+
+		NewServerRow->Setup(this, i);
+		++i;
+
+		// ServerRow를 ServerList에 추가하기 전에 유효성 확인
+		if (ServerList)
+		{
+			ServerList->AddChild(NewServerRow);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("SetServerList failed: ServerList is not valid when adding ServerRow."));
+		}
 	}
-
-	ServerRow->Setup(this, i);
-	++i;
-
-	// 버튼 누를 시, 서버목록 생성
-	ServerList->AddChild(ServerRow);
-	}
-
 }
 
 void UKJH_ServerWidget::SelecetIndex(uint32 Index)
@@ -182,12 +196,16 @@ void UKJH_ServerWidget::UpdateChildren()
 ////////// 캐릭터 선택 처리 관련 함수 -------------------------------------------------------------------------------------------
 void UKJH_ServerWidget::ShowCharacterSelect()
 {
-	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
-	if (MenuSwitcher)
+	// MenuSwitcher와 CharacterSelectMenu가 유효한지 확인
+	if (!MenuSwitcher || !CharacterSelectMenu)
 	{
+		UE_LOG(LogTemp, Error, TEXT("ShowCharacterSelect failed: MenuSwitcher or CharacterSelectMenu is not valid."));
+		return;
+	}
+
 		MenuSwitcher->SetActiveWidget(CharacterSelectMenu); // LobbyMenu로 전환하여 활성화한다.
 		UE_LOG(LogTemp, Warning, TEXT("CharacterSelectMenu is Activate"));
-	}
+
 }
 
 void UKJH_ServerWidget::SelectPersonCharacter()

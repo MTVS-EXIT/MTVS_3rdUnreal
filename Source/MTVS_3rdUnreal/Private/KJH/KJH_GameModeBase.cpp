@@ -71,10 +71,10 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
                 // 인터페이스 설정
                 ServerWidget->SetMyInterface(GameInstance);
 
+                ServerWidget->AddToViewport(); // AddToViewport로 추가하여 제대로 표시되게 설정
+
                 // UI 세팅
                 ServerWidget->Setup(); // 이 함수가 UI를 화면에 추가하고 입력 모드를 설정합니다.
-
-                ServerWidget->AddToViewport(); // AddToViewport로 추가하여 제대로 표시되게 설정
 
 
                 UE_LOG(LogTemp, Warning, TEXT("ServerWidget Created and Setup."));
