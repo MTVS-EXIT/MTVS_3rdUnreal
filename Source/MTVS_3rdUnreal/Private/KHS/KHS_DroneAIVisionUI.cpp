@@ -20,6 +20,6 @@ void UKHS_DroneAIVisionUI::SetPercentBlock()
 {
 	float per = FMath::RandRange(0.1f, 9.9f);
 	FString percent = FString::Printf(TEXT("%.1f"), per);
-	UE_LOG(LogTemp, Warning, TEXT("percent : %f"), per);
+	//UE_LOG(LogTemp, Warning, TEXT("percent : %f"), per);
 	PercentText->SetText(FText::FromString(percent));
 }

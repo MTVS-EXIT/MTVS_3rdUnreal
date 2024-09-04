@@ -59,6 +59,7 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 
 	// 기본 렌더 타겟 생성 및 설정
 	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
+	RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
 	RenderTarget->InitAutoFormat(1280, 720); // 원하는 해상도로 초기화
 	
 	//카메라쉐이크 스탯
@@ -539,6 +540,12 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		return;
 	}
 
+	// Alpha 값을 255로 설정하여 불투명하게 만듭니다.
+	for (FColor& Pixel : Bitmap)
+	{
+		Pixel.A = 255;
+	}
+
 	// 이미지 크기 설정
 	int32 Width = RenderTarget->SizeX;
 	int32 Height = RenderTarget->SizeY;
@@ -551,23 +558,27 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 	TArray64<uint8> CompressedData;
 	FImageUtils::PNGCompressImageArray(Width, Height, Bitmap64, CompressedData);
 
-	// TArray<uint8>로 변환
-	TArray<uint8> CompressedData32;
-	CompressedData32.Append(CompressedData);
-
-	// 파일 이름 생성
+	// 파일 저장 경로 설정
 	FString MainFileName = "CaptureImage";
-	FString FileName = FString::Printf(TEXT("%s_%s.jpg"), *MainFileName, *FDateTime::Now().ToString());
+	FString FileName = FString::Printf(TEXT("%s_%s.png"), *MainFileName, *FDateTime::Now().ToString());
 	FString ImagePath = GetImagePath(FileName);
 
-	// 파일로 저장
-	if (FFileHelper::SaveArrayToFile(CompressedData, *ImagePath))
+	// TArray64 데이터를 직접 파일로 저장
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	IFileHandle* FileHandle = PlatformFile.OpenWrite(*ImagePath);
+	if (FileHandle)
 	{
+		FileHandle->Write(CompressedData.GetData(), CompressedData.Num());
+		delete FileHandle;
 		UE_LOG(LogTemp, Log, TEXT("Image saved to %s"), *ImagePath);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save image to %s"), *ImagePath);
 	}
 
 	// 서버로 전송 (네트워크 로직 추가 필요)
-	SendImageToServer(ImagePath, CompressedData32);
+	SendImageToServer(ImagePath, CompressedData);
 }
 
 // 이미지 저장 경로를 설정하는 함수
@@ -588,7 +599,7 @@ FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 }
 
 // 이미지 전송 함수 (서버 전송 구현)
-void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray<uint8>& ImageData)
+void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData)
 {
 	UE_LOG(LogTemp, Log, TEXT("Sending image %s to server"), *ImagePath);
 
@@ -600,7 +611,7 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 {
 	if (SceneCaptureActor && CameraComp)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Syncing SceneCaptureActor with Camera."));
+		//UE_LOG(LogTemp, Log, TEXT("Syncing SceneCaptureActor with Camera."));
 		// 카메라의 위치와 회전을 SceneCaptureActor에 복사
 		SceneCaptureActor->SetActorLocationAndRotation(CameraComp->GetComponentLocation(), CameraComp->GetComponentRotation());
 	}

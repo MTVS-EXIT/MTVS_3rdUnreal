@@ -198,7 +198,7 @@ public:
 	FString GetImagePath(const FString& FileName) const;
 
 	// 이미지 전송 함수 (서버 전송 구현)
-	void SendImageToServer(const FString& ImagePath, const TArray<uint8>& ImageData);
+	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
