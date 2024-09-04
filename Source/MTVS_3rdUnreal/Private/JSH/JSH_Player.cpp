@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -109,12 +110,23 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJSH_Player::Look);
+
+		// Looking
+		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 
+}
+
+void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(AJSH_Player, WatchSee);
 }
 
 
@@ -153,3 +165,36 @@ void AJSH_Player::Look(const FInputActionValue& Value)
 	// 	AddControllerPitchInput(LookAxisVector.Y);
 	// }
 }
+
+
+
+// 시계 UI 보기 ------------------------------------------------------------------
+void AJSH_Player::Watch(const FInputActionValue& Value)
+{
+	Server_WatchSee();
+}
+
+void AJSH_Player::Server_WatchSee_Implementation()
+{
+	NetMulti_WatchSee();
+}
+
+void AJSH_Player::NetMulti_WatchSee_Implementation()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (MeshComp && MeshComp->GetAnimInstance())
+	{
+		// Flip-Flop
+		if (WatchSee)
+		{
+			MeshComp->GetAnimInstance()->Montage_Play(WatchMontage, 1.0f);
+		}
+		else
+		{
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 1.0f);
+		}
+
+		WatchSee = !WatchSee;
+	}
+}
+// ----------------------------------------------------------------------------
