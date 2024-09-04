@@ -2,8 +2,8 @@ C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Sour
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedFriendsGameInstance.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedFriendsInterface.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedFriendsLibrary.h
-C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedIdentityLibrary.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedGameSession.h
+C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedIdentityLibrary.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedSessionsLibrary.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AdvancedVoiceLibrary.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\AutoLoginUserCallbackProxy.h
@@ -17,7 +17,7 @@ C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Sour
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\GetRecentPlayersCallbackProxy.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\GetUserPrivilegeCallbackProxy.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\LoginUserCallbackProxy.h
-C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\SendFriendInviteCallbackProxy.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\LogoutUserCallbackProxy.h
+C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\SendFriendInviteCallbackProxy.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\StartSessionCallbackProxyAdvanced.h
 C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Source\AdvancedSessions\Classes\UpdateSessionCallbackProxyAdvanced.h

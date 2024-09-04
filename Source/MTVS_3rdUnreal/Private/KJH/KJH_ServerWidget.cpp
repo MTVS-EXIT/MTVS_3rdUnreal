@@ -79,7 +79,19 @@ void UKJH_ServerWidget::HostServer()
 
 void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
 {
+	if (!ServerList)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ServerList is not initialized."));
+		return;
+	}
+
 	ServerList->ClearChildren();
+
+	if (!ServerRowFactory)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ServerRowFactory is not valid."));
+		return;
+	}
 
 	uint32 i = 0;
 	for (const FString& ServerName : ServerNames)
@@ -88,7 +100,11 @@ void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
 	ServerRow = CreateWidget<UKJH_ServerRow>(this, ServerRowFactory);
 
 	// 텍스트의 이름을 설정
-	ServerRow->ServerName->SetText(FText::FromString(ServerName));
+	if (ServerRow->ServerName)
+	{
+		ServerRow->ServerName->SetText(FText::FromString(ServerName));
+	}
+
 	ServerRow->Setup(this, i);
 	++i;
 

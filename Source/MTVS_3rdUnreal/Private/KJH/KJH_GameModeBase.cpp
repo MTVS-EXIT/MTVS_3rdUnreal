@@ -74,6 +74,9 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
                 // UI 세팅
                 ServerWidget->Setup(); // 이 함수가 UI를 화면에 추가하고 입력 모드를 설정합니다.
 
+                ServerWidget->AddToViewport(); // AddToViewport로 추가하여 제대로 표시되게 설정
+
+
                 UE_LOG(LogTemp, Warning, TEXT("ServerWidget Created and Setup."));
             }
         }
@@ -106,6 +109,12 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
         TSubclassOf<APawn> ChosenCharacterClass = PlayerState->bIsPersonCharacterSelected
             ? BP_JSH_PlayerClass // true 면 사람이 선택되었다고 생각하고 사람 BP클래스로 설정
             : BP_KHS_DronePlayerClass; // false면 드론이 선택되었다고 생각하고 드론 BP클래스로 설정
+
+        if (!ChosenCharacterClass)
+        {
+            UE_LOG(LogTemp, Error, TEXT("ChosenCharacterClass is not valid."));
+            return;
+        }
 
                     // 디버그 메시지로 선택된 캐릭터 클래스 출력
         GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue,
@@ -151,5 +160,6 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
     {
         // 플레이어 상태가 없으면 기본 게임 모드 로직 사용
         Super::RestartPlayer(NewPlayer);
+        UE_LOG(LogTemp, Error, TEXT("PlayerState is not valid."));
     }
 }

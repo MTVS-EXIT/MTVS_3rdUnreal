@@ -19,8 +19,19 @@ void UKJH_WidgetSystem::Setup()
 	}
 
 	UWorld* World = GetWorld();
+
+	if (!World)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Setup failed: World is not valid."));
+		return;
+	}
+
 	APlayerController* PlayerController = World->GetFirstPlayerController();
-	check(PlayerController);
+	if (!ensure(PlayerController)) // PlayerController가 유효한지 검사. 유효하지 않으면 오류 메시지를 출력하고 계속 진행함.
+	{
+		UE_LOG(LogTemp, Error, TEXT("Setup failed: PlayerController is not valid."));
+		return;
+	}
 
 	if (PlayerController)
 	{
