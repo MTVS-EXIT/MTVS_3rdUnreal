@@ -74,4 +74,4 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 # Compiled source files for the engine to use
-Plugins/*/AdvancedSessions/*
+Plugins/AdvancedSessions/*
