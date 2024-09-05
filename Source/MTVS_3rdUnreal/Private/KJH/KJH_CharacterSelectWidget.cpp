@@ -53,12 +53,14 @@ void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
-		GameInstance->OnCharacterSelected(true); // Person Player 버튼 선택 시 사람 캐릭터 선택을 게임인스턴스에 알림
+		APlayerController* PlayerController = GetOwningPlayer(); // 현재 위젯의 소유자 컨트롤러 가져오기
+		GameInstance->OnCharacterSelected(PlayerController, true); // Person Player 버튼 선택 시 컨트롤러와 선택 상태 전달
+
 		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
 		UpdateSelectButtonStates();
 
-		// 캐릭터 선택 후 UI 제거
-		Teardown(); // UI가 선택 후 사라지도록 처리
+
+		Teardown(); // 캐릭터 선택 후 UI 제거
 	}
 }
 
@@ -67,13 +69,13 @@ void UKJH_CharacterSelectWidget::SelectDroneCharacter()
 	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
-		GameInstance->OnCharacterSelected(false); // Drone Player 버튼 선택 시 드론 캐릭터 선택을 게임인스턴스에 알림
+		APlayerController* PlayerController = GetOwningPlayer(); // 현재 위젯의 소유자 컨트롤러 가져오기
+		GameInstance->OnCharacterSelected(PlayerController, false); // Drone Player 버튼 선택 시 컨트롤러와 선택 상태 전달
 		
 		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
 		UpdateSelectButtonStates();
 
-		// 캐릭터 선택 후 UI 제거
-		Teardown(); // UI가 선택 후 사라지도록 처리
+		Teardown(); // 캐릭터 선택 후 UI 제거
 	}
 }
 

@@ -283,9 +283,8 @@ void UKJH_GameInstance::LoadServerWidgetMap()
 
 ////////// 캐릭터 선택 관련 함수 ----------------------------------------------------------------------------------------------------------------
 // 캐릭터 선택 관련 함수: PlayerController를 인자로 받아 각 플레이어의 선택을 독립적으로 처리
-void UKJH_GameInstance::OnCharacterSelected(bool bIsSelectedPersonFromUI)
+void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI)
 {
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!PlayerController) return;
 
 	// 플레이어 상태 가져오기

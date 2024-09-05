@@ -60,10 +60,12 @@ public:
 
 	// 캐릭터 선택 관련 함수 //
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
-	void OnCharacterSelected(bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
+	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
 
 
-////////// 사용자 정의형 서버 함수 구간 --------------------------------------------------------------------------------
+////////// RPC 함수 구간 --------------------------------------------------------------------------------
+
+
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
