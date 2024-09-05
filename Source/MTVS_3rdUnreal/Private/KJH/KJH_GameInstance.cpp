@@ -244,7 +244,7 @@ void UKJH_GameInstance::CreateSession()
 
 		SessionSettings.NumPublicConnections = 5; // 플레이어 수
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
-		SessionSettings.bUseLobbiesIfAvailable = true;
+		SessionSettings.bUseLobbiesIfAvailable = true; // 로비기능을 활성화한다. (Host 하려면 필요)
 		SessionSettings.bUsesPresence = true;
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
