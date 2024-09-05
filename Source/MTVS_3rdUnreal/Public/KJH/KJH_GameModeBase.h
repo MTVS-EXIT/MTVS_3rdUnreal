@@ -31,6 +31,15 @@ public:
 	virtual void RestartPlayer(AController* NewPlayer) override;
 
 
+////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------------
+
+UFUNCTION(NetMulticast, Reliable)
+void Multicast_ShowCharacterSelectWidget(APlayerController* PlayerController); // Character Select UI Multicast
+
+////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
+
+void ShowCharacterSelectWidget(APlayerController* PlayerController);
+
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
@@ -47,4 +56,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // 수정된 부분
+
+
+
+
 };

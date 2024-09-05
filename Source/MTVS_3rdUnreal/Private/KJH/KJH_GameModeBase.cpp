@@ -59,44 +59,13 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
-    // GameInstance에서 CharacterSelectWidget을 가져온다.
-    UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-    if (GameInstance)
+    // 서버에서 위젯 생성
+    if (HasAuthority()) // 서버에서만 실행
     {
-        // CharacterSelectWidget이 이미 존재하는지 확인
-        if (!CharacterSelectWidget && CharacterSelectWidgetFactory)
-        {
-            // CharacterSelectWidget 생성
-            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(GameInstance, CharacterSelectWidgetFactory);
-
-            if (CharacterSelectWidget)
-            {
-                // UI 세팅
-                CharacterSelectWidget->AddToViewport(); // Viewport에 추가하여 UI 표시
-                CharacterSelectWidget->Setup(); // 추가적인 초기화 작업 수행
-                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup."));
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
-            }
-        }
+        ShowCharacterSelectWidget(NewPlayer);
     }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to cast GameInstance to UKJH_GameInstance."));
-    }
-
-    // CharacterSelectWidget이 유효하면 ShowCharacterSelect() 호출
-    if (CharacterSelectWidget)
-    {
-        CharacterSelectWidget->ShowCharacterSelect();
-        UE_LOG(LogTemp, Warning, TEXT("Character Select UI shown."));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Character Select UI is not valid! Cannot show character select UI."));
-    }
+    // 클라이언트에게 Character Select UI를 표시하라는 요청
+    Multicast_ShowCharacterSelectWidget(NewPlayer);
 }
 
 
@@ -159,5 +128,58 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
     {
         // 플레이어 상태가 없으면 기본 게임 모드 로직 사용
         Super::RestartPlayer(NewPlayer);
+    }
+}
+
+////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------
+void AKJH_GameModeBase::Multicast_ShowCharacterSelectWidget_Implementation(APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid for showing CharacterSelectWidget."));
+        return;
+    }
+
+    // 이 함수는 클라이언트에서만 실행됨, 따라서 서버는 여기서 UI 생성 안함
+    if (!HasAuthority()) // 클라이언트에서만 실행
+    {
+        ShowCharacterSelectWidget(PlayerController);
+    }
+}
+
+////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
+
+// 캐릭터 선택 UI 생성 함수
+void AKJH_GameModeBase::ShowCharacterSelectWidget(APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid for showing CharacterSelectWidget."));
+        return;
+    }
+
+    UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
+    if (GameInstance)
+    {
+        // 위젯 생성 및 설정
+        if (!CharacterSelectWidget && CharacterSelectWidgetFactory)
+        {
+            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(PlayerController, CharacterSelectWidgetFactory);
+
+            if (CharacterSelectWidget)
+            {
+                CharacterSelectWidget->AddToViewport();
+                CharacterSelectWidget->Setup();
+                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to cast GameInstance to UKJH_GameInstance."));
     }
 }
