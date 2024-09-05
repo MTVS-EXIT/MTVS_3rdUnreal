@@ -1,1 +1,0 @@
-"C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\Win64\UnrealEditor.exe" "C:\Projects\Unreal\MTVS_3rdUnreal\MTVS_3rdUnreal.uproject" -game -log
