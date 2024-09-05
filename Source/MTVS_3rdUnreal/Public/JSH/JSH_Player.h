@@ -45,10 +45,18 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	/** Look Input Action */
+	// 시계 보기 (Q)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* WatchAction;
 
+	// 도끼 모드 -> 추후 주웠을때로 변경
+
+	// R - 도끼 찍기, 소화기 던지기
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RAction;
+
+	
+	
 public:
 	// Sets default values for this character's properties
 	AJSH_Player();
@@ -61,8 +69,10 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	/** Called for looking input */
+
 	void Watch(const FInputActionValue& Value);
+
+	void R(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -92,7 +102,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category=Watch)
 	UWidgetComponent* WatchWidget;
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WatchAnimations")
 	UAnimMontage* WatchMontage;
@@ -108,5 +117,22 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_WatchSee();
+
+
+	// 도끼
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool AxModeON = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool AxAnimationplay = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AxAnimations")
+	UAnimMontage* AxMontage;
+
+	UFUNCTION(Server, Reliable)
+	void Server_RAction();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_RAction();
 	
 };

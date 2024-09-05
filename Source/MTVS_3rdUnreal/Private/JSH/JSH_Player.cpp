@@ -122,9 +122,9 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJSH_Player::Look);
-
-		// Looking
+		
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
+		EnhancedInputComponent->BindAction(RAction, ETriggerEvent::Started, this, &AJSH_Player::R);
 	}
 	else
 	{
@@ -139,7 +139,10 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 
 	DOREPLIFETIME(AJSH_Player, WatchSee);
+	DOREPLIFETIME(AJSH_Player, AxModeON);
+	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
 }
+
 
 
 void AJSH_Player::Move(const FInputActionValue& Value)
@@ -210,3 +213,40 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 	}
 }
 // ----------------------------------------------------------------------------
+
+
+
+// R 인터렉션 ------------------------------------------------------------------
+void AJSH_Player::R(const FInputActionValue& Value)
+{
+	Server_RAction();
+	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
+}
+
+
+void AJSH_Player::Server_RAction_Implementation()
+{
+	NetMulti_RAction();
+}
+
+void AJSH_Player::NetMulti_RAction_Implementation()
+{
+	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
+	// AxMode가 ON일때만 도끼 찍는 애니메이션 실행, 추후 도끼 주웠을때 AXMODE가 ON, 도끼 버렸을때 OFF 되도록 하기
+	USkeletalMeshComponent* MeshComp2 = GetMesh();
+	if (MeshComp2 && MeshComp2->GetAnimInstance())
+	{
+		// Flip-Flop
+		if (AxModeON)
+		{
+			MeshComp2->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+		}
+	}
+
+	// USkeletalMeshComponent* MeshComp2 = GetMesh();
+	// if (MeshComp2 && MeshComp2->GetAnimInstance())
+	// {
+	// 	MeshComp2->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+	// }
+}
+// ------------------------------------------------------------------------
