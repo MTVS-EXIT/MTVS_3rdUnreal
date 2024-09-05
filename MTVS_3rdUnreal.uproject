@@ -59,6 +59,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "ElectraPlayer",
+			"Enabled": true
+		},
+		{
 			"Name": "LiveLinkControlRig",
 			"Enabled": true
 		},

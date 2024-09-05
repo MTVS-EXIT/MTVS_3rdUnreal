@@ -32,4 +32,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UWidgetComponent* WidgetComp;
 
+
 };

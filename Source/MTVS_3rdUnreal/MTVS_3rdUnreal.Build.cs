@@ -9,7 +9,8 @@ public class MTVS_3rdUnreal : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", 
-															"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineSubsystemUtils" });
+															"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineSubsystemUtils",
+                                                            "HTTP", "Json", "JsonUtilities"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
