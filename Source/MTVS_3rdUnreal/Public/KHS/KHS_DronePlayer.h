@@ -158,6 +158,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
 
+	//Object Outline(윤곽선) Material 변수
+	UPROPERTY(EditDefaultsOnly, Category = "Outline")
+	class UMaterialInterface* OutlineMaterial;
+
 	//==============================================
 	//함수
 	//==============================================
@@ -216,4 +220,9 @@ public:
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
 
+	// 라인트레이스 기반 윤곽선 표시 함수
+	void DroneEnableOutline(AActor* HitActor);
+
+	// Custom Depth기반 윤곽선 Material 적용 함수
+	void DroneApplyOutlineEffect();
 };
