@@ -24,6 +24,8 @@
 #include "Net/VoiceConfig.h"
 #include "TextureResource.h"
 #include "Kismet/GameplayStatics.h"
+#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
+#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/VoiceInterface.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -242,6 +244,8 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneUp, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveUp);
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
 		input->BindAction(IA_Function, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::SaveCaptureToImage);
+		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::SetUpNetworkVoice);
+		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
 	}
 }
 //카메라쉐이크 재생함수
@@ -395,6 +399,77 @@ bool AKHS_DronePlayer::IsLocallyControlled() const
 {
 	return IsPlayerControlled();
 }
+
+//StartNetworkVoice 네트워크로 사운드를 보냄
+void AKHS_DronePlayer::SetUpNetworkVoice()
+{
+	if (IsLocallyControlled())
+	{
+		APlayerController* PlayerController = GetController<APlayerController>();
+		if (PlayerController)
+		{
+			IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+			if (OnlineSub)
+			{
+				IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
+				if (VoiceInterface.IsValid())
+				{
+					// 플레이어에 Voice Channel 할당
+					VoiceInterface->StartNetworkedVoice(PlayerController->GetLocalPlayer()->GetControllerId());
+				}
+			}
+		}
+	}
+
+}
+
+//StopNetworkVoice 네트워크로 사운드 보내기 중지
+void AKHS_DronePlayer::StopVoice()
+{
+	if (IsLocallyControlled())
+	{
+		APlayerController* PlayerController = GetController<APlayerController>();
+		if (PlayerController)
+		{
+			IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+			if (OnlineSub)
+			{
+				IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
+				if (VoiceInterface.IsValid())
+				{
+					VoiceInterface->StopNetworkedVoice(PlayerController->GetLocalPlayer()->GetControllerId());
+				}
+			}
+		}
+	}
+
+}
+
+//VOIP 대상자 등록
+void AKHS_DronePlayer::RegisterRemoteTalker()
+{
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+		if (OnlineSub)
+		{
+			IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
+			if (VoiceInterface.IsValid())
+			{
+				// 플레이어의 고유 네트워크 ID를 가져옵니다.
+				TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
+
+				if (UniqueNetId.IsValid())
+				{
+					// 고유 네트워크 ID를 사용하여 원격 Talker를 등록합니다.
+					VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
+				}
+			}
+		}
+	}
+
+}
 //VOIP관련 초기화 작업
 void AKHS_DronePlayer::InitializeVOIP()
 {
@@ -416,9 +491,12 @@ void AKHS_DronePlayer::InitializeVOIP()
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
 				if (PlayerController)
 				{
-					PlayerController->ConsoleCommand("OSS.VoiceLoopback 1");
+					PlayerController->ConsoleCommand("OSS.VoiceLoopback 0");
 				}
 			}
+			// 원격 Talker 등록
+			RegisterRemoteTalker();
+
 		}
 	}
 }

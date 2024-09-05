@@ -91,6 +91,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_Function;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Voice;
+
 	//MainUI 인스턴스
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> DroneMainUIFactory;
@@ -183,6 +186,16 @@ public:
 
 	// 로컬 플레이어가 제어 중인지 체크
 	bool IsLocallyControlled() const;
+
+	//StartNetworkVoice 네트워크로 사운드를 보냄
+	void SetUpNetworkVoice(); 
+
+	//StopNetworkVoice 네트워크로 사운드 보내기 중지
+	void StopVoice(); 
+
+	//VOIP 대상자 등록
+	void RegisterRemoteTalker();
+
 
 	// 감지된 액터를 주기적으로 확인하는 함수
 	//void PeriodicallyCheckVision();
