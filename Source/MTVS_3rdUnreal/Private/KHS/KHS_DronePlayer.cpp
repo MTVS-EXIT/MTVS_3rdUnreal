@@ -26,15 +26,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/VoiceInterface.h"
+#include "HttpModule.h"
+#include "HttpFwd.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	////////// KJH 추가 Auto Possess 설정 추가 //////////
-	AutoPossessPlayer = EAutoReceiveInput::Player0; // 첫 번째 플레이어에 대해 자동으로 Possess
 
 
 	//충돌체, 메시, 카메라
@@ -134,6 +135,9 @@ void AKHS_DronePlayer::BeginPlay()
 		// 초기 SceneCaptureActor의 설정을 드론 카메라와 동기화
 		SyncSceneCaptureWithCamera();
 	}
+
+	//윤곽선 효과 적용
+	DroneApplyOutlineEffect();
 }
 
 // Called every frame
@@ -179,7 +183,7 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	DroneAcceleration = FVector::ZeroVector;
 
 
-	//Drone고도계 업데이트
+	// 고도계, 사물 윤곽선 표시 라인트레이스
 	FVector s = GetActorLocation();
 	FVector e = s - FVector(0, 0, 10000); //아래로 N만큼 라인트레이스 발사
 	FHitResult HItResult;
@@ -188,9 +192,17 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HItResult,s,e,ECC_Visibility, params);
 	if (bHit)
 	{
+		//Drone 고도계 업데이트
 		float Altitude = s.Z - HItResult.Location.Z;
-		//UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		//HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+
+		//맞은 액터에 윤곽선 적용
+		AActor* HitActor = HItResult.GetActor();
+		if (HitActor)
+		{
+			DroneEnableOutline(HitActor);
+		}
 	}
 
 	//카메라쉐이크 타이머 업데이트
@@ -280,6 +292,17 @@ void AKHS_DronePlayer::SetDronePostProcess()
 		FocusDistance = 10000.0f;
 	}
 
+	CameraComp->PostProcessSettings.WeightedBlendables.Array.Empty();
+
+	// Post Process에 윤곽선 효과 머티리얼 적용
+	if (CameraComp && OutlineMaterial)
+	{
+		FWeightedBlendable Blendable;
+		Blendable.Object = OutlineMaterial; // 삽입된 윤곽선 머티리얼 적용
+		Blendable.Weight = 1.0f; // 머티리얼 적용 강도
+		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
+	}
+
 	// Radial Blur Material이 카메라에 적용된 상태인지 확인
 	if (RadialBlurMaterial && MPC_DroneBlur)
 	{
@@ -321,7 +344,6 @@ void AKHS_DronePlayer::SetDronePostProcess()
 		//속도값 출력
 		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
 	}
-
 }
 
 #pragma region Drone Move Settings
@@ -448,26 +470,26 @@ void AKHS_DronePlayer::StopVoice()
 //VOIP 대상자 등록
 void AKHS_DronePlayer::RegisterRemoteTalker()
 {
-	APlayerController* PlayerController = GetController<APlayerController>();
-	if (PlayerController)
-	{
-		IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
-		if (OnlineSub)
-		{
-			IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
-			if (VoiceInterface.IsValid())
-			{
-				// 플레이어의 고유 네트워크 ID를 가져옵니다.
-				TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
+	//APlayerController* PlayerController = GetController<APlayerController>();
+	//if (PlayerController)
+	//{
+	//	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+	//	if (OnlineSub)
+	//	{
+	//		IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
+	//		if (VoiceInterface.IsValid())
+	//		{
+	//			// 플레이어의 고유 네트워크 ID를 가져옵니다.
+	//			TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
 
-				if (UniqueNetId.IsValid())
-				{
-					// 고유 네트워크 ID를 사용하여 원격 Talker를 등록합니다.
-					VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
-				}
-			}
-		}
-	}
+	//			if (UniqueNetId.IsValid())
+	//			{
+	//				// 고유 네트워크 ID를 사용하여 원격 Talker를 등록합니다.
+	//				VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
+	//			}
+	//		}
+	//	}
+	//}
 
 }
 //VOIP관련 초기화 작업
@@ -495,7 +517,7 @@ void AKHS_DronePlayer::InitializeVOIP()
 				}
 			}
 			// 원격 Talker 등록
-			RegisterRemoteTalker();
+			//RegisterRemoteTalker();
 
 		}
 	}
@@ -681,7 +703,56 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 {
 	UE_LOG(LogTemp, Log, TEXT("Sending image %s to server"), *ImagePath);
 
-	// HTTP 또는 WebSocket을 사용한 이미지 전송
+	// 1. HTTP 모듈 가져오기
+	FHttpModule* Http = &FHttpModule::Get();
+
+	// 2. HTTP 요청 생성
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
+
+	// 3. URL 설정 (여기서는 서버 주소를 설정합니다)
+	Request->SetURL(TEXT("localhost:3000/upload"));
+
+	// 4. HTTP 메소드 설정 (POST 방식)
+	Request->SetVerb(TEXT("POST"));
+
+	// 5. Multipart/FormData 헤더 설정
+	FString Boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+	Request->SetHeader(TEXT("Content-Type"), TEXT("multipart/form-data; boundary=") + Boundary);
+
+	// 6. 파일의 컨텐츠를 multipart/form-data 형식으로 변환
+	FString BeginBoundary = FString("--") + Boundary + TEXT("\r\n");
+	FString EndBoundary = FString("--") + Boundary + TEXT("--\r\n");
+
+	// 파일 정보 구성
+	FString FileHeader = "Content-Disposition: form-data; name=\"image\"; filename=\"" + FPaths::GetCleanFilename(ImagePath) + "\"\r\n";
+	FileHeader.Append("Content-Type: image/jpeg\r\n\r\n");
+
+	// 전체 페이로드 구성 (문자열 부분과 바이너리 데이터 부분을 결합)
+	FString PayloadString = BeginBoundary + FileHeader;
+	TArray<uint8> Payload;
+	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*PayloadString)), PayloadString.Len());
+	Payload.Append(ImageData); // 이미지 데이터를 추가
+	FString EndPayloadString = TEXT("\r\n") + EndBoundary;
+	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*EndPayloadString)), EndPayloadString.Len());
+
+	// 7. HTTP 요청에 내용 추가
+	Request->SetContent(Payload);
+
+	// 8. 요청 완료 시 콜백 함수 등록 (성공 여부 확인)
+	Request->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+		{
+			if (bWasSuccessful && Response.IsValid())
+			{
+				UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
+			}
+		});
+
+	// 9. HTTP 요청 보내기
+	Request->ProcessRequest();
 }
 
 // SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
@@ -800,3 +871,30 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 //}
 
 #pragma endregion
+
+// 라인트레이스 기반 윤곽선 표시 함수
+void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
+{
+	if (HitActor)
+	{
+		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		if (HitMeshComp)
+		{
+			HitMeshComp->SetRenderCustomDepth(true);
+			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값 설정
+		}
+	}
+}
+
+// Custom Depth기반 윤곽선 Material 적용 함수
+void AKHS_DronePlayer::DroneApplyOutlineEffect()
+{	
+	// Post Process에 윤곽선 효과 머티리얼 적용
+	if (CameraComp && OutlineMaterial)
+	{
+		FWeightedBlendable Blendable;
+		Blendable.Object = OutlineMaterial; // 삽입된 윤곽선 머티리얼 적용
+		Blendable.Weight = 1.0f; // 머티리얼 적용 강도
+		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
+	}
+}
