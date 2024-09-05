@@ -253,28 +253,21 @@ void UKJH_GameInstance::CreateSession()
 	}
 }
 
-// UI 함수 (테스트용)
+// UI 함수
 void UKJH_GameInstance::LoadServerWidget()
 {
-
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
 	ServerWidget -> SetMyInterface(this);
 	ServerWidget -> Setup();
-
-
 }
-
 
 void UKJH_GameInstance::LoadInGameWidget()
 {
-
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
-
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
-
 }
 
 void UKJH_GameInstance::LoadServerWidgetMap()

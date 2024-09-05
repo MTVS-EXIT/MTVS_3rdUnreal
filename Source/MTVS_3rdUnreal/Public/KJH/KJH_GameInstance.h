@@ -52,10 +52,10 @@ public:
 	UFUNCTION()
 	void RefreshServerList();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Load Widget")
 	void LoadInGameWidget(); // 인게임 UI를 불러오는 함수
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Load Widget")
 	void LoadServerWidgetMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
 
 	// 캐릭터 선택 관련 함수 //
