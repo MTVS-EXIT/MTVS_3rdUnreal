@@ -254,7 +254,7 @@ void UKJH_GameInstance::CreateSession()
 }
 
 // UI 함수 (테스트용)
-void UKJH_GameInstance::LoadStartMenu()
+void UKJH_GameInstance::LoadServerWidget()
 {
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
@@ -266,7 +266,7 @@ void UKJH_GameInstance::LoadStartMenu()
 }
 
 
-void UKJH_GameInstance::LoadInGameMenu()
+void UKJH_GameInstance::LoadInGameWidget()
 {
 
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
@@ -277,7 +277,7 @@ void UKJH_GameInstance::LoadInGameMenu()
 
 }
 
-void UKJH_GameInstance::LoadServerMenuMap()
+void UKJH_GameInstance::LoadServerWidgetMap()
 {
 	// 플레이어의 첫번째 컨트롤러를 가져온다.
 	APlayerController* PlayerController = GetFirstLocalPlayerController();

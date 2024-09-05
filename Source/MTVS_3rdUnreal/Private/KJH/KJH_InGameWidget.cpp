@@ -32,6 +32,6 @@ void UKJH_InGameWidget::QuitPressed()
 	if (MenuInterface)
 	{
 		Teardown();
-		MenuInterface->LoadServerMenuMap();
+		MenuInterface->LoadServerWidgetMap();
 	}
 }
