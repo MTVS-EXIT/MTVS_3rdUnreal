@@ -67,17 +67,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* LobbyMenu_JoinButton; // 로비에서 실제 세션으로 접속하는 버튼
 
-	// 캐릭터 선택 UI 관련
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterSelectMenu;
-
-	UPROPERTY(meta = (BindWidget))
-	class UButton* PersonSelectButton;
-	
-	UPROPERTY(meta = (BindWidget))
-	class UButton* DroneSelectButton;
-
-
 	// 임시 //
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;
@@ -111,18 +100,4 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateChildren(); // 
-
-
-	// 캐릭터 선택 관련 함수 //
-    UFUNCTION()
-    void ShowCharacterSelect();  // 캐릭터 선택 UI를 표시하는 함수
-
-	UFUNCTION()
-    void SelectPersonCharacter(); // 사람 캐릭터 선택 처리 함수
-
-	UFUNCTION()
-    void SelectDroneCharacter(); // 사람 캐릭터 선택 처리 함수
-
-	void UpdateSelectButtonStates(); // 선택된 버튼 상태를 확인하고 그 여부에 따라 업데이트하는 함수
-
 };
