@@ -42,14 +42,7 @@ void ShowCharacterSelectWidget(APlayerController* PlayerController);
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
-	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 참조 선언
-
-	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
-	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
-	
-	class AKJH_PlayerState* PlayerState; // PlayerState 참조 선언
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes") // Player와 Drone BP 클래스 참조
 	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // 수정된 부분

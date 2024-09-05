@@ -282,23 +282,24 @@ void UKJH_GameInstance::LoadServerWidgetMap()
 }
 
 ////////// 캐릭터 선택 관련 함수 ----------------------------------------------------------------------------------------------------------------
+// 캐릭터 선택 관련 함수: PlayerController를 인자로 받아 각 플레이어의 선택을 독립적으로 처리
 void UKJH_GameInstance::OnCharacterSelected(bool bIsSelectedPersonFromUI)
 {
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!PlayerController) return;
 
 	// 플레이어 상태 가져오기
-	PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
+	AKJH_PlayerState* PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
 	if (!PlayerState) return;
 
 	// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
 	PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
 
 	// 설정된 값을 기반으로 RestartPlayer 호출
-	GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
+	AKJH_GameModeBase* GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
-		GameMode->RestartPlayer(PlayerController);
+		GameMode->RestartPlayer(PlayerController); // 해당 플레이어의 캐릭터를 재시작하여 스폰
 	}
 
 	// UI 선택 상태를 업데이트

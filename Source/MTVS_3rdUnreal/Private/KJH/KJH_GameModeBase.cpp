@@ -75,11 +75,11 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
     Super::RestartPlayer(NewPlayer);
 
     // 플레이어 상태를 가져옴
-    PlayerState = NewPlayer->GetPlayerState<AKJH_PlayerState>();
+    AKJH_PlayerState* PlayerState = NewPlayer->GetPlayerState<AKJH_PlayerState>();
 
     if (PlayerState)
     {
-        // 선택된 캐릭터에 따라 스폰할 캐릭터 클래스를 설정
+        // 각 플레이어의 PlayerState에 따라 캐릭터 클래스를 선택
         TSubclassOf<APawn> ChosenCharacterClass = PlayerState->bIsPersonCharacterSelected
             ? BP_JSH_PlayerClass // true 면 사람이 선택되었다고 생각하고 사람 BP클래스로 설정
             : BP_KHS_DronePlayerClass; // false면 드론이 선택되었다고 생각하고 드론 BP클래스로 설정
@@ -95,7 +95,7 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
         SpawnParams.Instigator = NewPlayer->GetPawn();
 
         // 스폰 위치와 회전 값 설정
-        FVector SpawnLocation = FVector(0.f, 0.f, 300.f); // 기본 스폰 위치 설정 (필요에 따라 수정)
+        FVector SpawnLocation = FVector(0.f, 0.f, 100.f); // 기본 스폰 위치 설정 (필요에 따라 수정)
         FRotator SpawnRotation = FRotator::ZeroRotator; // 기본 회전 값 설정
 
         // 스폰 전 디버그 메시지 추가
@@ -109,25 +109,21 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
             GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Character successfully spawned!"));
             UE_LOG(LogTemp,Warning, TEXT("Character successfully spawned!"));
             NewPlayer->Possess(NewPawn); // 플레이어가 새 캐릭터를 조종하도록 설정
-        }
 
-            // 관전자 모드를 해제하고 플레이어 상태로 전환
+            // 관전자 모드 해제 및 플레이 모드로 전환
             APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
             if (PlayerController)
             {
-                PlayerController->ChangeState(NAME_Playing); // Spectating 상태에서 Playing 상태로 전환
-                bStartPlayersAsSpectators = false;
+                PlayerController->ChangeState(NAME_Playing); // 관전자 상태에서 플레이 상태로 전환
+                bStartPlayersAsSpectators = false; // 이후 플레이어들이 관전 모드로 시작하지 않도록 설정
             }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to spawn character!"));
         }
 
-    }
-    else
-    {
-        // 플레이어 상태가 없으면 기본 게임 모드 로직 사용
-        Super::RestartPlayer(NewPlayer);
+        else
+        {
+            // PlayerState가 없는 경우 기본 로직 실행
+            Super::RestartPlayer(NewPlayer);
+        }
     }
 }
 
@@ -161,21 +157,18 @@ void AKJH_GameModeBase::ShowCharacterSelectWidget(APlayerController* PlayerContr
     UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
     if (GameInstance)
     {
-        // 위젯 생성 및 설정
-        if (!CharacterSelectWidget && CharacterSelectWidgetFactory)
-        {
-            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(PlayerController, CharacterSelectWidgetFactory);
+        // 개별적으로 각 플레이어마다 위젯 생성 및 설정 (CharacterSelectWidget 멤버 변수를 사용하지 않음)
+        UKJH_CharacterSelectWidget* IndividualCharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(PlayerController, CharacterSelectWidgetFactory);
 
-            if (CharacterSelectWidget)
-            {
-                CharacterSelectWidget->AddToViewport();
-                CharacterSelectWidget->Setup();
-                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup."));
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
-            }
+        if (IndividualCharacterSelectWidget)
+        {
+            IndividualCharacterSelectWidget->AddToViewport();
+            IndividualCharacterSelectWidget->Setup();
+            UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup for Player."));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
         }
     }
     else

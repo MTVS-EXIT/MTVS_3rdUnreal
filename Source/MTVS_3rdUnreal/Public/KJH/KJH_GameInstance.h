@@ -78,11 +78,6 @@ public:
 	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
 	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
 
-
-	class AKJH_PlayerState* PlayerState; // PlayerState 참조 선언
-
-	class AKJH_GameModeBase* GameMode; // GameMode 참조
-
 ////////// 전역 변수 & 인스턴스 구간 -----------------------------------------------------------------------------------------
 
 	IOnlineSessionPtr SessionInterface; // 세션 인터페이스를 전역인수로 선언
