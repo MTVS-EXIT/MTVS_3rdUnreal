@@ -26,18 +26,7 @@ void AKJH_GameModeBase::BeginPlay()
     // 기본적으로 RestartPlayer를 호출하지 않고, 특정 이벤트나 조건에서만 호출되도록 조정
     // 예를 들어, 플레이어가 캐릭터를 선택할 때 호출되도록 함
 
-        // 1. 플레이어를 Spectator(관전자) 모드로 시작하게 설정
-    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-    {
-        APlayerController* PlayerController = It->Get();
-        if (PlayerController)
-        {
-            // 플레이어를 Spectator 모드로 설정하여 자동으로 캐릭터를 Possess하지 않도록 함
-            PlayerController->ChangeState(NAME_Spectating);
-        }
-    }
-
-    // 2. 캐릭터 선택 후에만 RestartPlayer가 호출되도록 설정
+    // 캐릭터 선택 후에만 RestartPlayer가 호출되도록 설정
     // 실제 캐릭터 선택 로직에서 GameMode의 RestartPlayer를 호출하도록 설정함
     // 이건 GameInstance의 OnCharacterSelected 에서 처리함.
 }
@@ -59,6 +48,17 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
+    // 새로 접속한 플레이어는 관전 모드로 설정
+    if (NewPlayer)
+    {
+        APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
+        if (PlayerController)
+        {
+            // 관전 모드로 설정은 캐릭터 선택 전까지만 필요
+            PlayerController->ChangeState(NAME_Spectating);
+        }
+    }
+
     // 서버에서 위젯 생성
     if (HasAuthority()) // 서버에서만 실행
     {
@@ -74,9 +74,16 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
     Super::RestartPlayer(NewPlayer);
 
+    if (!NewPlayer) return;
+
     // 플레이어 상태를 가져옴
     AKJH_PlayerState* PlayerState = NewPlayer->GetPlayerState<AKJH_PlayerState>();
 
+    // 플레이어 컨트롤러 가져오기
+    APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
+    if (!PlayerController) return;
+
+    // 관전 모드에서 플레이 모드로 전환할 때만 작동하게 설정
     if (PlayerState)
     {
         // 각 플레이어의 PlayerState에 따라 캐릭터 클래스를 선택
@@ -84,7 +91,7 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
             ? BP_JSH_PlayerClass // true 면 사람이 선택되었다고 생각하고 사람 BP클래스로 설정
             : BP_KHS_DronePlayerClass; // false면 드론이 선택되었다고 생각하고 드론 BP클래스로 설정
 
-                    // 디버그 메시지로 선택된 캐릭터 클래스 출력
+        // 디버그 메시지로 선택된 캐릭터 클래스 출력
         GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue,
             FString::Printf(TEXT("Chosen Character Class: %s"), *ChosenCharacterClass->GetName()));
 
@@ -106,17 +113,14 @@ void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 
         if (NewPawn)
         {
+            // 플레이어가 새 캐릭터를 조종하도록 설정
+            PlayerController->Possess(NewPawn);
+
+            // 관전자 모드에서 플레이 모드로 전환
+            PlayerController->ChangeState(NAME_Playing);
+
             GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Character successfully spawned!"));
             UE_LOG(LogTemp,Warning, TEXT("Character successfully spawned!"));
-            NewPlayer->Possess(NewPawn); // 플레이어가 새 캐릭터를 조종하도록 설정
-
-            // 관전자 모드 해제 및 플레이 모드로 전환
-            APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
-            if (PlayerController)
-            {
-                PlayerController->ChangeState(NAME_Playing); // 관전자 상태에서 플레이 상태로 전환
-                bStartPlayersAsSpectators = false; // 이후 플레이어들이 관전 모드로 시작하지 않도록 설정
-            }
         }
 
         else

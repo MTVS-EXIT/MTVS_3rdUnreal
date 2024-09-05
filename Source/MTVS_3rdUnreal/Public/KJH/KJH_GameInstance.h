@@ -88,5 +88,4 @@ public:
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 
 ////////// 타이머핸들 선언 구간 -----------------------------------------------------------------------------------------
-	FTimerHandle TimerHandle_CharacterSelect;
 };
