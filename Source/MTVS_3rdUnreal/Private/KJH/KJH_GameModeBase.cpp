@@ -10,6 +10,7 @@
 #include "KJH/KJH_WidgetSystem.h"
 #include "Blueprint/UserWidget.h"
 #include "KJH/KJH_GameInstance.h"
+#include "KJH/KJH_CharacterSelectWidget.h"
 
 // GameMode 생성자에서 초기 설정
 AKJH_GameModeBase::AKJH_GameModeBase()
@@ -51,43 +52,50 @@ void AKJH_GameModeBase::PreLogin(const FString& Options, const FString& Address,
     Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 }
 
+
 void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
-    // GameInstance에서 ServerWidget을 가져옵니다.
+    // GameInstance에서 CharacterSelectWidget을 가져온다.
     UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
     if (GameInstance)
     {
-        // ServerWidget이 이미 존재하는지 확인
-        if (!ServerWidget && ServerWidgetFactory)
+        // CharacterSelectWidget이 이미 존재하는지 확인
+        if (!CharacterSelectWidget && CharacterSelectWidgetFactory)
         {
-            // ServerWidget 생성
-            ServerWidget = CreateWidget<UKJH_ServerWidget>(GameInstance, ServerWidgetFactory);
-            if (ServerWidget)
+            // CharacterSelectWidget 생성
+            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(GameInstance, CharacterSelectWidgetFactory);
+
+            if (CharacterSelectWidget)
             {
-                // 인터페이스 설정
-                ServerWidget->SetMyInterface(GameInstance);
-
                 // UI 세팅
-                ServerWidget->Setup(); // 이 함수가 UI를 화면에 추가하고 입력 모드를 설정합니다.
-
-                UE_LOG(LogTemp, Warning, TEXT("ServerWidget Created and Setup."));
+                CharacterSelectWidget->AddToViewport(); // Viewport에 추가하여 UI 표시
+                CharacterSelectWidget->Setup(); // 추가적인 초기화 작업 수행
+                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
             }
         }
     }
-
-    // ServerWidget이 유효하면 ShowCharacterSelect() 호출
-    if (ServerWidget)
+    else
     {
-        ServerWidget->ShowCharacterSelect();
+        UE_LOG(LogTemp, Error, TEXT("Failed to cast GameInstance to UKJH_GameInstance."));
+    }
+
+    // CharacterSelectWidget이 유효하면 ShowCharacterSelect() 호출
+    if (CharacterSelectWidget)
+    {
+        CharacterSelectWidget->ShowCharacterSelect();
         UE_LOG(LogTemp, Warning, TEXT("Character Select UI shown."));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("ServerWidget is not valid! Cannot show character select UI."));
+        UE_LOG(LogTemp, Error, TEXT("Character Select UI is not valid! Cannot show character select UI."));
     }
 }
 

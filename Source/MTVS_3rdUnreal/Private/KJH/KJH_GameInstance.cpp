@@ -55,16 +55,14 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
-	// 내가 설정한 맵으로 listen 서버를 열어준다.
-	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
-	//?PlayerSelection=%s"), PlayerState->bIsPersonCharacterSelected ? TEXT("true") : TEXT("false"));
-
 	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
 	if (ServerWidget)
 	{
 		ServerWidget->Teardown();
 	}
 
+	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
 }
 
 
