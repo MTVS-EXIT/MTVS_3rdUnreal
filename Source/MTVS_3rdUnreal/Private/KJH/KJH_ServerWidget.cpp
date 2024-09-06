@@ -49,23 +49,7 @@ bool UKJH_ServerWidget::Initialize()
 		LobbyMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenMainMenu); // Cancel 버튼 눌렀을 때 OpenMainMenu 함수 호출
 	}
 
-////////// 캐릭터 선택 버튼 바인딩 구간 -------------------------------------------------------------------------------------------------------------
-
-	if (PersonSelectButton)
-	{
-		PersonSelectButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::SelectPersonCharacter);
-	}
-
-	if (DroneSelectButton)
-	{
-		DroneSelectButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::SelectDroneCharacter);
-	}
-
-	// 캐릭터 선택 버튼 상태 업데이트
-	UpdateSelectButtonStates();
-
 	return true;
-
 }
 
 ////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
@@ -158,67 +142,6 @@ void UKJH_ServerWidget::UpdateChildren()
 		if (Row)
 		{
 			Row->Selected = (SelectedIndex.IsSet() && SelectedIndex.GetValue( )== i);
-		}
-	}
-}
-
-
-////////// 캐릭터 선택 처리 관련 함수 -------------------------------------------------------------------------------------------
-void UKJH_ServerWidget::ShowCharacterSelect()
-{
-	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
-	if (MenuSwitcher)
-	{
-		MenuSwitcher->SetActiveWidget(CharacterSelectMenu); // LobbyMenu로 전환하여 활성화한다.
-		UE_LOG(LogTemp, Warning, TEXT("CharacterSelectMenu is Activate"));
-	}
-}
-
-void UKJH_ServerWidget::SelectPersonCharacter()
-{
-	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-	if (GameInstance)
-	{
-		GameInstance->OnCharacterSelected(true); // Person Player 버튼 선택 시 사람 캐릭터 선택을 게임인스턴스에 알림
-		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
-		UpdateSelectButtonStates();
-
-
-		// 캐릭터 선택 후 UI 제거
-		Teardown(); // UI가 선택 후 사라지도록 처리
-	}
-}
-
-void UKJH_ServerWidget::SelectDroneCharacter()
-{
-	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-	if (GameInstance)
-	{
-		GameInstance->OnCharacterSelected(false); // Drone Player 버튼 선택 시 드론 캐릭터 선택을 게임인스턴스에 알림
-		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
-		UpdateSelectButtonStates();
-
-
-		// 캐릭터 선택 후 UI 제거
-		Teardown(); // UI가 선택 후 사라지도록 처리
-	}
-}
-
-void UKJH_ServerWidget::UpdateSelectButtonStates()
-{
-	// 플레이어가 어떤 캐릭터를 선택했는지 알기위해 그 정보를 담고 있는 게임인스턴스를 가져온다.
-	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-	if (GameInstance)
-	{
-		// 버튼 활성화/비활성화 설정 구간
-		if (GameInstance->bIsPersonSelected)
-		{
-			PersonSelectButton->SetIsEnabled(false); // 사람 플레이어 버튼이 이미 선택된 경우 비활성화
-		}
-
-		if (GameInstance->bIsDroneSelected)
-		{
-			DroneSelectButton->SetIsEnabled(false); // 드론 플레이어 버튼이 이미 선택된 경우 비활성화
 		}
 	}
 }

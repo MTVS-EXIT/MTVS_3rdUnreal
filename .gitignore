@@ -72,3 +72,9 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Session Plugins files
+/Plugins/AdvancedSessions/Intermediate/
+/Plugins/AdvancedSessions/Binaries/
+/Plugins/AdvancedSessions/Saved/
+*.bat

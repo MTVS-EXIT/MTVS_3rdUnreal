@@ -47,36 +47,38 @@ public:
 	void CreateSession(); // 세션을 만드는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void LoadStartMenu(); // 시작화면 UI를 불러오는 함수
+	void LoadServerWidget(); // 시작화면 UI를 불러오는 함수
 
 	UFUNCTION()
 	void RefreshServerList();
 
-	UFUNCTION(BlueprintCallable)
-	void LoadInGameMenu(); // 인게임 UI를 불러오는 함수
+	UFUNCTION(BlueprintCallable, Category = "Load Widget")
+	void LoadInGameWidget(); // 인게임 UI를 불러오는 함수
 
-	UFUNCTION(BlueprintCallable)
-	void LoadServerMenuMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
+	UFUNCTION(BlueprintCallable, Category = "Load Widget")
+	void LoadServerWidgetMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
 
 	// 캐릭터 선택 관련 함수 //
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
-	void OnCharacterSelected(bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
+	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
 
-
-////////// 사용자 정의형 서버 함수 구간 --------------------------------------------------------------------------------
+    UFUNCTION(Server, Reliable, WithValidation) // ServerRPC 는 클라이언트가 서버에게 요청하는 것이므로, Validate와 Implementation 으로 나눠서 구성
+    void ServerNotifyCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버에서 클라이언트의 캐릭터 선택을 처리하는 RPC 함수 선언
+	bool ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 유효성 검사 (이 정보를 보내도 되는지, 아닌지)
+	void ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 구현부 (요청이 승인되면, 실제론 여기서 실행)
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
 	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 참조 선언
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
 	class UKJH_WidgetSystem* InGameWidget; // InGameWidget(UI) 참조 선언
 
-	class AKJH_PlayerState* PlayerState; // PlayerState 참조 선언
-
-	class AKJH_GameModeBase* GameMode; // GameMode 참조
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
+	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
 
 ////////// 전역 변수 & 인스턴스 구간 -----------------------------------------------------------------------------------------
 
@@ -88,5 +90,4 @@ public:
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 
 ////////// 타이머핸들 선언 구간 -----------------------------------------------------------------------------------------
-	FTimerHandle TimerHandle_CharacterSelect;
 };

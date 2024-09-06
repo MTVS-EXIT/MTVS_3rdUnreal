@@ -11,19 +11,31 @@ void UKJH_WidgetSystem::SetMyInterface(IKJH_Interface* Interface)
 
 void UKJH_WidgetSystem::Setup()
 {
-
-	// UI 가 유효하다면,
+	// UI가 유효하다면 Viewport에 추가
 	if (this)
 	{
-		this->AddToViewport(); // Viewport 상에 UI를 노출
+		this->AddToViewport();
 	}
 
+	// GetWorld()가 유효한지 확인
 	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is not valid in Setup."));
+		return; // World가 유효하지 않으면 함수를 종료
+	}
+
+	// PlayerController가 유효한지 확인
 	APlayerController* PlayerController = World->GetFirstPlayerController();
-	check(PlayerController);
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid in Setup."));
+		return; // PlayerController가 유효하지 않으면 함수를 종료
+	}
 
 	if (PlayerController)
 	{
+		// UI 전용 입력 모드 설정
 		FInputModeUIOnly InputUIModeData; // UI와 상호작용을 할 수 있는 입력모드를 'InputUIModeData'란 이름으로 설정
 
 		InputUIModeData.SetWidgetToFocus(this->TakeWidget()); // 포커스를 받을 위젯을 설정. 즉, 마우스 입력은 ServerUI 에만 가능함. 다른 곳은 클릭 막음.
@@ -37,17 +49,34 @@ void UKJH_WidgetSystem::Setup()
 
 void UKJH_WidgetSystem::Teardown()
 {
-	this->RemoveFromParent(); // Viewport 상에 UI를 제거
-
+	// GetWorld()가 유효한지 확인
 	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is not valid in Teardown."));
+		return; // World가 유효하지 않으면 함수를 종료
+	}
+
+	// PlayerController가 유효한지 확인
 	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid in Teardown."));
+		return; // PlayerController가 유효하지 않으면 함수를 종료
+	}
 
 	if (PlayerController)
 	{
+		// 게임 전용 입력 모드 설정
 		FInputModeGameOnly InputGameModeData; // Game과 상호작용을 할 수 있는 입력모드를 'InputGameModeData'란 이름으로 설정
 
 		PlayerController->SetInputMode(InputGameModeData); // 입력 모드를 게임 모드로 설정
 		PlayerController->bShowMouseCursor = false; // 마우스 커서를 보이게 하지 않음.
 	}
 
+	// Viewport에서 UI 제거
+	if (this->IsInViewport())
+	{
+		this->RemoveFromParent();
+	}
 }

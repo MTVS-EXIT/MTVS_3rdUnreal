@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "GameFramework/Pawn.h"
 #include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputLibrary.h"
 #include "Engine/Scene.h"
@@ -27,6 +29,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// 새로운 플레이어 컨트롤러 할당되면 Enhanced Input을 다시 매핑해주는 Possessed 함수
+	virtual void PossessedBy(AController* NewController) override;
 
 	//==============================================
 	//인스턴스
@@ -91,12 +96,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_Function;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* IA_Voice;
+
 	//MainUI 인스턴스
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> DroneMainUIFactory;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UUserWidget* DroneMainUI;
+
+	//KHS JsonParseLib 인스턴스
+	UPROPERTY(EditDefaultsOnly)
+	class UKHS_JsonParseLib* KHSJsonLib;
 
 	//AI HUD UI 설정 변수 Set
 
@@ -155,6 +167,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
 
+	// Post Process Volume 레퍼런스 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
+	class APostProcessVolume* PostProcessVolume;
+
+	// Post Process Material의 동적 인스턴스 변수 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
+	class UMaterialInstanceDynamic* PostProcessMaterialInstance;
+
 	//==============================================
 	//함수
 	//==============================================
@@ -184,6 +204,15 @@ public:
 	// 로컬 플레이어가 제어 중인지 체크
 	bool IsLocallyControlled() const;
 
+	//StartNetworkVoice 네트워크로 사운드를 보냄
+	void SetUpNetworkVoice(); 
+
+	//StopNetworkVoice 네트워크로 사운드 보내기 중지
+	void StopVoice(); 
+
+	//VOIP 대상자 등록
+	void RegisterRemoteTalker();
+
 	// 감지된 액터를 주기적으로 확인하는 함수
 	//void PeriodicallyCheckVision();
 
@@ -198,9 +227,15 @@ public:
 	FString GetImagePath(const FString& FileName) const;
 
 	// 이미지 전송 함수 (서버 전송 구현)
-	void SendImageToServer(const FString& ImagePath, const TArray<uint8>& ImageData);
+	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);
+
+	// AI에게 처리 이미지를 반환받을때 처리를 진행할 함수
+	void OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
+
+	// 라인트레이스 기반 윤곽선 표시 함수
+	void DroneEnableOutline(AActor* HitActor);
 
 };

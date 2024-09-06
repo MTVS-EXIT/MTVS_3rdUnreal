@@ -55,16 +55,14 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
-	// 내가 설정한 맵으로 listen 서버를 열어준다.
-	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
-	//?PlayerSelection=%s"), PlayerState->bIsPersonCharacterSelected ? TEXT("true") : TEXT("false"));
-
 	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
 	if (ServerWidget)
 	{
 		ServerWidget->Teardown();
 	}
 
+	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
 }
 
 
@@ -95,25 +93,59 @@ void UKJH_GameInstance::RefreshServerList()
 	}
 }
 
-void UKJH_GameInstance::OnFindSessionComplete( bool Success)
+void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 {
-
-	if (Success && SessionSearch.IsValid() && ServerWidget != nullptr)
+	if (!Success)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: Session search failed."));
+		return;
+	}
 
-		TArray<FString> ServerNames;
-		//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
-		//ServerNames.Add("Test Servr2");
-		//ServerNames.Add("Test Servr3");
+	if (!SessionSearch.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: SessionSearch is not valid."));
+		return;
+	}
 
-		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+	if (!ServerWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnFindSessionComplete failed: ServerWidget is not valid."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+
+	TArray<FString> ServerNames;
+	//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
+	//ServerNames.Add("Test Servr2");
+	//ServerNames.Add("Test Servr3");
+	if (SessionSearch->SearchResults.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete: No sessions found."));
+	}
+
+	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+	{
+		FString SessionName = SearchResult.GetSessionIdStr();
+		if (SessionName.IsEmpty())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Names S: %s"), *SearchResult.GetSessionIdStr());
-			ServerNames.Add(SearchResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found session with empty name."));
 		}
+		else
+		{
+			ServerNames.Add(SessionName);
+			UE_LOG(LogTemp, Warning, TEXT("Found Session Name: %s"), *SessionName);
+		}
+	}
 
-		ServerWidget -> SetServerList(ServerNames);
+	// ServerWidget이 유효하고 SetServerList 호출이 안전한 경우에만 실행
+	if (ServerWidget)
+	{
+		ServerWidget->SetServerList(ServerNames);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ServerWidget is not valid during SetServerList call."));
 	}
 }
 
@@ -212,6 +244,7 @@ void UKJH_GameInstance::CreateSession()
 
 		SessionSettings.NumPublicConnections = 5; // 플레이어 수
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
+		SessionSettings.bUseLobbiesIfAvailable = true; // 로비기능을 활성화한다. (Host 하려면 필요)
 		SessionSettings.bUsesPresence = true;
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
@@ -220,31 +253,24 @@ void UKJH_GameInstance::CreateSession()
 	}
 }
 
-// UI 함수 (테스트용)
-void UKJH_GameInstance::LoadStartMenu()
+// UI 함수
+void UKJH_GameInstance::LoadServerWidget()
 {
-
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
 	ServerWidget -> SetMyInterface(this);
 	ServerWidget -> Setup();
-
-
 }
 
-
-void UKJH_GameInstance::LoadInGameMenu()
+void UKJH_GameInstance::LoadInGameWidget()
 {
-
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
-
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
-
 }
 
-void UKJH_GameInstance::LoadServerMenuMap()
+void UKJH_GameInstance::LoadServerWidgetMap()
 {
 	// 플레이어의 첫번째 컨트롤러를 가져온다.
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
@@ -256,26 +282,49 @@ void UKJH_GameInstance::LoadServerMenuMap()
 }
 
 ////////// 캐릭터 선택 관련 함수 ----------------------------------------------------------------------------------------------------------------
-void UKJH_GameInstance::OnCharacterSelected(bool bIsSelectedPersonFromUI)
+// 캐릭터 선택 관련 함수: PlayerController를 인자로 받아 각 플레이어의 선택을 독립적으로 처리
+void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI)
 {
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!PlayerController) return;
 
 	// 플레이어 상태 가져오기
-	PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
+	AKJH_PlayerState* PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
 	if (!PlayerState) return;
 
-	// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
-	PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
-
-	// 설정된 값을 기반으로 RestartPlayer 호출
-	GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
+	// 서버에서만 PlayerState를 직접 변경
+	if (PlayerController->HasAuthority())
 	{
-		GameMode->RestartPlayer(PlayerController);
+		// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
+		PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
+		// 변경 사항을 클라이언트에 복제
+
+		PlayerState->ForceNetUpdate();
+
+		// 설정된 값을 기반으로 서버에서 RestartPlayer 호출
+		AKJH_GameModeBase* GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->RestartPlayer(PlayerController);
+		}
+	}
+	else
+	{
+		// 클라이언트에서 서버에 캐릭터 선택을 알림
+		ServerNotifyCharacterSelected(PlayerController, bIsSelectedPersonFromUI);
 	}
 
 	// UI 선택 상태를 업데이트
 	bIsPersonSelected = bIsSelectedPersonFromUI; // UI로부터 사람을 선택한 것이 true 면 사람을 선택했다는 값도 true로 설정하고, false라면 선택했다는 값도 false로 설정
 	bIsDroneSelected = !bIsSelectedPersonFromUI; // Drone은 반대로 UI로부터 false로 설정했다고 값을 넣음.
+}
+
+bool UKJH_GameInstance::ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson)
+{
+	return true;
+}
+
+void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson)
+{
+	// 서버에서 캐릭터 선택 상태를 설정하고 재시작
+	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
