@@ -15,13 +15,11 @@
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-// Sets default values
+
 AJSH_Player::AJSH_Player()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
 
 
@@ -32,7 +30,6 @@ AJSH_Player::AJSH_Player()
     	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
     }
 		
-	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	// Third -> First Camera Feel (1)
 	bUseControllerRotationYaw = true;
@@ -43,8 +40,7 @@ AJSH_Player::AJSH_Player()
 	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
+
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
@@ -82,26 +78,26 @@ AJSH_Player::AJSH_Player()
 
 }
 
-// Called when the game starts or when spawned
+
 void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
+
 void AJSH_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called to bind functionality to input
+
 void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Add Input Mapping Context
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -110,7 +106,7 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		}
 	}
 	
-	// Set up action bindings
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
@@ -122,9 +118,12 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJSH_Player::Look);
-		
+
+		// See Watch (Q)
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
-		EnhancedInputComponent->BindAction(RAction, ETriggerEvent::Started, this, &AJSH_Player::R);
+
+		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
+		EnhancedInputComponent->BindAction(RAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
 	}
 	else
 	{
@@ -152,17 +151,15 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
+
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -170,12 +167,11 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 
 void AJSH_Player::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 	
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -216,8 +212,10 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 
 
 
-// R 인터렉션 ------------------------------------------------------------------
-void AJSH_Player::R(const FInputActionValue& Value)
+
+
+// Left Mouse 인터렉션 ------------------------------------------------------------------
+void AJSH_Player::LeftMouse(const FInputActionValue& Value)
 {
 	Server_RAction();
 	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
@@ -233,20 +231,16 @@ void AJSH_Player::NetMulti_RAction_Implementation()
 {
 	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
 	// AxMode가 ON일때만 도끼 찍는 애니메이션 실행, 추후 도끼 주웠을때 AXMODE가 ON, 도끼 버렸을때 OFF 되도록 하기
-	USkeletalMeshComponent* MeshComp2 = GetMesh();
-	if (MeshComp2 && MeshComp2->GetAnimInstance())
+	
+
+	// 도끼를 잡고 있다면
+	if (AxModeON)
 	{
-		// Flip-Flop
-		if (AxModeON)
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		if (MeshComp && MeshComp->GetAnimInstance())
 		{
-			MeshComp2->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
 		}
 	}
-
-	// USkeletalMeshComponent* MeshComp2 = GetMesh();
-	// if (MeshComp2 && MeshComp2->GetAnimInstance())
-	// {
-	// 	MeshComp2->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
-	// }
 }
 // ------------------------------------------------------------------------

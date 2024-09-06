@@ -72,7 +72,7 @@ protected:
 
 	void Watch(const FInputActionValue& Value);
 
-	void R(const FInputActionValue& Value);
+	void LeftMouse(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -84,6 +84,7 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return Camera; }
 
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
