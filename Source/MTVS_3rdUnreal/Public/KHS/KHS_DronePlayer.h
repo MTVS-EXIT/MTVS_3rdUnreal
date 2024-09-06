@@ -167,9 +167,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
 
-	//Object Outline(윤곽선) Material 변수
-	UPROPERTY(EditDefaultsOnly, Category = "Outline")
-	class UMaterialInterface* OutlineMaterial;
+	// Post Process Volume 레퍼런스 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
+	class APostProcessVolume* PostProcessVolume;
+
+	// Post Process Material의 동적 인스턴스 변수 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
+	class UMaterialInstanceDynamic* PostProcessMaterialInstance;
 
 	//==============================================
 	//함수
@@ -209,7 +213,6 @@ public:
 	//VOIP 대상자 등록
 	void RegisterRemoteTalker();
 
-
 	// 감지된 액터를 주기적으로 확인하는 함수
 	//void PeriodicallyCheckVision();
 
@@ -226,12 +229,8 @@ public:
 	// 이미지 전송 함수 (서버 전송 구현)
 	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);
 
-	// AI에게 처리 이미지를 반환받을때 응답받을 함수
+	// AI에게 처리 이미지를 반환받을때 처리를 진행할 함수
 	void OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
-	//// 이미지 Decode 함수
-	//FString StringBase64Decode(FString str);
-
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
@@ -239,6 +238,4 @@ public:
 	// 라인트레이스 기반 윤곽선 표시 함수
 	void DroneEnableOutline(AActor* HitActor);
 
-	// Custom Depth기반 윤곽선 Material 적용 함수
-	void DroneApplyOutlineEffect();
 };

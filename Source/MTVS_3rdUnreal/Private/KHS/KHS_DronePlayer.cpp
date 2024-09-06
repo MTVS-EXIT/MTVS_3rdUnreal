@@ -150,7 +150,18 @@ void AKHS_DronePlayer::BeginPlay()
 	}
 
 	//윤곽선 효과 적용
-	DroneApplyOutlineEffect();
+	//DroneApplyOutlineEffect();
+
+	// Post Process Material의 동적 인스턴스 생성
+	if (PostProcessVolume && PostProcessVolume->Settings.WeightedBlendables.Array.Num() > 0)
+	{
+		UMaterialInterface* PostProcessMaterial = Cast<UMaterialInterface>(PostProcessVolume->Settings.WeightedBlendables.Array[0].Object);
+		if (PostProcessMaterial)
+		{
+			PostProcessMaterialInstance = UMaterialInstanceDynamic::Create(PostProcessMaterial, this);
+			PostProcessVolume->Settings.WeightedBlendables.Array[0].Object = PostProcessMaterialInstance;
+		}
+	}
 }
 
 // Called every frame
@@ -199,24 +210,49 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	// 고도계, 사물 윤곽선 표시 라인트레이스
 	FVector s = GetActorLocation();
 	FVector e = s - FVector(0, 0, 10000); //아래로 N만큼 라인트레이스 발사
-	FHitResult HItResult;
+	FHitResult HitResult;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HItResult,s,e,ECC_Visibility, params);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,s,e,ECC_Visibility, params);
+	
 	if (bHit)
 	{
 		//Drone 고도계 업데이트
-		float Altitude = s.Z - HItResult.Location.Z;
+		float Altitude = s.Z - HitResult.Location.Z;
 		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
 		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
 
-		//맞은 액터에 윤곽선 적용
-		AActor* HitActor = HItResult.GetActor();
-		if (HitActor)
+		AActor* HitActor = HitResult.GetActor();
+
+		if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
 		{
+			// 맞은 액터가 KHS_AIVisionObject일 경우 윤곽선 적용
 			DroneEnableOutline(HitActor);
+
+			// Post Process Material의 Weight 값을 1로 설정 (적용 강도 증가)
+			if (PostProcessMaterialInstance)
+			{
+				PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 1.0f);
+			}
+		}
+		else
+		{
+			// 맞은 액터가 없거나 KHS_AIVisionObject가 아닌 경우 Weight 값을 0으로 설정 (적용 강도 감소)
+			if (PostProcessMaterialInstance)
+			{
+				PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 0.0f);
+			}
 		}
 	}
+	else
+	{
+		// 라인트레이스가 맞지 않았을 경우에도 Weight 값을 0으로 설정
+		if (PostProcessMaterialInstance)
+		{
+			PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 0.0f);
+		}
+	}
+
 
 	//카메라쉐이크 타이머 업데이트
 	TimeSinceLastShake += DeltaTime;
@@ -273,6 +309,7 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
 	}
 }
+//재시작시 Drone Player Possess를 다시 잡아줌
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); // 기본 클래스의 Possess 로직을 다시 실행하여 Pawn과 Controller 간의 연결을 설정
@@ -333,15 +370,6 @@ void AKHS_DronePlayer::SetDronePostProcess()
 	}
 
 	CameraComp->PostProcessSettings.WeightedBlendables.Array.Empty();
-
-	// Post Process에 윤곽선 효과 머티리얼 적용
-	if (CameraComp && OutlineMaterial)
-	{
-		FWeightedBlendable Blendable;
-		Blendable.Object = OutlineMaterial; // 삽입된 윤곽선 머티리얼 적용
-		Blendable.Weight = 1.0f; // 머티리얼 적용 강도
-		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
-	}
 
 	// Radial Blur Material이 카메라에 적용된 상태인지 확인
 	if (RadialBlurMaterial && MPC_DroneBlur)
@@ -482,7 +510,6 @@ void AKHS_DronePlayer::SetUpNetworkVoice()
 			}
 		}
 	}
-
 }
 
 //StopNetworkVoice 네트워크로 사운드 보내기 중지
@@ -504,34 +531,33 @@ void AKHS_DronePlayer::StopVoice()
 			}
 		}
 	}
-
 }
 
 //VOIP 대상자 등록
 void AKHS_DronePlayer::RegisterRemoteTalker()
 {
-	//APlayerController* PlayerController = GetController<APlayerController>();
-	//if (PlayerController)
-	//{
-	//	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
-	//	if (OnlineSub)
-	//	{
-	//		IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
-	//		if (VoiceInterface.IsValid())
-	//		{
-	//			// 플레이어의 고유 네트워크 ID를 가져옵니다.
-	//			TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
+		if (OnlineSub)
+		{
+			IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
+			if (VoiceInterface.IsValid())
+			{
+				// 플레이어의 고유 네트워크 ID를 가져옵니다.
+				TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
 
-	//			if (UniqueNetId.IsValid())
-	//			{
-	//				// 고유 네트워크 ID를 사용하여 원격 Talker를 등록합니다.
-	//				VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
-	//			}
-	//		}
-	//	}
-	//}
-
+				if (UniqueNetId.IsValid())
+				{
+					// 고유 네트워크 ID를 사용하여 원격 Talker를 등록합니다.
+					VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
+				}
+			}
+		}
+	}
 }
+
 //VOIP관련 초기화 작업
 void AKHS_DronePlayer::InitializeVOIP()
 {
@@ -553,7 +579,7 @@ void AKHS_DronePlayer::InitializeVOIP()
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
 				if (PlayerController)
 				{
-					PlayerController->ConsoleCommand("OSS.VoiceLoopback 0");
+					PlayerController->ConsoleCommand("OSS.VoiceLoopback 1");
 				}
 			}
 			// 원격 Talker 등록
@@ -735,7 +761,6 @@ FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 
 	// 파일 경로 반환
 	return CapturedFolderPath / FileName;
-	//return FPaths::ProjectSavedDir() + FileName;
 }
 
 // 이미지 전송 함수 (서버 전송 구현)
@@ -782,19 +807,6 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 	// 8. 요청 완료 시 콜백 함수 등록 (성공 여부 확인)
 	Request->OnProcessRequestComplete().BindUObject(this, &AKHS_DronePlayer::OnResGetAIImage);
 
-	/*Request->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-		{
-			if (bWasSuccessful && Response.IsValid())
-			{
-				UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
-
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
-			}
-		});*/
-
 	// 9. HTTP 요청 보내기
 	Request->ProcessRequest();
 }
@@ -804,37 +816,65 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 	if (bWasSuccessful && Response.IsValid())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
-
-
+		
+		//통신이 성공했을때 Response를 JsonLib를 통해 parsing한 결과를 배열에 담기.
 		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
-
-		FString imagePath = FPaths::ProjectPersistentDownloadDir() + "/Returned.jpg";
-
-		FFileHelper::SaveArrayToFile(data, *imagePath);
-
-		UE_LOG(LogTemp, Log, TEXT("Returned Image saved to %s"), *imagePath);
-
-		UTexture2D* realTexture = FImageUtils::ImportBufferAsTexture2D(data);
-
-		UImage* AIImage = Cast<UImage>(DroneMainUI->GetWidgetFromName(TEXT("AIImage")));
-
-		AIImage->SetBrushFromTexture(realTexture);
+		//데이터가 있을때
+		if (data.Num() > 0)
+		{
+			//(선택) 파일 이름을 지정하여
+			FString FileName = FString::Printf(TEXT("/Returned_%s.jpg"), *FDateTime::Now().ToString());
+			//(선택) 파일 경로 지정 후
+			FString imagePath = FPaths::ProjectPersistentDownloadDir() + FileName;
+			//(선택) 내 쪽에 이미지가 잘 전달됐는지 확인 목적으로 저장
+			FFileHelper::SaveArrayToFile(data, *imagePath);
+			//(선택) 잘 저장됐는지 로그
+			if (FFileHelper::SaveArrayToFile(data, *imagePath))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Returned Image saved to %s"), *imagePath);
+			}
+			//(선택) 저장 실패시 로그
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Image Saved Failed"));
+				return;
+			}
+			// 받은 데이터를 UI Image로 전달하여 화면에 출력
+			// 데이터를 Texture2D형태로 전환
+			UTexture2D* realTexture = FImageUtils::ImportBufferAsTexture2D(data);
+			if (realTexture)
+			{
+				// UI인스턴스를 만들어 UI Image에 접근
+				UImage* AIImage = Cast<UImage>(DroneMainUI->GetWidgetFromName(TEXT("AIImage")));
+				if (AIImage)
+				{
+					//UI 이미지에 텍스쳐 출력
+					AIImage->SetBrushFromTexture(realTexture);
+				}
+				else
+				{
+					//텍스쳐 출력 실패시
+					UE_LOG(LogTemp, Error, TEXT("Can not find AIImage Widget"));
+				}
+			}
+			else
+			{
+				//Texture2D전환 실패시
+				UE_LOG(LogTemp, Error, TEXT("UTexture2D Incoding Failed"));
+			}
+		}
+		else
+		{
+			//Data Parsing실패시
+			UE_LOG(LogTemp, Error, TEXT("No Parsing Image Data"));
+		}
 	}
 	else
 	{
+		//Image 전달 실패시
 		UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
 	}
 }
-
-//FString AKHS_DronePlayer::StringBase64Decode(FString str)
-//{
-//	/*// Get 할 때 : base64 로 Decode -> TArray<uint8> -> TCHAR
-//	TArray<uint8> arrayData;
-//	FBase64::Decode(str, arrayData);
-//	std::string ut8String((char*)(arrayData.GetData()), arrayData.Num());
-//	return UTF8_TO_TCHAR(ut8String.c_str());*/
-//	retur
-//}
 
 // SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
@@ -851,131 +891,21 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 	}
 }
 
-//void AKHS_DronePlayer::CheckVisionForTag(FString Tag)
-//{
-//	//새로운 태그가 전달되었을 때만 태그를 업데이트하고 감지 시작
-//	if (false == Tag.IsEmpty())
-//	{
-//		CurrentTag = Tag;
-//		bIsTagSet = true;
-//		bIsCurrentlyDetecting = true;  // 감지 기능 활성화
-//	}
-//
-//	//태그가 설정되지 않았거나 이미 감지 기능이 중지된 경우 함수 종료
-//	if (false == bIsTagSet || false == bIsCurrentlyDetecting)
-//	{
-//		return;
-//	}
-//
-//	// 즉시 한번 감지 상태 확인
-//	PeriodicallyCheckVision();
-//}
-//
-//void AKHS_DronePlayer::PeriodicallyCheckVision()
-//{
-//	// 라인트레이스 범위 내에서 감지된 새로운 액터를 추적할 임시 변수
-//	TSet<AKHS_AIVisionObject*> CurrentlyDetectedAIVisionObjects;
-//
-//	// 카메라 위치와 방향
-//	FVector Start = CameraComp->GetComponentLocation();
-//	FVector ForwardVector = CameraComp->GetForwardVector();
-//
-//	// 카메라의 시야각(FOV)을 기준으로 여러 방향으로 라인트레이스 발사
-//	float FOV = CameraComp->FieldOfView; // 카메라의 시야각
-//	int32 NumRays = 30; // 발사할 라인트레이스의 개수
-//	float MaxDistance = 5000.0f; // 라인트레이스의 최대 거리
-//
-//	bool bAnyActorDetected = false;
-//
-//	for (int32 i = 0; i < NumRays; i++)
-//	{
-//		// 시야각 범위 내에서 라인트레이스 방향 계산
-//		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
-//		FRotator Rotator = FRotator(0, Angle, 0);
-//		FVector Direction = Rotator.RotateVector(ForwardVector);
-//		FVector End = Start + (Direction * MaxDistance);
-//		FHitResult HitResult;
-//		FCollisionQueryParams CollisionParams;
-//		CollisionParams.AddIgnoredActor(this);  // 자신을 무시
-//
-//		// 라인트레이스 실행
-//		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
-//		{
-//			AActor* HitActor = HitResult.GetActor();
-//
-//			// 라인트레이스에 맞은 액터가 있는지 확인
-//			if (HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
-//			{
-//				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
-//				if (HitAIVisionObject)
-//				{
-//					// 액터의 태그가 전달받은 태그와 일치하는지 확인
-//					if (HitAIVisionObject->ActorHasTag(FName(*CurrentTag)))
-//					{
-//						// 현재 감지된 액터를 임시 변수에 추가
-//						CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
-//
-//						// 위젯 컴포넌트를 Visible로 설정
-//						if (HitAIVisionObject->WidgetComp)
-//						{
-//							HitAIVisionObject->WidgetComp->SetVisibility(true);
-//						}
-//
-//						// 최소 하나의 액터가 감지됨
-//						bAnyActorDetected = true;
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	// 현재 태그와 일치하는 액터가 감지되지 않은 경우 감지 중지
-//	if (!bAnyActorDetected)
-//	{
-//		bIsCurrentlyDetecting = false;  // 감지 기능 비활성화
-//	}
-//
-//	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 UI를 숨김
-//	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
-//	{
-//		if (!CurrentlyDetectedAIVisionObjects.Contains(DetectedObject))
-//		{
-//			if (DetectedObject && DetectedObject->WidgetComp)
-//			{
-//				DetectedObject->WidgetComp->SetVisibility(false);
-//			}
-//		}
-//	}
-//
-//	// 현재 감지된 액터들로 추적 세트 업데이트
-//	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
-//}
-
 #pragma endregion
 
 // 라인트레이스 기반 윤곽선 표시 함수
 void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
 {
-	if (HitActor)
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass())) // Actor가 KHS_AIVisionObject 타입인지 확인
 	{
 		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		if (HitMeshComp)
 		{
 			HitMeshComp->SetRenderCustomDepth(true);
-			HitMeshComp->CustomDepthStencilValue = 2; // 스텐실 값 설정
+			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값을 1로 설정
 		}
 	}
+	
 }
 
-// Custom Depth기반 윤곽선 Material 적용 함수
-void AKHS_DronePlayer::DroneApplyOutlineEffect()
-{	
-	// Post Process에 윤곽선 효과 머티리얼 적용
-	if (CameraComp && OutlineMaterial)
-	{
-		FWeightedBlendable Blendable;
-		Blendable.Object = OutlineMaterial; // 삽입된 윤곽선 머티리얼 적용
-		Blendable.Weight = 1.0f; // 머티리얼 적용 강도
-		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
-	}
-}
+

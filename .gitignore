@@ -77,3 +77,4 @@ DerivedDataCache/*
 /Plugins/AdvancedSessions/Intermediate/
 /Plugins/AdvancedSessions/Binaries/
 /Plugins/AdvancedSessions/Saved/
+*.bat

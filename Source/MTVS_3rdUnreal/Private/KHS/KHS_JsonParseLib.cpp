@@ -5,30 +5,35 @@
 
 TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIImage(const FString& json)
 {
+
 	TArray<uint8> arrayData;
-	ResponseKey result;
 	//Json Reader 생성
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
-
 	//Parsing결과를 담을 변수 생성
-	TSharedPtr<FJsonObject> JsonResult = MakeShareable(new FJsonObject());
-
+	TSharedPtr<FJsonObject> JsonResult;
 	//전달받은 json 해석
-	FString ReturnValue;
-
-	if (FJsonSerializer::Deserialize(JsonReader, JsonResult))
+	if (FJsonSerializer::Deserialize(JsonReader, JsonResult) && JsonResult.IsValid())
 	{
-		TSharedPtr<FJsonObject> jsonData = JsonResult->GetObjectField(TEXT("file"));
+		// "detected_image" 필드가 존재하는지 확인
+		if (JsonResult->HasTypedField<EJson::String>(TEXT("detected_image")))
+		{
+			FString Base64String = JsonResult->GetStringField(TEXT("detected_image"));
 
-		//데이터리스트 검사해서 담아두기
-		if (jsonData->HasField("detected_image")) {
-			result.AIImage = jsonData->GetStringField("detected_image");	//detected_image 결과값.
-			//Base64 Decoding << Return string
-			// TArray<uint8> -> TCHAR
-			
-			FBase64::Decode(result.AIImage, arrayData);
+			FBase64::Decode(Base64String, arrayData);
+			// Base64 디코딩
+			if (false == FBase64::Decode(Base64String, arrayData))
+			{
+				UE_LOG(LogTemp, Error, TEXT("Base64 Decoding Failed"));
+			}
 		}
-
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Can not find detected_image field"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("JSON Pasing Failed"));
 	}
 	//호출한 쪽에 적용된 Value값 반환
 	return arrayData;
