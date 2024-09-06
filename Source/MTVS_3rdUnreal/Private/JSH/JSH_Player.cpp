@@ -38,7 +38,7 @@ AJSH_Player::AJSH_Player()
 	// Third -> First Camera Feel (2)
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 
 
 	GetCharacterMovement()->JumpZVelocity = 500.f;
@@ -56,12 +56,12 @@ AJSH_Player::AJSH_Player()
 	// SpringArm->SetRelativeLocation(FVector(0, 23.5f, 168));
 	// SpringArm->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("pelvis"));
 	SpringArm->TargetArmLength = 0.f; 
-	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	SpringArm->bUsePawnControlRotation = true; 
 
-	// Create a follow camera
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false; 
 
 
 	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
@@ -75,6 +75,13 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetupAttachment(DigitalWatch);
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
+
+	AX = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AX"));
+	AX->SetupAttachment(GetMesh(), FName("AX"));
+	AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
+	AX->SetRelativeRotation(FRotator(0.f, 5.000001f, 0.f));
+	AX->SetVisibility(false);
+	
 
 }
 
@@ -123,7 +130,9 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
 
 		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
-		EnhancedInputComponent->BindAction(RAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
+		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
+
+		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AJSH_Player::Walk);
 	}
 	else
 	{
@@ -140,7 +149,10 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, WatchSee);
 	DOREPLIFETIME(AJSH_Player, AxModeON);
 	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
+	DOREPLIFETIME(AJSH_Player, WantWalk);
+	DOREPLIFETIME(AJSH_Player, WantSprint);
 }
+
 
 
 
@@ -208,8 +220,32 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 		WatchSee = !WatchSee;
 	}
 }
-// ----------------------------------------------------------------------------
+// @----------------------------------------------------------------------------
 
+
+
+
+// 걷기 -------------------------------------
+
+void AJSH_Player::Walk(const FInputActionValue& Value)
+{
+	Server_Walk();
+}
+
+void AJSH_Player::Server_Walk_Implementation()
+{
+	NetMulti_Walk();
+}
+
+void AJSH_Player::NetMulti_Walk_Implementation()
+{
+	if (WantSprint != false)
+	{
+		WantWalk = (WantWalk != false);
+	}
+}
+
+// ------------------------------------
 
 
 
@@ -220,7 +256,6 @@ void AJSH_Player::LeftMouse(const FInputActionValue& Value)
 	Server_RAction();
 	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
 }
-
 
 void AJSH_Player::Server_RAction_Implementation()
 {
@@ -240,6 +275,7 @@ void AJSH_Player::NetMulti_RAction_Implementation()
 		if (MeshComp && MeshComp->GetAnimInstance())
 		{
 			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+			AX->SetVisibility(true);
 		}
 	}
 }

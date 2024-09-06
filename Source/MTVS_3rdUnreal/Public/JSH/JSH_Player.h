@@ -53,9 +53,10 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 
 	// R - 도끼 찍기, 소화기 던지기
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* RAction;
+	UInputAction* LeftClickAction;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* WalkAction;
 	
 public:
 	// Sets default values for this character's properties
@@ -73,6 +74,8 @@ protected:
 	void Watch(const FInputActionValue& Value);
 
 	void LeftMouse(const FInputActionValue& Value);
+
+	void Walk(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -130,10 +133,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AxAnimations")
 	UAnimMontage* AxMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ax")
+	UStaticMeshComponent* AX;
+
 	UFUNCTION(Server, Reliable)
 	void Server_RAction();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_RAction();
+
+
+
+	//---걷기 관련---
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool WantWalk = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool WantSprint = false;
+
+	UFUNCTION(Server, Reliable)
+	void Server_Walk();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_Walk();
+	
 	
 };
