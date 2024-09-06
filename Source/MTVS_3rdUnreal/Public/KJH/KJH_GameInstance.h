@@ -62,10 +62,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
 	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
 
-
-////////// RPC 함수 구간 --------------------------------------------------------------------------------
-
-
+    UFUNCTION(Server, Reliable, WithValidation) // ServerRPC 는 클라이언트가 서버에게 요청하는 것이므로, Validate와 Implementation 으로 나눠서 구성
+    void ServerNotifyCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버에서 클라이언트의 캐릭터 선택을 처리하는 RPC 함수 선언
+	bool ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 유효성 검사 (이 정보를 보내도 되는지, 아닌지)
+	void ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 구현부 (요청이 승인되면, 실제론 여기서 실행)
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")

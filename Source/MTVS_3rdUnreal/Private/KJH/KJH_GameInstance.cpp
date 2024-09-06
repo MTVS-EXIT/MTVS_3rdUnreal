@@ -291,17 +291,40 @@ void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController,
 	AKJH_PlayerState* PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
 	if (!PlayerState) return;
 
-	// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
-	PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
-
-	// 설정된 값을 기반으로 RestartPlayer 호출
-	AKJH_GameModeBase* GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
+	// 서버에서만 PlayerState를 직접 변경
+	if (PlayerController->HasAuthority())
 	{
-		GameMode->RestartPlayer(PlayerController); // 해당 플레이어의 캐릭터를 재시작하여 스폰
+		// 선택된 캐릭터 유형에 따라 PlayerState 값을 설정
+		PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
+		// 변경 사항을 클라이언트에 복제
+
+		PlayerState->ForceNetUpdate();
+
+		// 설정된 값을 기반으로 서버에서 RestartPlayer 호출
+		AKJH_GameModeBase* GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->RestartPlayer(PlayerController);
+		}
+	}
+	else
+	{
+		// 클라이언트에서 서버에 캐릭터 선택을 알림
+		ServerNotifyCharacterSelected(PlayerController, bIsSelectedPersonFromUI);
 	}
 
 	// UI 선택 상태를 업데이트
 	bIsPersonSelected = bIsSelectedPersonFromUI; // UI로부터 사람을 선택한 것이 true 면 사람을 선택했다는 값도 true로 설정하고, false라면 선택했다는 값도 false로 설정
 	bIsDroneSelected = !bIsSelectedPersonFromUI; // Drone은 반대로 UI로부터 false로 설정했다고 값을 넣음.
+}
+
+bool UKJH_GameInstance::ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson)
+{
+	return true;
+}
+
+void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson)
+{
+	// 서버에서 캐릭터 선택 상태를 설정하고 재시작
+	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
