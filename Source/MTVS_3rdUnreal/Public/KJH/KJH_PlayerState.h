@@ -20,7 +20,7 @@ public:
 
 
     // 플레이어가 사람 캐릭터를 선택했는지 여부를 저장
-	UPROPERTY(BlueprintReadWrite, Category = "Character Selection")
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character Selection")
 	bool bIsPersonCharacterSelected = false;
 
 };
