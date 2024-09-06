@@ -811,6 +811,7 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 	Request->ProcessRequest();
 }
 
+// AI에게 처리 이미지를 반환받을때 처리를 진행할 함수
 void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
