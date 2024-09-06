@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "GameFramework/Pawn.h"
 #include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputLibrary.h"
 #include "Engine/Scene.h"
@@ -27,6 +29,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// 새로운 플레이어 컨트롤러 할당되면 Enhanced Input을 다시 매핑해주는 Possessed 함수
+	virtual void PossessedBy(AController* NewController) override;
 
 	//==============================================
 	//인스턴스
@@ -100,6 +105,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UUserWidget* DroneMainUI;
+
+	//KHS JsonParseLib 인스턴스
+	UPROPERTY(EditDefaultsOnly)
+	class UKHS_JsonParseLib* KHSJsonLib;
 
 	//AI HUD UI 설정 변수 Set
 
@@ -216,6 +225,13 @@ public:
 
 	// 이미지 전송 함수 (서버 전송 구현)
 	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);
+
+	// AI에게 처리 이미지를 반환받을때 응답받을 함수
+	void OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	//// 이미지 Decode 함수
+	//FString StringBase64Decode(FString str);
+
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();

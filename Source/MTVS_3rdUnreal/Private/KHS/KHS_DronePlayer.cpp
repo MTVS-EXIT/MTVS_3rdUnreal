@@ -4,32 +4,44 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "KHS/KHS_DroneMainUI.h"
 #include "KHS/KHS_AIVisionObject.h"
+
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
+
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/SceneCaptureComponent2D.h"
+
 #include "Engine/StaticMesh.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "ImageUtils.h"
 #include "Misc/FileHelper.h"
+
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
+
 #include "Net/VoiceConfig.h"
 #include "TextureResource.h"
+
 #include "Kismet/GameplayStatics.h"
+
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/VoiceInterface.h"
+
 #include "HttpModule.h"
 #include "HttpFwd.h"
-#include "Interfaces/IHttpRequest.h"
-#include "Interfaces/IHttpResponse.h"
+
+
+#include "Components/Image.h"
+
+#include <KHS/KHS_JsonParseLib.h>
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
@@ -88,6 +100,7 @@ void AKHS_DronePlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
 	//IMC_TPS
 	auto pc = Cast<APlayerController>(Controller);
 	if (pc)
@@ -259,6 +272,33 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::SetUpNetworkVoice);
 		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
 	}
+}
+void AKHS_DronePlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController); // 기본 클래스의 Possess 로직을 다시 실행하여 Pawn과 Controller 간의 연결을 설정
+
+	// 입력 컴포넌트 초기화
+	// Possess 이후에 입력 컴포넌트를 다시 설정하여 드론의 입력 바인딩이 올바르게 이루어지도록 함.
+	SetupPlayerInputComponent(NewController->InputComponent);
+
+	// VOIP 관련 초기화 작업
+	// 드론이 새로 소유되었을 때 필요한 VOIP 설정 등을 여기서 수행 (보이스채팅 관련)
+	InitializeVOIP();  // VOIP Talker의 초기화 및 등록 작업을 처리
+
+	// 필요 시 다른 초기화 작업 추가
+	// 예: 드론 카메라 세팅, UI 초기화, 기타 네트워크 설정 등
+
+	// Enhanced Input 시스템에 드론의 입력 매핑 추가
+	APlayerController* pc = Cast<APlayerController>(NewController);
+	if (pc)
+	{
+		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+		if (subsys)
+		{
+			subsys->AddMappingContext(IMC_Drone, 0); // 입력 매핑 추가
+		}
+	}
+
 }
 //카메라쉐이크 재생함수
 void AKHS_DronePlayer::PlayDroneCameraShake()
@@ -710,7 +750,8 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 
 	// 3. URL 설정 (여기서는 서버 주소를 설정합니다)
-	Request->SetURL(TEXT("localhost:3000/upload"));
+	//Request->SetURL(TEXT("localhost:3000/upload"));
+	Request->SetURL(TEXT("meta-ai.iptime.org:7722/detect"));
 
 	// 4. HTTP 메소드 설정 (POST 방식)
 	Request->SetVerb(TEXT("POST"));
@@ -724,7 +765,7 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 	FString EndBoundary = FString("--") + Boundary + TEXT("--\r\n");
 
 	// 파일 정보 구성
-	FString FileHeader = "Content-Disposition: form-data; name=\"image\"; filename=\"" + FPaths::GetCleanFilename(ImagePath) + "\"\r\n";
+	FString FileHeader = "Content-Disposition: form-data; name=\"file\"; filename=\"" + FPaths::GetCleanFilename(ImagePath) + "\"\r\n";
 	FileHeader.Append("Content-Type: image/jpeg\r\n\r\n");
 
 	// 전체 페이로드 구성 (문자열 부분과 바이너리 데이터 부분을 결합)
@@ -739,21 +780,61 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 	Request->SetContent(Payload);
 
 	// 8. 요청 완료 시 콜백 함수 등록 (성공 여부 확인)
-	Request->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+	Request->OnProcessRequestComplete().BindUObject(this, &AKHS_DronePlayer::OnResGetAIImage);
+
+	/*Request->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 		{
 			if (bWasSuccessful && Response.IsValid())
 			{
 				UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
+
 			}
 			else
 			{
 				UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
 			}
-		});
+		});*/
 
 	// 9. HTTP 요청 보내기
 	Request->ProcessRequest();
 }
+
+void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (bWasSuccessful && Response.IsValid())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
+
+
+		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
+
+		FString imagePath = FPaths::ProjectPersistentDownloadDir() + "/Returned.jpg";
+
+		FFileHelper::SaveArrayToFile(data, *imagePath);
+
+		UE_LOG(LogTemp, Log, TEXT("Returned Image saved to %s"), *imagePath);
+
+		UTexture2D* realTexture = FImageUtils::ImportBufferAsTexture2D(data);
+
+		UImage* AIImage = Cast<UImage>(DroneMainUI->GetWidgetFromName(TEXT("AIImage")));
+
+		AIImage->SetBrushFromTexture(realTexture);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
+	}
+}
+
+//FString AKHS_DronePlayer::StringBase64Decode(FString str)
+//{
+//	/*// Get 할 때 : base64 로 Decode -> TArray<uint8> -> TCHAR
+//	TArray<uint8> arrayData;
+//	FBase64::Decode(str, arrayData);
+//	std::string ut8String((char*)(arrayData.GetData()), arrayData.Num());
+//	return UTF8_TO_TCHAR(ut8String.c_str());*/
+//	retur
+//}
 
 // SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
@@ -881,7 +962,7 @@ void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
 		if (HitMeshComp)
 		{
 			HitMeshComp->SetRenderCustomDepth(true);
-			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값 설정
+			HitMeshComp->CustomDepthStencilValue = 2; // 스텐실 값 설정
 		}
 	}
 }

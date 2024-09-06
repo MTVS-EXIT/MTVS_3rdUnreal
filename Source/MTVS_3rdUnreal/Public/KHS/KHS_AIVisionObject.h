@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USphereComponent* SphereComp;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(EditDefaultsOnly)

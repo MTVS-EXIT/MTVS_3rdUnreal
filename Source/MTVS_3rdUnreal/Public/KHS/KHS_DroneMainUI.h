@@ -20,5 +20,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HeightText;
 
+	//AI 처리결과 출력
+	UPROPERTY(meta = (BindWidget))
+	class UImage* AIImage;
 
 };
