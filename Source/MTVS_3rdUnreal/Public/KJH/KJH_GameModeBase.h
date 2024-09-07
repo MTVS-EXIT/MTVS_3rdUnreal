@@ -37,25 +37,9 @@ public:
 
 ////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
 
-// 캐릭터 선택 구간 //
-void ShowCharacterSelectWidget(APlayerController* PlayerController); // 캐릭터 선택 UI 생성
 
-UFUNCTION(NetMulticast, Reliable) // 서버가 모든 클라이언트에게 동일한 명령을 전달하는 것이므로, 클라이언트 입장에서는 데이터를 검증할 필요가 없음.
-								  // 이미 신뢰가 있는 정보이므로, Validate 없이 Implementation만 구현
-void Multicast_ShowCharacterSelectWidget(APlayerController* PlayerController); // 캐릭터 선택 UI 생성 멀티캐스트
-void Multicast_ShowCharacterSelectWidget_Implementation(APlayerController* PlayerController); // 캐릭터 선택 UI 생성 멀티캐스트 구현부
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character Classes") // Player와 Drone BP 클래스 참조
-	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // 수정된 부분
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
-	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // 수정된 부분
-
-
 
 
 };

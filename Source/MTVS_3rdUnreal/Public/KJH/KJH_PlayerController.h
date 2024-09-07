@@ -31,6 +31,9 @@ public:
     UFUNCTION(Client, Reliable)
     void ClientShowCharacterSelectWidget();
 
+
+
+
     // 캐릭터 선택에 따라 캐릭터를 스폰하는 함수
     void SpawnCharacterBasedOnSelection();
 
@@ -40,6 +43,12 @@ public:
 
     // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
     bool bIsPersonCharacterSelected;
+
+
+
+    UFUNCTION(Client, Reliable)
+    void Client_SetupDroneUI();
+
 
     // 캐릭터 선택 위젯
     UPROPERTY()

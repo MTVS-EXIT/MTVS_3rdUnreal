@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerStart.h"
+#include "KHS/KHS_DronePlayer.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
@@ -26,6 +27,16 @@ void AKJH_PlayerController::OnPossess(APawn* aPawn)
     {
         ShowCharacterSelectWidget();
     }
+
+    AKHS_DronePlayer* DronePlayer = Cast<AKHS_DronePlayer>(aPawn);
+    if (DronePlayer)
+    {
+        if (IsLocalController())
+        {
+            Client_SetupDroneUI();
+        }
+    }
+
 }
 
 void AKJH_PlayerController::ShowCharacterSelectWidget()
@@ -135,5 +146,19 @@ void AKJH_PlayerController::ServerSpawnCharacterBasedOnSelection_Implementation(
 bool AKJH_PlayerController::ServerSpawnCharacterBasedOnSelection_Validate(bool bIsPersonSelected)
 {
 	return true;
+}
+
+void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
+{
+    AKHS_DronePlayer* DronePlayer = Cast<AKHS_DronePlayer>(GetPawn());
+    if (DronePlayer && DronePlayer->DroneMainUIFactory)
+    {
+        DronePlayer->DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DronePlayer->DroneMainUIFactory);
+        if (DronePlayer->DroneMainUI)
+        {
+            DronePlayer->DroneMainUI->AddToViewport(0);
+            UE_LOG(LogTemp, Warning, TEXT("Drone UI created for player."));
+        }
+    }
 }
 

@@ -49,74 +49,19 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
-    // PlayerController에서 캐릭터 선택 UI 생성
-    AKJH_PlayerController* KJHController = Cast<AKJH_PlayerController>(NewPlayer);
-    if (KJHController)
-    {
-        KJHController->ShowCharacterSelectWidget();
-    }
+    // 필요한 경우 추가적인 초기화 작업을 여기에 삽입
+    // 예: 플레이어 상태 초기화, 게임 상태 업데이트 등
 }
 
 
 
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
- 
-    // 더 이상 캐릭터 스폰 로직을 포함하지 않고 기본 기능만 유지
     Super::RestartPlayer(NewPlayer);
 }
 
 ////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------
-void AKJH_GameModeBase::Multicast_ShowCharacterSelectWidget_Implementation(APlayerController* PlayerController)
-{
-    if (!PlayerController)
-    {
-        UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid for showing CharacterSelectWidget."));
-        return;
-    }
 
-    // 이 함수는 클라이언트에서만 실행됨, 따라서 서버는 여기서 UI 생성 안함
-    if (PlayerController->IsLocalController()) // 클라이언트에서만 실행
-    {
-        // PlayerController에서 ShowCharacterSelectWidget 호출
-        AKJH_PlayerController* KJHController = Cast<AKJH_PlayerController>(PlayerController);
-        if (KJHController)
-        {
-            KJHController->ShowCharacterSelectWidget();
-        }
-    }
-}
 
 ////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
 
-// 캐릭터 선택 UI 생성 함수
-void AKJH_GameModeBase::ShowCharacterSelectWidget(APlayerController* PlayerController)
-{
-    if (!PlayerController)
-    {
-        UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid for showing CharacterSelectWidget."));
-        return;
-    }
-
-    UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-    if (GameInstance)
-    {
-        // 개별적으로 각 플레이어마다 위젯 생성 및 설정 (CharacterSelectWidget 멤버 변수를 사용하지 않음)
-        UKJH_CharacterSelectWidget* IndividualCharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(PlayerController, CharacterSelectWidgetFactory);
-
-        if (IndividualCharacterSelectWidget)
-        {
-            IndividualCharacterSelectWidget->AddToViewport();
-            IndividualCharacterSelectWidget->Setup();
-            UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup for Player."));
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterSelectWidget! Check if the Factory is valid."));
-        }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to cast GameInstance to UKJH_GameInstance."));
-    }
-}
