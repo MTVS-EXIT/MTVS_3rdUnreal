@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -86,6 +87,12 @@ AJSH_Player::AJSH_Player()
 	AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
 	AX->SetRelativeRotation(FRotator(0.f, 5.000001f, 0.f));
 	AX->SetVisibility(false);
+
+
+	HandComp = CreateDefaultSubobject<USceneComponent>(TEXT("HandComp"));
+	HandComp->SetupAttachment(GetMesh() , TEXT("PistolPosition"));
+	// HandComp->SetRelativeLocationAndRotation(FVector(-16.506365f , 2.893501f , 4.275412f) , FRotator(15.481338f , 82.613271f , 8.578510f));
+
 	
 
 }
@@ -95,6 +102,9 @@ void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 태어날 때 모든 총 목록을 기억하고싶다.
+	FName tag = TEXT("Pistol");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , PistolList);
 }
 
 
@@ -135,6 +145,8 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
 
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AJSH_Player::Grab);
+
+		EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
 		
 		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
 		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
@@ -159,6 +171,8 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, WantWalk);
 	DOREPLIFETIME(AJSH_Player, WantSprint);
 	DOREPLIFETIME(AJSH_Player, BhasAX);
+	DOREPLIFETIME(AJSH_Player, bHasPistol);
+	DOREPLIFETIME(AJSH_Player, PossibleWalk);
 }
 
 
@@ -225,6 +239,7 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 1.0f);
 		}
 
+		
 		WatchSee = !WatchSee;
 	}
 }
@@ -248,7 +263,11 @@ void AJSH_Player::Server_Walk_Implementation()
 
 void AJSH_Player::NetMulti_Walk_Implementation()
 {
-	WantWalk = !WantWalk;
+	// R
+	if (AxModeON == false)
+	{
+		WantWalk = !WantWalk;
+	}
 }
 
 // ------------------------------------
@@ -258,20 +277,150 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 
 
+
+void AJSH_Player::R(const FInputActionValue& Value)
+{
+	Server_RedyAction();
+}
+
+void AJSH_Player::Server_RedyAction_Implementation()
+{
+	NetMulti_RedyAction();
+}
+
+void AJSH_Player::NetMulti_RedyAction_Implementation()
+{
+	if (bHasPistol)
+	{
+		AxModeON = !AxModeON;
+		WantWalk = true;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
+	}
+
+	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
+	// WatchSee = false;
+}
+
+
+
+
+
+
+AActor* tempOwner;
 void AJSH_Player::Grab(const FInputActionValue& Value)
+{
+	Server_Grab();
+}
+
+void AJSH_Player::Server_Grab_Implementation()
+{
+	NetMulti_Grab();
+}
+
+void AJSH_Player::NetMulti_Grab_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
 
-	if (BhasAX)
+	if ( bHasPistol )
 	{
-		BhasAX = false;
+		MyReleasePistol();
+		AxModeON = false;
 	}
 	else
 	{
-		BhasAX = true;
+		MyTakePistol();
 	}
 }
 
+void AJSH_Player::MyTakePistol()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
+	// 총을 잡지 않은 상태 -> 잡고싶다.
+	// 총목록을 검사하고싶다.
+	for ( AActor* pistol : PistolList )
+	{
+		// 나와 총과의 거리가 GrabDistance 이하라면
+		// 그 중에 소유자가 없는 총이라면
+		float tempDist = GetDistanceTo(pistol);
+		if ( tempDist > GrabDistance )
+			continue;
+		if ( nullptr != pistol->GetOwner() )
+			continue;
+		
+
+		// 그 총을 기억하고싶다. (GrabPistolActor)
+		GrabPistolActor = pistol;
+		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
+		pistol->SetOwner(this);
+		bHasPistol = true;
+
+		tempOwner = pistol->GetOwner();
+
+		// 총액터를 HandComp에 붙이고싶다.
+		AttachPistol(GrabPistolActor);
+		break;
+	}
+}
+
+void AJSH_Player::MyReleasePistol()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
+	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+	if ( false == bHasPistol)
+		return;
+	
+
+	// 총을 이미 잡은 상태 -> 놓고싶다.
+	if ( bHasPistol )
+	{
+		bHasPistol = false;
+	}
+
+	// 총의 오너를 취소하고싶다.
+	if ( GrabPistolActor )
+	{
+		DetachPistol();
+
+		GrabPistolActor->SetOwner(nullptr);
+		// 총을 잊고싶다.
+		GrabPistolActor = nullptr;
+	}
+}
+
+
+
+void AJSH_Player::AttachPistol(AActor* pistolActor)
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
+	GrabPistolActor = pistolActor;
+	auto* mesh = GrabPistolActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		mesh->SetSimulatePhysics(false);
+		mesh->AttachToComponent(HandComp , FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+void AJSH_Player::DetachPistol()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
+	// 총의 메쉬를 가져와서
+	auto* mesh = GrabPistolActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		// 물리를 켜주고싶다.
+		mesh->SetSimulatePhysics(true);
+		// 분리하고싶다..
+		mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	}
+}
 
 
 
@@ -280,16 +429,16 @@ void AJSH_Player::Grab(const FInputActionValue& Value)
 // Left Mouse 인터렉션 ------------------------------------------------------------------
 void AJSH_Player::LeftMouse(const FInputActionValue& Value)
 {
-	Server_RAction();
+	Server_LeftMouseAction();
 	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
 }
 
-void AJSH_Player::Server_RAction_Implementation()
+void AJSH_Player::Server_LeftMouseAction_Implementation()
 {
-	NetMulti_RAction();
+	NetMulti_LeftMouseAction();
 }
 
-void AJSH_Player::NetMulti_RAction_Implementation()
+void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 {
 	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
 	// AxMode가 ON일때만 도끼 찍는 애니메이션 실행, 추후 도끼 주웠을때 AXMODE가 ON, 도끼 버렸을때 OFF 되도록 하기

@@ -59,6 +59,9 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* WalkAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ReadyAction;
 	
 public:
 	// Sets default values for this character's properties
@@ -79,6 +82,8 @@ protected:
 	void Walk(const FInputActionValue& Value);
 
 	void Grab(const FInputActionValue& Value);
+	
+	void R(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -127,9 +132,48 @@ public:
 
 
 
+	// Ready Mode
+	UFUNCTION(Server, Reliable)
+	void Server_RedyAction();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_RedyAction();
+	
+
 	// 잡기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool BhasAX;
+	
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool bHasPistol;
+
+	// 태어날 때 모든 총 목록을 기억하고싶다.
+	UPROPERTY()
+	TArray<AActor*> PistolList;
+
+	// 총을 잡았을 때 위치
+	UPROPERTY(EditDefaultsOnly , Category = Pistol)
+	class USceneComponent* HandComp;
+
+	// 소유한 총을 기억하고싶다.
+	UPROPERTY()
+	class AActor* GrabPistolActor;
+
+	UPROPERTY(EditDefaultsOnly , Category = Pistol)
+	float GrabDistance = 150;
+
+	void AttachPistol(AActor* pistolActor);
+
+	void DetachPistol();
+	void MyTakePistol();
+	void MyReleasePistol();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Grab();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_Grab();
+	
 
 	
 	// 도끼
@@ -146,10 +190,10 @@ public:
 	UStaticMeshComponent* AX;
 
 	UFUNCTION(Server, Reliable)
-	void Server_RAction();
+	void Server_LeftMouseAction();
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void NetMulti_RAction();
+	void NetMulti_LeftMouseAction();
 
 
 
@@ -159,6 +203,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool WantSprint = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool PossibleWalk = true;
 
 	UFUNCTION(Server, Reliable)
 	void Server_Walk();
