@@ -11,6 +11,7 @@
 #include "Blueprint/UserWidget.h"
 #include "KJH/KJH_GameInstance.h"
 #include "KJH/KJH_CharacterSelectWidget.h"
+#include "KJH/KJH_PlayerController.h"
 
 // GameMode 생성자에서 초기 설정
 AKJH_GameModeBase::AKJH_GameModeBase()
@@ -48,87 +49,21 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
-    // 새로 접속한 플레이어는 관전 모드로 설정
-    if (NewPlayer)
+    // PlayerController에서 캐릭터 선택 UI 생성
+    AKJH_PlayerController* KJHController = Cast<AKJH_PlayerController>(NewPlayer);
+    if (KJHController)
     {
-        APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
-        if (PlayerController)
-        {
-            // 관전 모드로 설정은 캐릭터 선택 전까지만 필요
-            PlayerController->ChangeState(NAME_Spectating);
-        }
+        KJHController->ShowCharacterSelectWidget();
     }
-
-    // 서버에서 위젯 생성
-    if (HasAuthority()) // 서버에서만 실행
-    {
-        ShowCharacterSelectWidget(NewPlayer);
-    }
-    // 클라이언트에게 Character Select UI를 표시하라는 요청
-    Multicast_ShowCharacterSelectWidget(NewPlayer);
 }
 
 
 
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
+ 
+    // 더 이상 캐릭터 스폰 로직을 포함하지 않고 기본 기능만 유지
     Super::RestartPlayer(NewPlayer);
-
-    if (!NewPlayer) return;
-
-    // 플레이어 상태를 가져옴
-    AKJH_PlayerState* PlayerState = NewPlayer->GetPlayerState<AKJH_PlayerState>();
-
-    // 플레이어 컨트롤러 가져오기
-    APlayerController* PlayerController = Cast<APlayerController>(NewPlayer);
-    if (!PlayerController) return;
-
-    // 관전 모드에서 플레이 모드로 전환할 때만 작동하게 설정
-    if (PlayerState)
-    {
-        // 각 플레이어의 PlayerState에 따라 캐릭터 클래스를 선택
-        TSubclassOf<APawn> ChosenCharacterClass = PlayerState->bIsPersonCharacterSelected
-            ? BP_JSH_PlayerClass // true 면 사람이 선택되었다고 생각하고 사람 BP클래스로 설정
-            : BP_KHS_DronePlayerClass; // false면 드론이 선택되었다고 생각하고 드론 BP클래스로 설정
-
-        // 디버그 메시지로 선택된 캐릭터 클래스 출력
-        GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue,
-            FString::Printf(TEXT("Chosen Character Class: %s"), *ChosenCharacterClass->GetName()));
-
-
-        // 스폰 파라미터 설정
-        FActorSpawnParameters SpawnParams;
-        SpawnParams.Owner = NewPlayer;
-        SpawnParams.Instigator = NewPlayer->GetPawn();
-
-        // 스폰 위치와 회전 값 설정
-        FVector SpawnLocation = FVector(0.f, 0.f, 100.f); // 기본 스폰 위치 설정 (필요에 따라 수정)
-        FRotator SpawnRotation = FRotator::ZeroRotator; // 기본 회전 값 설정
-
-        // 스폰 전 디버그 메시지 추가
-        GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Attempting to spawn character..."));
-
-        // 새로운 캐릭터 스폰
-        APawn* NewPawn = GetWorld()->SpawnActor<APawn>(ChosenCharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
-
-        if (NewPawn)
-        {
-            // 플레이어가 새 캐릭터를 조종하도록 설정
-            PlayerController->Possess(NewPawn);
-
-            // 관전자 모드에서 플레이 모드로 전환
-            PlayerController->ChangeState(NAME_Playing);
-
-            GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Character successfully spawned!"));
-            UE_LOG(LogTemp,Warning, TEXT("Character successfully spawned!"));
-        }
-
-        else
-        {
-            // PlayerState가 없는 경우 기본 로직 실행
-            Super::RestartPlayer(NewPlayer);
-        }
-    }
 }
 
 ////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------
@@ -141,9 +76,14 @@ void AKJH_GameModeBase::Multicast_ShowCharacterSelectWidget_Implementation(APlay
     }
 
     // 이 함수는 클라이언트에서만 실행됨, 따라서 서버는 여기서 UI 생성 안함
-    if (!HasAuthority()) // 클라이언트에서만 실행
+    if (PlayerController->IsLocalController()) // 클라이언트에서만 실행
     {
-        ShowCharacterSelectWidget(PlayerController);
+        // PlayerController에서 ShowCharacterSelectWidget 호출
+        AKJH_PlayerController* KJHController = Cast<AKJH_PlayerController>(PlayerController);
+        if (KJHController)
+        {
+            KJHController->ShowCharacterSelectWidget();
+        }
     }
 }
 

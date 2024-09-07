@@ -93,6 +93,10 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	DroneDecelerateRate = 400.0f;
 	DroneCurrentSpeed = FVector::ZeroVector;
 	DroneAcceleration = FVector::ZeroVector;
+
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -113,11 +117,20 @@ void AKHS_DronePlayer::BeginPlay()
 	}
 	
 	//드론 Main UI초기화
-	if(nullptr != DroneMainUI) 
-	{ 
-		DroneMainUI = CreateWidget(GetWorld(), DroneMainUIFactory);
-		DroneMainUI->AddToViewport(0); 
+// 로컬 플레이어인 경우에만 UI를 생성 (KJH 추가) ------------------------------------------------------------------------------
+	if (IsLocallyControlled()) // 로컬 플레이어 (실제 사용자) 라면,
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if (DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
 	}
+// ----------------------------------------------------------------------------------------------------------------------------
 
 	//메시 위치, 회전 저장
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
@@ -169,6 +182,14 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+// KJH 추가 --------------------------------------------------------------------------
+	// 로컬 플레이어가 아니면 early return
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+// -----------------------------------------------------------------------------------
+
 	// Drone 이동 처리
 	FVector NewVelocity = DroneCurrentSpeed + (DroneAcceleration * DeltaTime);
 
@@ -219,8 +240,14 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	{
 		//Drone 고도계 업데이트
 		float Altitude = s.Z - HitResult.Location.Z;
-		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+
+		if (DroneMainUI)
+		{
+			if (UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText"))))
+			{
+				HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+			}
+		}
 
 		AActor* HitActor = HitResult.GetActor();
 
@@ -296,7 +323,30 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	UEnhancedInputComponent* input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	// Add Input Mapping Context
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (subsys)
+		{
+			subsys->AddMappingContext(IMC_Drone, 0);
+			UE_LOG(LogTemp, Warning, TEXT("Added IMC_Drone mapping context"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to get EnhancedInputLocalPlayerSubsystem"));
+			return;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is null"));
+		return;
+	}
+
+	// Bind actions
+	UEnhancedInputComponent* input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (input)
 	{
 		input->BindAction(IA_DroneLook, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneLook);
@@ -307,36 +357,47 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_Function, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::SaveCaptureToImage);
 		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::SetUpNetworkVoice);
 		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
+
+		UE_LOG(LogTemp, Warning, TEXT("Enhanced Input actions bound successfully"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to cast to EnhancedInputComponent"));
 	}
 }
+
+
 //재시작시 Drone Player Possess를 다시 잡아줌
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); // 기본 클래스의 Possess 로직을 다시 실행하여 Pawn과 Controller 간의 연결을 설정
 
-	// 입력 컴포넌트 초기화
-	// Possess 이후에 입력 컴포넌트를 다시 설정하여 드론의 입력 바인딩이 올바르게 이루어지도록 함.
-	SetupPlayerInputComponent(NewController->InputComponent);
-
 	// VOIP 관련 초기화 작업
 	// 드론이 새로 소유되었을 때 필요한 VOIP 설정 등을 여기서 수행 (보이스채팅 관련)
 	InitializeVOIP();  // VOIP Talker의 초기화 및 등록 작업을 처리
 
-	// 필요 시 다른 초기화 작업 추가
-	// 예: 드론 카메라 세팅, UI 초기화, 기타 네트워크 설정 등
-
-	// Enhanced Input 시스템에 드론의 입력 매핑 추가
-	APlayerController* pc = Cast<APlayerController>(NewController);
-	if (pc)
+	// Enhanced Input 시스템 매핑 컨텍스트 추가 (필요한 경우)
+	APlayerController* PlayerController = Cast<APlayerController>(NewController);
+	if (PlayerController)
 	{
-		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
-		if (subsys)
+		if (UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			subsys->AddMappingContext(IMC_Drone, 0); // 입력 매핑 추가
+			subsys->AddMappingContext(IMC_Drone, 0);
+			UE_LOG(LogTemp, Warning, TEXT("Added IMC_Drone mapping context in PossessedBy"));
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to get EnhancedInputLocalPlayerSubsystem in PossessedBy"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("NewController is not a PlayerController in PossessedBy"));
 	}
 
 }
+
+
 //카메라쉐이크 재생함수
 void AKHS_DronePlayer::PlayDroneCameraShake()
 {
