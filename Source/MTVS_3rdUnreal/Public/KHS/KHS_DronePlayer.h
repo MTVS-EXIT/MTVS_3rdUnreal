@@ -167,14 +167,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
 
-	// Post Process Volume 레퍼런스 추가
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
-	class APostProcessVolume* PostProcessVolume;
-
-	// Post Process Material의 동적 인스턴스 변수 추가
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PostProcess")
-	class UMaterialInstanceDynamic* PostProcessMaterialInstance;
-
 	//==============================================
 	//함수
 	//==============================================
@@ -189,8 +181,14 @@ public:
 	//카메라쉐이크 재생함수
 	void PlayDroneCameraShake();
 
+	//고도계 업데이트 함수
+	void DroneAltitudeUpdate();
+
 	//Post Process(Radial Blur, Depth of Field) 설정 함수
 	void SetDronePostProcess();
+
+	//Drone Outline PostProcess 효과 함수
+	void DroneShowOutline();
 
 	// VOIP 관련 초기화 작업을 수행
 	void InitializeVOIP();
@@ -237,5 +235,8 @@ public:
 
 	// 라인트레이스 기반 윤곽선 표시 함수
 	void DroneEnableOutline(AActor* HitActor);
+
+	// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
+	void DroneDisableOutline(AActor* HitActor);
 
 };

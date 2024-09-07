@@ -149,19 +149,6 @@ void AKHS_DronePlayer::BeginPlay()
 		SyncSceneCaptureWithCamera();
 	}
 
-	//윤곽선 효과 적용
-	//DroneApplyOutlineEffect();
-
-	// Post Process Material의 동적 인스턴스 생성
-	if (PostProcessVolume && PostProcessVolume->Settings.WeightedBlendables.Array.Num() > 0)
-	{
-		UMaterialInterface* PostProcessMaterial = Cast<UMaterialInterface>(PostProcessVolume->Settings.WeightedBlendables.Array[0].Object);
-		if (PostProcessMaterial)
-		{
-			PostProcessMaterialInstance = UMaterialInstanceDynamic::Create(PostProcessMaterial, this);
-			PostProcessVolume->Settings.WeightedBlendables.Array[0].Object = PostProcessMaterialInstance;
-		}
-	}
 }
 
 // Called every frame
@@ -206,54 +193,12 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	// 프레임이 끝날 때 가속도 초기화
 	DroneAcceleration = FVector::ZeroVector;
 
+	//고도계 업데이트 함수
+	DroneAltitudeUpdate();
 
-	// 고도계, 사물 윤곽선 표시 라인트레이스
-	FVector s = GetActorLocation();
-	FVector e = s - FVector(0, 0, 10000); //아래로 N만큼 라인트레이스 발사
-	FHitResult HitResult;
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,s,e,ECC_Visibility, params);
+	//사물 윤곽선 표시 함수
+	DroneShowOutline();
 	
-	if (bHit)
-	{
-		//Drone 고도계 업데이트
-		float Altitude = s.Z - HitResult.Location.Z;
-		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
-
-		AActor* HitActor = HitResult.GetActor();
-
-		if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
-		{
-			// 맞은 액터가 KHS_AIVisionObject일 경우 윤곽선 적용
-			DroneEnableOutline(HitActor);
-
-			// Post Process Material의 Weight 값을 1로 설정 (적용 강도 증가)
-			if (PostProcessMaterialInstance)
-			{
-				PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 1.0f);
-			}
-		}
-		else
-		{
-			// 맞은 액터가 없거나 KHS_AIVisionObject가 아닌 경우 Weight 값을 0으로 설정 (적용 강도 감소)
-			if (PostProcessMaterialInstance)
-			{
-				PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 0.0f);
-			}
-		}
-	}
-	else
-	{
-		// 라인트레이스가 맞지 않았을 경우에도 Weight 값을 0으로 설정
-		if (PostProcessMaterialInstance)
-		{
-			PostProcessMaterialInstance->SetScalarParameterValue(FName("Weight"), 0.0f);
-		}
-	}
-
-
 	//카메라쉐이크 타이머 업데이트
 	TimeSinceLastShake += DeltaTime;
 	if (TimeSinceLastShake >= DroneShakeInterval)
@@ -346,6 +291,25 @@ void AKHS_DronePlayer::PlayDroneCameraShake()
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
 }
+//고도계 업데이트 함수
+void AKHS_DronePlayer::DroneAltitudeUpdate()
+{
+	// 고도계, 사물 윤곽선 표시 라인트레이스
+	FVector s = GetActorLocation();
+	FVector e = s - FVector(0, 0, 10000); //아래로 N만큼 라인트레이스 발사
+	FHitResult HitResult;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, s, e, ECC_Visibility, params);
+
+	if (bHit)
+	{
+		//Drone 고도계 업데이트
+		float Altitude = s.Z - HitResult.Location.Z;
+		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+	}
+}
 //Post Process(Radial Blur, Depth of Field) 설정 함수
 void AKHS_DronePlayer::SetDronePostProcess()
 {
@@ -412,6 +376,70 @@ void AKHS_DronePlayer::SetDronePostProcess()
 		//속도값 출력
 		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
 	}
+}
+//Drone Outline PostProcess 효과 함수
+void AKHS_DronePlayer::DroneShowOutline()
+{
+	// 라인트레이스 범위 내에서 감지된 새로운 액터를 추적할 임시 변수
+	TSet<AKHS_AIVisionObject*> DetectedOutlineObjects;
+
+	// 카메라 위치와 방향
+	FVector Start = CameraComp->GetComponentLocation();
+	FVector ForwardVector = CameraComp->GetForwardVector();
+
+	// 카메라의 시야각(FOV)을 기준으로 여러 방향으로 라인트레이스 발사
+	float FOV = CameraComp->FieldOfView; // 카메라의 시야각
+	int32 NumRays = 30; // 발사할 라인트레이스의 개수
+	float MaxDistance = 10000.0f; // 라인트레이스의 최대 거리
+
+
+	for (int32 i = 0; i < NumRays; i++)
+	{
+		// 시야각 범위 내에서 라인트레이스 방향 계산
+		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
+		FRotator Rotator = FRotator(0, Angle, 0);
+		FVector Direction = Rotator.RotateVector(ForwardVector);
+		FVector End = Start + (Direction * MaxDistance);
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);  // 자신을 무시
+
+		// 라인트레이스 실행
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+		{
+			AActor* HitActor = HitResult.GetActor();
+
+			if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
+			{
+				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
+
+				// 현재 감지된 액터를 임시 변수에 추가
+				DetectedOutlineObjects.Add(HitAIVisionObject);
+
+				// 맞은 액터가 KHS_AIVisionObject일 경우 윤곽선 적용
+				DroneEnableOutline(HitActor);
+			}
+			else
+			{
+				// 윤곽선 효과 해제
+				DroneDisableOutline(HitActor);
+			}
+
+		}
+	}
+
+	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 UI를 숨김
+	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
+	{
+		if (!DetectedOutlineObjects.Contains(DetectedObject))
+		{
+			// 윤곽선 효과 해제
+			DroneDisableOutline(DetectedObject);
+		}
+	}
+
+	// 현재 감지된 액터들로 추적 세트 업데이트
+	//DetectedAIVisionObjects = DetectedOutlineObjects;
 }
 
 #pragma region Drone Move Settings
@@ -907,6 +935,19 @@ void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
 		}
 	}
 	
+}
+// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
+void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)
+{
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))  // Actor가 KHS_AIVisionObject 타입인지 확인
+	{
+		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		if (HitMeshComp)
+		{
+			// CustomDepth를 비활성화하여 윤곽선 효과 해제
+			HitMeshComp->SetRenderCustomDepth(false);
+		}
+	}
 }
 
 
