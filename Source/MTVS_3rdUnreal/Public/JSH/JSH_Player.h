@@ -83,7 +83,7 @@ protected:
 
 	void Grab(const FInputActionValue& Value);
 	
-	void R(const FInputActionValue& Value);
+	// void R(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -133,23 +133,20 @@ public:
 
 
 	// Ready Mode
-	UFUNCTION(Server, Reliable)
-	void Server_RedyAction();
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void NetMulti_RedyAction();
+	// UFUNCTION(Server, Reliable)
+	// void Server_RedyAction();
+	//
+	// UFUNCTION(NetMulticast, Reliable)
+	// void NetMulti_RedyAction();
 	
 
 	// 잡기
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
-	bool BhasAX;
-	
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
-	bool bHasPistol;
+	bool bHasAX;
 
 	// 태어날 때 모든 총 목록을 기억하고싶다.
 	UPROPERTY()
-	TArray<AActor*> PistolList;
+	TArray<AActor*> AXList;
 
 	// 총을 잡았을 때 위치
 	UPROPERTY(EditDefaultsOnly , Category = Pistol)
@@ -157,16 +154,16 @@ public:
 
 	// 소유한 총을 기억하고싶다.
 	UPROPERTY()
-	class AActor* GrabPistolActor;
+	class AActor* GrabAXActor;
 
 	UPROPERTY(EditDefaultsOnly , Category = Pistol)
 	float GrabDistance = 150;
 
-	void AttachPistol(AActor* pistolActor);
+	void AttachAX(AActor* AXActor);
 
-	void DetachPistol();
-	void MyTakePistol();
-	void MyReleasePistol();
+	void DetachAX();
+	void MyTakeAX();
+	void MyReleaseAX();
 
 	UFUNCTION(Server, Reliable)
 	void Server_Grab();
@@ -186,8 +183,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AxAnimations")
 	UAnimMontage* AxMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ax")
-	UStaticMeshComponent* AX;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ax")
+	// UStaticMeshComponent* AX;
 
 	UFUNCTION(Server, Reliable)
 	void Server_LeftMouseAction();

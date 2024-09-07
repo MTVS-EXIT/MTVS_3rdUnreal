@@ -82,18 +82,17 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
 
-	AX = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AX"));
-	AX->SetupAttachment(GetMesh(), FName("AX"));
-	AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
-	AX->SetRelativeRotation(FRotator(0.f, 5.000001f, 0.f));
-	AX->SetVisibility(false);
+	// AX = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AX"));
+	// AX->SetupAttachment(GetMesh(), FName("AX"));
+	// AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
+	// AX->SetRelativeRotation(FRotator(0.f, 5.000001f, 0.f));
+	// AX->SetVisibility(false);
 
 
 	HandComp = CreateDefaultSubobject<USceneComponent>(TEXT("HandComp"));
-	HandComp->SetupAttachment(GetMesh() , TEXT("PistolPosition"));
-	// HandComp->SetRelativeLocationAndRotation(FVector(-16.506365f , 2.893501f , 4.275412f) , FRotator(15.481338f , 82.613271f , 8.578510f));
+	HandComp->SetupAttachment(GetMesh() , TEXT("GrabPosition"));
+	// HandComp->SetRelativeLocationAndRotation(FVector(-17.586273f , -0.273735f , 15.693467f) , FRotator(-62.920062f , 9.732144f , 29.201706f));
 
-	
 
 }
 
@@ -103,8 +102,8 @@ void AJSH_Player::BeginPlay()
 	Super::BeginPlay();
 	
 	// 태어날 때 모든 총 목록을 기억하고싶다.
-	FName tag = TEXT("Pistol");
-	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , PistolList);
+	FName tag = TEXT("AX");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , AXList);
 }
 
 
@@ -146,7 +145,7 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AJSH_Player::Grab);
 
-		EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
+		// EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
 		
 		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
 		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
@@ -170,8 +169,7 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
 	DOREPLIFETIME(AJSH_Player, WantWalk);
 	DOREPLIFETIME(AJSH_Player, WantSprint);
-	DOREPLIFETIME(AJSH_Player, BhasAX);
-	DOREPLIFETIME(AJSH_Player, bHasPistol);
+	DOREPLIFETIME(AJSH_Player, bHasAX);
 	DOREPLIFETIME(AJSH_Player, PossibleWalk);
 }
 
@@ -277,34 +275,34 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 
 
-
-void AJSH_Player::R(const FInputActionValue& Value)
-{
-	Server_RedyAction();
-}
-
-void AJSH_Player::Server_RedyAction_Implementation()
-{
-	NetMulti_RedyAction();
-}
-
-void AJSH_Player::NetMulti_RedyAction_Implementation()
-{
-	if (bHasPistol)
-	{
-		AxModeON = !AxModeON;
-		WantWalk = true;
-		if (WatchSee == false)
-		{
-			USkeletalMeshComponent* MeshComp = GetMesh();
-			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-			WatchSee = true;
-		}
-	}
-
-	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
-	// WatchSee = false;
-}
+// Grab에 일단 통일 시켜둠
+// void AJSH_Player::R(const FInputActionValue& Value)
+// {
+// 	Server_RedyAction();
+// }
+//
+// void AJSH_Player::Server_RedyAction_Implementation()
+// {
+// 	NetMulti_RedyAction();
+// }
+//
+// void AJSH_Player::NetMulti_RedyAction_Implementation()
+// {
+// 	// if (bHasPistol)
+// 	// {
+// 	// 	AxModeON = !AxModeON;
+// 	// 	WantWalk = true;
+// 	// 	if (WatchSee == false)
+// 	// 	{
+// 	// 		USkeletalMeshComponent* MeshComp = GetMesh();
+// 	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+// 	// 		WatchSee = true;
+// 	// 	}
+// 	// }
+//
+// 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
+// 	// WatchSee = false;
+// }
 
 
 
@@ -326,79 +324,91 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
 
-	if ( bHasPistol )
+	if ( bHasAX )
 	{
-		MyReleasePistol();
+		MyReleaseAX();
+		WantWalk = true;
 		AxModeON = false;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
 	}
 	else
 	{
-		MyTakePistol();
+		MyTakeAX();
+		WantWalk = true;
+		if ( GrabAXActor != nullptr )
+		{
+			AxModeON = true;
+		}
 	}
 }
 
-void AJSH_Player::MyTakePistol()
+void AJSH_Player::MyTakeAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
 	// 총을 잡지 않은 상태 -> 잡고싶다.
 	// 총목록을 검사하고싶다.
-	for ( AActor* pistol : PistolList )
+	for ( AActor* AX : AXList )
 	{
 		// 나와 총과의 거리가 GrabDistance 이하라면
 		// 그 중에 소유자가 없는 총이라면
-		float tempDist = GetDistanceTo(pistol);
+		float tempDist = GetDistanceTo(AX);
 		if ( tempDist > GrabDistance )
 			continue;
-		if ( nullptr != pistol->GetOwner() )
+		if ( nullptr != AX->GetOwner() )
 			continue;
 		
 
 		// 그 총을 기억하고싶다. (GrabPistolActor)
-		GrabPistolActor = pistol;
+		GrabAXActor = AX;
 		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
-		pistol->SetOwner(this);
-		bHasPistol = true;
+		AX->SetOwner(this);
+		bHasAX = true;
 
-		tempOwner = pistol->GetOwner();
+		tempOwner = AX->GetOwner();
 
 		// 총액터를 HandComp에 붙이고싶다.
-		AttachPistol(GrabPistolActor);
+		AttachAX(GrabAXActor);
 		break;
 	}
 }
 
-void AJSH_Player::MyReleasePistol()
+void AJSH_Player::MyReleaseAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
 	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
-	if ( false == bHasPistol)
+	if ( false == bHasAX)
 		return;
 	
 
 	// 총을 이미 잡은 상태 -> 놓고싶다.
-	if ( bHasPistol )
+	if ( bHasAX )
 	{
-		bHasPistol = false;
+		bHasAX = false;
 	}
 
 	// 총의 오너를 취소하고싶다.
-	if ( GrabPistolActor )
+	if ( GrabAXActor )
 	{
-		DetachPistol();
+		DetachAX();
 
-		GrabPistolActor->SetOwner(nullptr);
+		GrabAXActor->SetOwner(nullptr);
 		// 총을 잊고싶다.
-		GrabPistolActor = nullptr;
+		GrabAXActor = nullptr;
 	}
 }
 
 
 
-void AJSH_Player::AttachPistol(AActor* pistolActor)
+void AJSH_Player::AttachAX(AActor* AXActor)
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
-	GrabPistolActor = pistolActor;
-	auto* mesh = GrabPistolActor->GetComponentByClass<UStaticMeshComponent>();
+	GrabAXActor = AXActor;
+	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
 	if ( mesh )
 	{
@@ -407,11 +417,11 @@ void AJSH_Player::AttachPistol(AActor* pistolActor)
 	}
 }
 
-void AJSH_Player::DetachPistol()
+void AJSH_Player::DetachAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
 	// 총의 메쉬를 가져와서
-	auto* mesh = GrabPistolActor->GetComponentByClass<UStaticMeshComponent>();
+	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
 	if ( mesh )
 	{
@@ -451,7 +461,6 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 		if (MeshComp && MeshComp->GetAnimInstance())
 		{
 			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
-			AX->SetVisibility(true);
 		}
 	}
 }
