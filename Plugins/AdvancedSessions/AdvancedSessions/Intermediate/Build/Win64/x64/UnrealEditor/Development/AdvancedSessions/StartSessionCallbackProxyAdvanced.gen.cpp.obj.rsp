@@ -1,11 +1,11 @@
-"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\UnrealEditor\Inc\AdvancedSessions\UHT\StartSessionCallbackProxyAdvanced.gen.cpp"
-/FI"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/FI"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Definitions.AdvancedSessions.h"
-/Yu"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/Fp"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
-/Fo"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\StartSessionCallbackProxyAdvanced.gen.cpp.obj"
-/sourceDependencies "C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\StartSessionCallbackProxyAdvanced.gen.cpp.dep.json"
-@"C:\Users\Admin\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\AdvancedSessions.Shared.rsp"
+"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\UnrealEditor\Inc\AdvancedSessions\UHT\StartSessionCallbackProxyAdvanced.gen.cpp"
+/FI"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/FI"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Definitions.AdvancedSessions.h"
+/Yu"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/Fp"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
+/Fo"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\StartSessionCallbackProxyAdvanced.gen.cpp.obj"
+/sourceDependencies "C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\StartSessionCallbackProxyAdvanced.gen.cpp.dep.json"
+@"C:\Users\jsh\Documents\GitHub\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\AdvancedSessions.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi

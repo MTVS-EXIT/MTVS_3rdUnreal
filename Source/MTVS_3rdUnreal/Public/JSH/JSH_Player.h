@@ -49,9 +49,11 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* WatchAction;
 
-	// 도끼 모드 -> 추후 주웠을때로 변경
+	// 물건 줍기 (F)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* GrabAction;
 
-	// R - 도끼 찍기, 소화기 던지기
+	// LeftClick - 도끼 찍기, 소화기 던지기
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LeftClickAction;
 
@@ -69,13 +71,14 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-
-
+	
 	void Watch(const FInputActionValue& Value);
 
 	void LeftMouse(const FInputActionValue& Value);
 
 	void Walk(const FInputActionValue& Value);
+
+	void Grab(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -123,9 +126,15 @@ public:
 	void NetMulti_WatchSee();
 
 
+
+	// 잡기
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool BhasAX;
+
+	
 	// 도끼
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
-	bool AxModeON = true;
+	bool AxModeON = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool AxAnimationplay = false;
@@ -144,7 +153,7 @@ public:
 
 
 
-	//---걷기 관련---
+	//걷기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool WantWalk = true;
 

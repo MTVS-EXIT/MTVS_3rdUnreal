@@ -20,6 +20,9 @@ AJSH_Player::AJSH_Player()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
 
 
@@ -62,6 +65,8 @@ AJSH_Player::AJSH_Player()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; 
+
+
 
 
 	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
@@ -129,6 +134,8 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// See Watch (Q)
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
 
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AJSH_Player::Grab);
+		
 		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
 		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
 
@@ -151,6 +158,7 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
 	DOREPLIFETIME(AJSH_Player, WantWalk);
 	DOREPLIFETIME(AJSH_Player, WantSprint);
+	DOREPLIFETIME(AJSH_Player, BhasAX);
 }
 
 
@@ -227,6 +235,7 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 
 // 걷기 -------------------------------------
 
+// 대부분 ABP에서 해결, 네트워크 동기화를 위해 Walk <-> Run 바꿔주는 부분만 .. 이것만 동기화가 안 됌 ...
 void AJSH_Player::Walk(const FInputActionValue& Value)
 {
 	Server_Walk();
@@ -239,13 +248,31 @@ void AJSH_Player::Server_Walk_Implementation()
 
 void AJSH_Player::NetMulti_Walk_Implementation()
 {
-	if (WantSprint != false)
-	{
-		WantWalk = (WantWalk != false);
-	}
+	WantWalk = !WantWalk;
 }
 
 // ------------------------------------
+
+
+
+
+
+
+void AJSH_Player::Grab(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
+
+	if (BhasAX)
+	{
+		BhasAX = false;
+	}
+	else
+	{
+		BhasAX = true;
+	}
+}
+
+
 
 
 

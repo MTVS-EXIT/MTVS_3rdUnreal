@@ -1,12 +1,12 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "c:\\users\\admin\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\unrealeditor\\inc\\advancedsteamsessions\\uht\\steamnotificationssubsystem.gen.cpp",
+        "Source": "c:\\users\\jsh\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\unrealeditor\\inc\\advancedsteamsessions\\uht\\steamnotificationssubsystem.gen.cpp",
         "ProvidedModule": "",
-        "PCH": "c:\\users\\admin\\documents\\github\\mtvs_3rdunreal\\intermediate\\build\\win64\\x64\\mtvs_3rdunrealeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.cpp20.h.pch",
+        "PCH": "c:\\users\\jsh\\documents\\github\\mtvs_3rdunreal\\intermediate\\build\\win64\\x64\\mtvs_3rdunrealeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.cpp20.h.pch",
         "Includes": [
-            "c:\\users\\admin\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\advancedsteamsessions\\definitions.advancedsteamsessions.h",
-            "c:\\users\\admin\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\source\\advancedsteamsessions\\classes\\steamnotificationssubsystem.h",
+            "c:\\users\\jsh\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\advancedsteamsessions\\definitions.advancedsteamsessions.h",
+            "c:\\users\\jsh\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\source\\advancedsteamsessions\\classes\\steamnotificationssubsystem.h",
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\steam_api.h",
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\steam_api_common.h",
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\steamtypes.h",
@@ -41,7 +41,7 @@
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\steamnetworkingtypes.h",
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\isteamnetworkingsockets.h",
             "c:\\program files\\epic games\\ue_5.4\\engine\\source\\thirdparty\\steamworks\\steamv157\\sdk\\public\\steam\\isteamnetworkingutils.h",
-            "c:\\users\\admin\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\unrealeditor\\inc\\advancedsteamsessions\\uht\\steamnotificationssubsystem.generated.h"
+            "c:\\users\\jsh\\documents\\github\\mtvs_3rdunreal\\plugins\\advancedsessions\\advancedsteamsessions\\intermediate\\build\\win64\\unrealeditor\\inc\\advancedsteamsessions\\uht\\steamnotificationssubsystem.generated.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []
