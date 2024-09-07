@@ -159,6 +159,10 @@ public:
 	//태그를 사용하여 감지 중인지 여부
 	bool bIsCurrentlyDetecting;
 
+	//AI Image Sending URL
+	//FString AIDetectionURL = "meta-ai.iptime.org:7722/detect";
+	FString AIDetectionURL = "192.168.219.105:7722/detect";
+
 	// SceneCapture2D 액터 참조
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class ASceneCapture2D* SceneCaptureActor;

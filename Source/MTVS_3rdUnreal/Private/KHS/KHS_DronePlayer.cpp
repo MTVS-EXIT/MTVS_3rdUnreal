@@ -93,6 +93,10 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	DroneDecelerateRate = 400.0f;
 	DroneCurrentSpeed = FVector::ZeroVector;
 	DroneAcceleration = FVector::ZeroVector;
+
+	//RPC설정 추가
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -113,10 +117,18 @@ void AKHS_DronePlayer::BeginPlay()
 	}
 	
 	//드론 Main UI초기화
-	if(nullptr != DroneMainUI) 
-	{ 
-		DroneMainUI = CreateWidget(GetWorld(), DroneMainUIFactory);
-		DroneMainUI->AddToViewport(0); 
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if (IsLocallyControlled())
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if(DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
 	}
 
 	//메시 위치, 회전 저장
@@ -155,6 +167,12 @@ void AKHS_DronePlayer::BeginPlay()
 void AKHS_DronePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//로컬 플레이어가 아니면 작동 안함
+	if (false == IsLocallyControlled())
+	{
+		return;
+	}
 
 	// Drone 이동 처리
 	FVector NewVelocity = DroneCurrentSpeed + (DroneAcceleration * DeltaTime);
@@ -241,6 +259,28 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// DronePlayer에 대해 subsys 만들기(Client인 경우 필수필요)
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc)
+	{
+		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+		if (subsys)
+		{
+			subsys->AddMappingContext(IMC_Drone, 0);
+			UE_LOG(LogTemp, Warning, TEXT("Added IMC_Drone mapping context"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to get EnhancedInputLocalPlayerSubsystem"));
+			return;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is Null"));
+		return;
+	}
+
 	UEnhancedInputComponent* input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	if (input)
 	{
@@ -282,6 +322,8 @@ void AKHS_DronePlayer::PossessedBy(AController* NewController)
 	}
 
 }
+
+#pragma region Drone Camera Effect
 //카메라쉐이크 재생함수
 void AKHS_DronePlayer::PlayDroneCameraShake()
 {
@@ -306,8 +348,15 @@ void AKHS_DronePlayer::DroneAltitudeUpdate()
 	{
 		//Drone 고도계 업데이트
 		float Altitude = s.Z - HitResult.Location.Z;
-		UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
-		HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+
+		if (DroneMainUI)
+		{
+			UTextBlock* HeightText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("HeightText")));
+			if (HeightText)
+			{
+				HeightText->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), Altitude)));
+			}
+		}
 	}
 }
 //Post Process(Radial Blur, Depth of Field) 설정 함수
@@ -441,6 +490,34 @@ void AKHS_DronePlayer::DroneShowOutline()
 	// 현재 감지된 액터들로 추적 세트 업데이트
 	//DetectedAIVisionObjects = DetectedOutlineObjects;
 }
+// 라인트레이스 기반 윤곽선 표시 함수
+void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
+{
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass())) // Actor가 KHS_AIVisionObject 타입인지 확인
+	{
+		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		if (HitMeshComp)
+		{
+			HitMeshComp->SetRenderCustomDepth(true);
+			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값을 1로 설정
+		}
+	}
+
+}
+// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
+void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)
+{
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))  // Actor가 KHS_AIVisionObject 타입인지 확인
+	{
+		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		if (HitMeshComp)
+		{
+			// CustomDepth를 비활성화하여 윤곽선 효과 해제
+			HitMeshComp->SetRenderCustomDepth(false);
+		}
+	}
+}
+#pragma endregion
 
 #pragma region Drone Move Settings
 
@@ -804,7 +881,7 @@ void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray6
 
 	// 3. URL 설정 (여기서는 서버 주소를 설정합니다)
 	//Request->SetURL(TEXT("localhost:3000/upload"));
-	Request->SetURL(TEXT("meta-ai.iptime.org:7722/detect"));
+	Request->SetURL(AIDetectionURL);
 
 	// 4. HTTP 메소드 설정 (POST 방식)
 	Request->SetVerb(TEXT("POST"));
@@ -922,32 +999,5 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 
 #pragma endregion
 
-// 라인트레이스 기반 윤곽선 표시 함수
-void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
-{
-	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass())) // Actor가 KHS_AIVisionObject 타입인지 확인
-	{
-		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-		if (HitMeshComp)
-		{
-			HitMeshComp->SetRenderCustomDepth(true);
-			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값을 1로 설정
-		}
-	}
-	
-}
-// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
-void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)
-{
-	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))  // Actor가 KHS_AIVisionObject 타입인지 확인
-	{
-		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-		if (HitMeshComp)
-		{
-			// CustomDepth를 비활성화하여 윤곽선 효과 해제
-			HitMeshComp->SetRenderCustomDepth(false);
-		}
-	}
-}
 
 
