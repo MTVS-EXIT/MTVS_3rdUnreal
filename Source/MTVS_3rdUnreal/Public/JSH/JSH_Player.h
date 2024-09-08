@@ -131,6 +131,22 @@ public:
 	void NetMulti_WatchSee();
 
 
+	// 방독면
+	UPROPERTY(EditAnywhere, Category=GassMask)
+	UChildActorComponent* GassMask;
+
+	UPROPERTY(Replicated)
+	bool GassMaskOn = false;
+	
+	UPROPERTY()
+	TArray<AActor*> GMList;
+
+	// 소유한 방독면
+	UPROPERTY()
+	class AActor* GrabGMActor;
+
+	
+
 
 	// Ready Mode
 	// UFUNCTION(Server, Reliable)

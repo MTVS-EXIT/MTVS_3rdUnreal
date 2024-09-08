@@ -82,6 +82,14 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
 
+
+	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
+	GassMask->SetupAttachment(GetMesh(), FName("head"));
+	GassMask->SetRelativeLocation(FVector(-2.608696f, 1.521739f, 0.304348f));
+	GassMask->SetRelativeRotation(FRotator(90.000000f, 1440.000000f, 1260.000001f));
+	GassMask->SetVisibility(false);
+
+	
 	// AX = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AX"));
 	// AX->SetupAttachment(GetMesh(), FName("AX"));
 	// AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
@@ -101,9 +109,14 @@ void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// 태어날 때 모든 총 목록을 기억하고싶다.
+	// 태어날 때 모든 AX 목록 기억
 	FName tag = TEXT("AX");
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , AXList);
+
+	// 태어날 때 모든 GassMask 목록 기억
+	FName GMtag = TEXT("GassMask");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , GMtag , GMList);
+	
 }
 
 
@@ -171,6 +184,7 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, WantSprint);
 	DOREPLIFETIME(AJSH_Player, bHasAX);
 	DOREPLIFETIME(AJSH_Player, PossibleWalk);
+	DOREPLIFETIME(AJSH_Player, GassMaskOn);
 }
 
 
@@ -310,6 +324,7 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 
 AActor* tempOwner;
+AActor* tempGMOwner;
 void AJSH_Player::Grab(const FInputActionValue& Value)
 {
 	Server_Grab();
@@ -339,10 +354,33 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	else
 	{
 		MyTakeAX();
-		WantWalk = true;
 		if ( GrabAXActor != nullptr )
 		{
 			AxModeON = true;
+		}
+	}
+
+
+	if (GassMaskOn == false)
+	{
+		for ( AActor* GM : GMList )
+		{
+			float tempDist = GetDistanceTo(GM);
+			if ( tempDist > GrabDistance )
+				continue;
+			if ( nullptr != GM->GetOwner() )
+				continue;
+			
+			GrabGMActor = GM;
+			
+			GM->SetOwner(this);
+			GassMaskOn = true;
+
+			tempGMOwner = GM->GetOwner();
+			
+			GrabGMActor->Destroy();
+			GassMask->SetVisibility(true);
+			break;
 		}
 	}
 }
@@ -373,6 +411,7 @@ void AJSH_Player::MyTakeAX()
 
 		// 총액터를 HandComp에 붙이고싶다.
 		AttachAX(GrabAXActor);
+		WantWalk = true;
 		break;
 	}
 }
