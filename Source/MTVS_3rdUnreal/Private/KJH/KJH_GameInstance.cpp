@@ -66,8 +66,8 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	//// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
 
-	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
-	GetWorld()->ServerTravel(TEXT("/Game/ProtoMap/ProtoPT?listen"));
+   // 수혁이 맵으로 listen 서버를 열고 이동한다.
+	GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 }
 
 
