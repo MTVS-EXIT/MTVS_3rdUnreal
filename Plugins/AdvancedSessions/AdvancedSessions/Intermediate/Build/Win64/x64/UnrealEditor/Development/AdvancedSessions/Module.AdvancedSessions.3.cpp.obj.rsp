@@ -1,11 +1,11 @@
-"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp"
-/FI"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/FI"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Definitions.AdvancedSessions.h"
-/Yu"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-/Fp"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
-/Fo"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp.obj"
-/sourceDependencies "C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp.dep.json"
-@"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\AdvancedSessions.Shared.rsp"
+"C:\Github\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp"
+/FI"C:\Github\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/FI"C:\Github\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Definitions.AdvancedSessions.h"
+/Yu"C:\Github\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
+/Fp"C:\Github\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.pch"
+/Fo"C:\Github\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp.obj"
+/sourceDependencies "C:\Github\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\Module.AdvancedSessions.3.cpp.dep.json"
+@"C:\Github\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSessions\AdvancedSessions.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi
