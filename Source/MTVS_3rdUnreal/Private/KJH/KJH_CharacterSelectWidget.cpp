@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "KJH/KJH_GameInstance.h"
 #include "Components/WidgetSwitcher.h"
+#include "KJH/KJH_PlayerController.h"
 
 UKJH_CharacterSelectWidget::UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize)
 {
@@ -50,32 +51,27 @@ void UKJH_CharacterSelectWidget::ShowCharacterSelect()
 
 void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 {
-	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-	if (GameInstance)
+	AKJH_PlayerController* PlayerController = Cast<AKJH_PlayerController>(GetOwningPlayer());
+	if (PlayerController)
 	{
-		APlayerController* PlayerController = GetOwningPlayer(); // 현재 위젯의 소유자 컨트롤러 가져오기
-		GameInstance->OnCharacterSelected(PlayerController, true); // Person Player 버튼 선택 시 컨트롤러와 선택 상태 전달
-
+		PlayerController->bIsPersonCharacterSelected = true;
+		PlayerController->ServerSpawnCharacterBasedOnSelection(true);
 		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
 		UpdateSelectButtonStates();
-
-
-		Teardown(); // 캐릭터 선택 후 UI 제거
+		Teardown();
 	}
 }
 
 void UKJH_CharacterSelectWidget::SelectDroneCharacter()
 {
-	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-	if (GameInstance)
+	AKJH_PlayerController* PlayerController = Cast<AKJH_PlayerController>(GetOwningPlayer());
+	if (PlayerController)
 	{
-		APlayerController* PlayerController = GetOwningPlayer(); // 현재 위젯의 소유자 컨트롤러 가져오기
-		GameInstance->OnCharacterSelected(PlayerController, false); // Drone Player 버튼 선택 시 컨트롤러와 선택 상태 전달
-		
+		PlayerController->bIsPersonCharacterSelected = false;
+		PlayerController->ServerSpawnCharacterBasedOnSelection(false);
 		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
 		UpdateSelectButtonStates();
-
-		Teardown(); // 캐릭터 선택 후 UI 제거
+		Teardown();
 	}
 }
 

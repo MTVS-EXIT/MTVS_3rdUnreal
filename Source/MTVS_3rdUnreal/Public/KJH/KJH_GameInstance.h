@@ -37,6 +37,8 @@ public:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 ////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------
+	
+	// 1) 세션 관련 함수 --------------------------------
 	UFUNCTION(Exec) // Exec: 콘솔창에 입력할 수 있도록 만든다.
 	void Host(); // 서버 열기 함수
 
@@ -46,17 +48,22 @@ public:
 	UFUNCTION()
 	void CreateSession(); // 세션을 만드는 함수
 
-	UFUNCTION(BlueprintCallable)
-	void LoadServerWidget(); // 시작화면 UI를 불러오는 함수
-
 	UFUNCTION()
 	void RefreshServerList();
+
+	// 2) UI 관련 함수 ----------------------------------
+	UFUNCTION(BlueprintCallable, Category = "Load Widget")
+	void LoadServerWidget(); // 시작화면 UI를 불러오는 함수
 
 	UFUNCTION(BlueprintCallable, Category = "Load Widget")
 	void LoadInGameWidget(); // 인게임 UI를 불러오는 함수
 
+
+
 	UFUNCTION(BlueprintCallable, Category = "Load Widget")
 	void LoadServerWidgetMap(); // 인게임 UI가 있는 맵으로 로드하는 함수 (UI는 레벨에 붙어있기 때문)
+
+
 
 	// 캐릭터 선택 관련 함수 //
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
