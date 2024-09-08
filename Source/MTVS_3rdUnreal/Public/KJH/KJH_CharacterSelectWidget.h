@@ -34,10 +34,10 @@ public :
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* CharacterSelectMenu;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UButton* PersonSelectButton;
 	
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UButton* DroneSelectButton;
 
 ////////// 변수 참조 구간 -----------------------------------------------------------------------------------------------------
