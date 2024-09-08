@@ -11,20 +11,19 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-// Sets default values
+
 AJSH_Player::AJSH_Player()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// ////////// KJH �߰� Auto Possess ���� �߰� //////////
-	// AutoPossessPlayer = EAutoReceiveInput::Player0; // ù ��° �÷��̾ ���� �ڵ����� Possess
+	SetReplicates(true);
+	SetReplicateMovement(true);
 
-	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
 
 
@@ -35,7 +34,6 @@ AJSH_Player::AJSH_Player()
     	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
     }
 		
-	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	// Third -> First Camera Feel (1)
 	bUseControllerRotationYaw = true;
@@ -44,10 +42,9 @@ AJSH_Player::AJSH_Player()
 	// Third -> First Camera Feel (2)
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
+
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
@@ -63,12 +60,14 @@ AJSH_Player::AJSH_Player()
 	// SpringArm->SetRelativeLocation(FVector(0, 23.5f, 168));
 	// SpringArm->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("pelvis"));
 	SpringArm->TargetArmLength = 0.f; 
-	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	SpringArm->bUsePawnControlRotation = true; 
 
-	// Create a follow camera
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false; 
+
+
 
 
 	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
@@ -83,31 +82,56 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
 
-	SetReplicates(true);
-	SetReplicateMovement(true);
+
+	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
+	GassMask->SetupAttachment(GetMesh(), FName("head"));
+	GassMask->SetRelativeLocation(FVector(-2.608696f, 1.521739f, 0.304348f));
+	GassMask->SetRelativeRotation(FRotator(90.000000f, 1440.000000f, 1260.000001f));
+	GassMask->SetVisibility(false);
+
+	
+	// AX = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AX"));
+	// AX->SetupAttachment(GetMesh(), FName("AX"));
+	// AX->SetRelativeLocation(FVector(-80.147944f, -916.095325f, 95.000000f));
+	// AX->SetRelativeRotation(FRotator(0.f, 5.000001f, 0.f));
+	// AX->SetVisibility(false);
+
+
+	HandComp = CreateDefaultSubobject<USceneComponent>(TEXT("HandComp"));
+	HandComp->SetupAttachment(GetMesh() , TEXT("GrabPosition"));
+	// HandComp->SetRelativeLocationAndRotation(FVector(-17.586273f , -0.273735f , 15.693467f) , FRotator(-62.920062f , 9.732144f , 29.201706f));
+
 
 }
 
-// Called when the game starts or when spawned
+
 void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 태어날 때 모든 AX 목록 기억
+	FName tag = TEXT("AX");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , AXList);
+
+	// 태어날 때 모든 GassMask 목록 기억
+	FName GMtag = TEXT("GassMask");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , GMtag , GMList);
+	
 }
 
-// Called every frame
+
 void AJSH_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called to bind functionality to input
+
 void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Add Input Mapping Context
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -116,7 +140,7 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		}
 	}
 	
-	// Set up action bindings
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
@@ -129,8 +153,17 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJSH_Player::Look);
 
-		// Looking
+		// See Watch (Q)
 		EnhancedInputComponent->BindAction(WatchAction, ETriggerEvent::Started, this, &AJSH_Player::Watch);
+
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AJSH_Player::Grab);
+
+		// EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
+		
+		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
+		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
+
+		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AJSH_Player::Walk);
 	}
 	else
 	{
@@ -145,7 +178,16 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 
 	DOREPLIFETIME(AJSH_Player, WatchSee);
+	DOREPLIFETIME(AJSH_Player, AxModeON);
+	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
+	DOREPLIFETIME(AJSH_Player, WantWalk);
+	DOREPLIFETIME(AJSH_Player, WantSprint);
+	DOREPLIFETIME(AJSH_Player, bHasAX);
+	DOREPLIFETIME(AJSH_Player, PossibleWalk);
+	DOREPLIFETIME(AJSH_Player, GassMaskOn);
 }
+
+
 
 
 void AJSH_Player::Move(const FInputActionValue& Value)
@@ -155,17 +197,15 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
+
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -173,15 +213,14 @@ void AJSH_Player::Move(const FInputActionValue& Value)
 
 void AJSH_Player::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	// FVector2D LookAxisVector = Value.Get<FVector2D>();
-	//
-	// if (Controller != nullptr)
-	// {
-	// 	// add yaw and pitch input to controller
-	// 	AddControllerYawInput(LookAxisVector.X);
-	// 	AddControllerPitchInput(LookAxisVector.Y);
-	// }
+
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	
+	if (Controller != nullptr)
+	{
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
 }
 
 
@@ -212,7 +251,256 @@ void AJSH_Player::NetMulti_WatchSee_Implementation()
 			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 1.0f);
 		}
 
+		
 		WatchSee = !WatchSee;
 	}
 }
-// ----------------------------------------------------------------------------
+// @----------------------------------------------------------------------------
+
+
+
+
+// 걷기 -------------------------------------
+
+// 대부분 ABP에서 해결, 네트워크 동기화를 위해 Walk <-> Run 바꿔주는 부분만 .. 이것만 동기화가 안 됌 ...
+void AJSH_Player::Walk(const FInputActionValue& Value)
+{
+	Server_Walk();
+}
+
+void AJSH_Player::Server_Walk_Implementation()
+{
+	NetMulti_Walk();
+}
+
+void AJSH_Player::NetMulti_Walk_Implementation()
+{
+	// R
+	if (AxModeON == false)
+	{
+		WantWalk = !WantWalk;
+	}
+}
+
+// ------------------------------------
+
+
+
+
+
+
+// Grab에 일단 통일 시켜둠
+// void AJSH_Player::R(const FInputActionValue& Value)
+// {
+// 	Server_RedyAction();
+// }
+//
+// void AJSH_Player::Server_RedyAction_Implementation()
+// {
+// 	NetMulti_RedyAction();
+// }
+//
+// void AJSH_Player::NetMulti_RedyAction_Implementation()
+// {
+// 	// if (bHasPistol)
+// 	// {
+// 	// 	AxModeON = !AxModeON;
+// 	// 	WantWalk = true;
+// 	// 	if (WatchSee == false)
+// 	// 	{
+// 	// 		USkeletalMeshComponent* MeshComp = GetMesh();
+// 	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+// 	// 		WatchSee = true;
+// 	// 	}
+// 	// }
+//
+// 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
+// 	// WatchSee = false;
+// }
+
+
+
+
+
+
+AActor* tempOwner;
+AActor* tempGMOwner;
+void AJSH_Player::Grab(const FInputActionValue& Value)
+{
+	Server_Grab();
+}
+
+void AJSH_Player::Server_Grab_Implementation()
+{
+	NetMulti_Grab();
+}
+
+void AJSH_Player::NetMulti_Grab_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
+
+	if ( bHasAX )
+	{
+		MyReleaseAX();
+		WantWalk = true;
+		AxModeON = false;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
+	}
+	else
+	{
+		MyTakeAX();
+		if ( GrabAXActor != nullptr )
+		{
+			AxModeON = true;
+		}
+	}
+
+
+	if (GassMaskOn == false)
+	{
+		for ( AActor* GM : GMList )
+		{
+			float tempDist = GetDistanceTo(GM);
+			if ( tempDist > GrabDistance )
+				continue;
+			if ( nullptr != GM->GetOwner() )
+				continue;
+			
+			GrabGMActor = GM;
+			
+			GM->SetOwner(this);
+			GassMaskOn = true;
+
+			tempGMOwner = GM->GetOwner();
+			
+			GrabGMActor->Destroy();
+			GassMask->SetVisibility(true);
+			break;
+		}
+	}
+}
+
+void AJSH_Player::MyTakeAX()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
+	// 총을 잡지 않은 상태 -> 잡고싶다.
+	// 총목록을 검사하고싶다.
+	for ( AActor* AX : AXList )
+	{
+		// 나와 총과의 거리가 GrabDistance 이하라면
+		// 그 중에 소유자가 없는 총이라면
+		float tempDist = GetDistanceTo(AX);
+		if ( tempDist > GrabDistance )
+			continue;
+		if ( nullptr != AX->GetOwner() )
+			continue;
+		
+
+		// 그 총을 기억하고싶다. (GrabPistolActor)
+		GrabAXActor = AX;
+		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
+		AX->SetOwner(this);
+		bHasAX = true;
+
+		tempOwner = AX->GetOwner();
+
+		// 총액터를 HandComp에 붙이고싶다.
+		AttachAX(GrabAXActor);
+		WantWalk = true;
+		break;
+	}
+}
+
+void AJSH_Player::MyReleaseAX()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
+	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+	if ( false == bHasAX)
+		return;
+	
+
+	// 총을 이미 잡은 상태 -> 놓고싶다.
+	if ( bHasAX )
+	{
+		bHasAX = false;
+	}
+
+	// 총의 오너를 취소하고싶다.
+	if ( GrabAXActor )
+	{
+		DetachAX();
+
+		GrabAXActor->SetOwner(nullptr);
+		// 총을 잊고싶다.
+		GrabAXActor = nullptr;
+	}
+}
+
+
+
+void AJSH_Player::AttachAX(AActor* AXActor)
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
+	GrabAXActor = AXActor;
+	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		mesh->SetSimulatePhysics(false);
+		mesh->AttachToComponent(HandComp , FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+void AJSH_Player::DetachAX()
+{
+	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
+	// 총의 메쉬를 가져와서
+	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		// 물리를 켜주고싶다.
+		mesh->SetSimulatePhysics(true);
+		// 분리하고싶다..
+		mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	}
+}
+
+
+
+
+
+// Left Mouse 인터렉션 ------------------------------------------------------------------
+void AJSH_Player::LeftMouse(const FInputActionValue& Value)
+{
+	Server_LeftMouseAction();
+	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
+}
+
+void AJSH_Player::Server_LeftMouseAction_Implementation()
+{
+	NetMulti_LeftMouseAction();
+}
+
+void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
+{
+	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
+	// AxMode가 ON일때만 도끼 찍는 애니메이션 실행, 추후 도끼 주웠을때 AXMODE가 ON, 도끼 버렸을때 OFF 되도록 하기
+	
+
+	// 도끼를 잡고 있다면
+	if (AxModeON)
+	{
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		if (MeshComp && MeshComp->GetAnimInstance())
+		{
+			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+		}
+	}
+}
+// ------------------------------------------------------------------------
