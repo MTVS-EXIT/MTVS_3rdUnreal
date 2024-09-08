@@ -7,6 +7,7 @@
 #include "KJH_CharacterSelectWidget.h"
 #include "KHS/KHS_DronePlayer.h"
 #include "JSH/JSH_Player.h"
+#include "GameFramework/Actor.h"
 #include "KJH_PlayerController.generated.h"
 
 /**
@@ -63,5 +64,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // 수정된 부분
+
+
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+    TSubclassOf<AActor> PersonSpawnPointClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+    TSubclassOf<AActor> DroneSpawnPointClass;
 
 };

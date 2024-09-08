@@ -63,11 +63,11 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 		ServerWidget->Teardown();
 	}
 
-	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
-	GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
-
 	//// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
-	//GetWorld()->ServerTravel(TEXT("/Game/ProtoMap/Proto_jsy?listen"));
+	//GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
+
+	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
+	GetWorld()->ServerTravel(TEXT("/Game/ProtoMap/ProtoPT?listen"));
 }
 
 

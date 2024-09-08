@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerStart.h"
 #include "KHS/KHS_DronePlayer.h"
+#include "GameFramework/Actor.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
@@ -88,32 +89,59 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
         ? BP_JSH_PlayerClass
         : BP_KHS_DronePlayerClass;
 
-    // GameMode를 통해 스폰 위치 얻기
-    AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
     FVector NewSpawnLocation;
     FRotator NewSpawnRotation;
 
-
-    if (GameMode)
+    if (bIsPersonCharacterSelected && PersonSpawnPointClass)
     {
-        AActor* PlayerStartSpot = GameMode->FindPlayerStart(this);
-        if (PlayerStartSpot)
+        FActorSpawnParameters SpawnParams;
+        AActor* PersonSpawnPoint = GetWorld()->SpawnActor<AActor>(PersonSpawnPointClass, SpawnParams);
+        if (PersonSpawnPoint)
         {
-            NewSpawnLocation = PlayerStartSpot->GetActorLocation();
-            NewSpawnRotation = PlayerStartSpot->GetActorRotation();
+            NewSpawnLocation = PersonSpawnPoint->GetActorLocation();
+            NewSpawnRotation = PersonSpawnPoint->GetActorRotation();
+            // 사용 후 SpawnPoint 제거 (선택사항)
+            PersonSpawnPoint->Destroy();
         }
-        else
+    }
+
+    else if (!bIsPersonCharacterSelected && DroneSpawnPointClass)
+    {
+        FActorSpawnParameters SpawnParams;
+        AActor* DroneSpawnPoint = GetWorld()->SpawnActor<AActor>(DroneSpawnPointClass, SpawnParams);
+        if (DroneSpawnPoint)
         {
-            // 기본 위치 (필요한 경우 조정)
-            NewSpawnLocation = FVector(0.f, 0.f, 100.f);
-            NewSpawnRotation = FRotator::ZeroRotator;
+            NewSpawnLocation = DroneSpawnPoint->GetActorLocation();
+            NewSpawnRotation = DroneSpawnPoint->GetActorRotation();
+            // 사용 후 SpawnPoint 제거 (선택사항)
+            DroneSpawnPoint->Destroy();
         }
     }
     else
     {
-        // 기본 위치 (필요한 경우 조정)
-        NewSpawnLocation = FVector(0.f, 0.f, 100.f);
-        NewSpawnRotation = FRotator::ZeroRotator;
+        // 스폰 포인트가 설정되지 않은 경우 기본 로직 사용
+        AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
+        if (GameMode)
+        {
+            AActor* PlayerStartSpot = GameMode->FindPlayerStart(this);
+            if (PlayerStartSpot)
+            {
+                NewSpawnLocation = PlayerStartSpot->GetActorLocation();
+                NewSpawnRotation = PlayerStartSpot->GetActorRotation();
+            }
+            else
+            {
+                // 기본 위치 (필요한 경우 조정)
+                NewSpawnLocation = FVector(0.f, 0.f, 100.f);
+                NewSpawnRotation = FRotator::ZeroRotator;
+            }
+        }
+        else
+        {
+            // GameMode가 없는 경우 기본 위치 사용
+            NewSpawnLocation = FVector(0.f, 0.f, 100.f);
+            NewSpawnRotation = FRotator::ZeroRotator;
+        }
     }
 
     FActorSpawnParameters SpawnParams;
@@ -127,7 +155,6 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
         // 네트워크 설정
         NewPawn->SetReplicates(true);
         NewPawn->SetReplicateMovement(true);
-
         Possess(NewPawn);
         UE_LOG(LogTemp, Warning, TEXT("Character successfully spawned for Player at location: %s"), *NewSpawnLocation.ToString());
     }
