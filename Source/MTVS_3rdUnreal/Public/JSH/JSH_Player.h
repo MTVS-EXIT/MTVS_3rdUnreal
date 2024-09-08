@@ -83,7 +83,7 @@ protected:
 
 	void Grab(const FInputActionValue& Value);
 	
-	// void R(const FInputActionValue& Value);
+	void R(const FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -149,26 +149,29 @@ public:
 
 
 	// Ready Mode
-	// UFUNCTION(Server, Reliable)
-	// void Server_RedyAction();
-	//
-	// UFUNCTION(NetMulticast, Reliable)
-	// void NetMulti_RedyAction();
+	UFUNCTION(Server, Reliable)
+	void Server_RedyAction();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_RedyAction();
 	
 
 	// 잡기
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
 	bool bHasAX;
 
-	// 태어날 때 모든 총 목록을 기억하고싶다.
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool AXOn;
+
+	// 태어날 때 모든 목록을 기억
 	UPROPERTY()
 	TArray<AActor*> AXList;
 
-	// 총을 잡았을 때 위치
+	// 잡았을 때 위치
 	UPROPERTY(EditDefaultsOnly , Category = Pistol)
 	class USceneComponent* HandComp;
 
-	// 소유한 총을 기억하고싶다.
+	// 소유한 총을 기억.
 	UPROPERTY()
 	class AActor* GrabAXActor;
 
@@ -188,6 +191,46 @@ public:
 	void NetMulti_Grab();
 	
 
+
+	// FireEX 잡기
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool bHasFire;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool FireEXOn = false;
+	
+	UPROPERTY()
+	TArray<AActor*> FireList;
+	
+	UPROPERTY(EditDefaultsOnly , Category = Pistol)
+	class USceneComponent* FireHandComp;
+	
+	UPROPERTY()
+	class AActor* GrabFireActor;
+	
+	void AttachFire(AActor* FireActor);
+	void DetachFire();
+	void MyTakeFire();
+	void MyReleaseFire();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UArrowComponent* FireEXSpray;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 	
 	// 도끼
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
