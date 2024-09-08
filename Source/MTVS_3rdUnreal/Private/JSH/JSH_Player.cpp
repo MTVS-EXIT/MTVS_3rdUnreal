@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/ArrowComponent.h"
 #include "kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -101,7 +102,13 @@ AJSH_Player::AJSH_Player()
 	HandComp->SetupAttachment(GetMesh() , TEXT("GrabPosition"));
 	// HandComp->SetRelativeLocationAndRotation(FVector(-17.586273f , -0.273735f , 15.693467f) , FRotator(-62.920062f , 9.732144f , 29.201706f));
 
+	FireHandComp = CreateDefaultSubobject<USceneComponent>(TEXT("FireHandComp"));
+	FireHandComp->SetupAttachment(GetMesh() , TEXT("FirePosition"));
 
+	FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
+	FireEXSpray->SetupAttachment(GetMesh(), TEXT("FirePosition"));
+	FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
+	FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
 }
 
 
@@ -116,7 +123,10 @@ void AJSH_Player::BeginPlay()
 	// 태어날 때 모든 GassMask 목록 기억
 	FName GMtag = TEXT("GassMask");
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , GMtag , GMList);
-	
+
+	// 태어날 때 모든 FireEX 목록 기억
+	FName Firetag = TEXT("FireEX");
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , Firetag , FireList);
 }
 
 
@@ -158,7 +168,7 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AJSH_Player::Grab);
 
-		// EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
+		EnhancedInputComponent->BindAction(ReadyAction, ETriggerEvent::Started, this, &AJSH_Player::R);
 		
 		// (Left Mouse) - 1) 도끼 찍기, 2) 소화기
 		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
@@ -185,6 +195,8 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, bHasAX);
 	DOREPLIFETIME(AJSH_Player, PossibleWalk);
 	DOREPLIFETIME(AJSH_Player, GassMaskOn);
+	DOREPLIFETIME(AJSH_Player, bHasFire);
+	DOREPLIFETIME(AJSH_Player, FireEXOn);
 }
 
 
@@ -275,8 +287,7 @@ void AJSH_Player::Server_Walk_Implementation()
 
 void AJSH_Player::NetMulti_Walk_Implementation()
 {
-	// R
-	if (AxModeON == false)
+	if (AxModeON == false && FireEXOn == false)
 	{
 		WantWalk = !WantWalk;
 	}
@@ -289,34 +300,34 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 
 
-// Grab에 일단 통일 시켜둠
-// void AJSH_Player::R(const FInputActionValue& Value)
-// {
-// 	Server_RedyAction();
-// }
-//
-// void AJSH_Player::Server_RedyAction_Implementation()
-// {
-// 	NetMulti_RedyAction();
-// }
-//
-// void AJSH_Player::NetMulti_RedyAction_Implementation()
-// {
-// 	// if (bHasPistol)
-// 	// {
-// 	// 	AxModeON = !AxModeON;
-// 	// 	WantWalk = true;
-// 	// 	if (WatchSee == false)
-// 	// 	{
-// 	// 		USkeletalMeshComponent* MeshComp = GetMesh();
-// 	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-// 	// 		WatchSee = true;
-// 	// 	}
-// 	// }
-//
-// 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
-// 	// WatchSee = false;
-// }
+//Grab에 일단 통일 시켜둠
+void AJSH_Player::R(const FInputActionValue& Value)
+{
+	Server_RedyAction();
+}
+
+void AJSH_Player::Server_RedyAction_Implementation()
+{
+	NetMulti_RedyAction();
+}
+
+void AJSH_Player::NetMulti_RedyAction_Implementation()
+{
+	if (bHasFire)
+	{
+		FireEXOn = !FireEXOn;
+		WantWalk = true;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
+	}
+
+	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
+	// WatchSee = false;
+}
 
 
 
@@ -325,6 +336,7 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 AActor* tempOwner;
 AActor* tempGMOwner;
+AActor* tempFireOwner;
 void AJSH_Player::Grab(const FInputActionValue& Value)
 {
 	Server_Grab();
@@ -338,7 +350,8 @@ void AJSH_Player::Server_Grab_Implementation()
 void AJSH_Player::NetMulti_Grab_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
-
+	
+	
 	if ( bHasAX )
 	{
 		MyReleaseAX();
@@ -360,6 +373,31 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 		}
 	}
 
+	
+	if ( bHasFire )
+	{
+		MyReleaseFire();
+		WantWalk = true;
+		FireEXOn = false;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
+	}
+	else
+	{
+		MyTakeFire();
+		// if ( GrabFireActor != nullptr )
+		// {
+		// 	FireEXOn = true;
+		// }
+	}
+
+
+
+	
 
 	if (GassMaskOn == false)
 	{
@@ -441,8 +479,6 @@ void AJSH_Player::MyReleaseAX()
 	}
 }
 
-
-
 void AJSH_Player::AttachAX(AActor* AXActor)
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
@@ -470,6 +506,94 @@ void AJSH_Player::DetachAX()
 		mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	}
 }
+
+
+
+
+void AJSH_Player::MyTakeFire()
+{
+	//  잡지 않은 상태 -> 잡고싶다.
+	// 목록을 검사하고싶다.
+	for ( AActor* Fire : FireList )
+	{
+		// 나와 총과의 거리가 GrabDistance 이하라면
+		// 그 중에 소유자가 없는 총이라면
+		float tempFireDist = GetDistanceTo(Fire);
+		if ( tempFireDist > GrabDistance )
+			continue;
+		if ( nullptr != Fire->GetOwner() )
+			continue;
+		
+
+		// 그 총을 기억하고싶다. (GrabPistolActor)
+		GrabFireActor = Fire;
+		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
+		Fire->SetOwner(this);
+		bHasFire = true;
+
+		tempFireOwner = Fire->GetOwner();
+
+		// 총액터를 HandComp에 붙이고싶다.
+		AttachFire(GrabFireActor);
+		break;
+	}
+}
+
+void AJSH_Player::MyReleaseFire()
+{
+	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+	if ( false == bHasFire)
+		return;
+	
+
+	// 총을 이미 잡은 상태 -> 놓고싶다.
+	if ( bHasFire )
+	{
+		bHasFire = false;
+	}
+
+	// 총의 오너를 취소하고싶다.
+	if ( GrabFireActor )
+	{
+		DetachFire();
+
+		GrabFireActor->SetOwner(nullptr);
+		// 총을 잊고싶다.
+		GrabFireActor = nullptr;
+	}
+}
+
+void AJSH_Player::AttachFire(AActor* FireActor)
+{
+	GrabFireActor = FireActor;
+	auto* mesh = GrabFireActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		mesh->SetSimulatePhysics(false);
+		mesh->AttachToComponent(FireHandComp , FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+void AJSH_Player::DetachFire()
+{
+	// 총의 메쉬를 가져와서
+	auto* mesh = GrabFireActor->GetComponentByClass<UStaticMeshComponent>();
+	check(mesh);
+	if ( mesh )
+	{
+		// 물리를 켜주고싶다.
+		mesh->SetSimulatePhysics(true);
+		// 분리하고싶다..
+		mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	}
+}
+
+
+
+
+
+
 
 
 
