@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "KHS/KHS_DronePlayer.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
@@ -78,7 +79,7 @@ void AKJH_PlayerController::ClientShowCharacterSelectWidget_Implementation()
 
 void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 {
-    if (!HasAuthority()) // 클라이언트에서 실행된 경우
+    if (false == HasAuthority()) // 클라이언트에서 실행된 경우
     {
         ServerSpawnCharacterBasedOnSelection(bIsPersonCharacterSelected);
         return;
@@ -92,54 +93,45 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
     FVector NewSpawnLocation;
     FRotator NewSpawnRotation;
 
-    if (bIsPersonCharacterSelected && PersonSpawnPointClass)
+    if (bIsPersonCharacterSelected)
     {
-        FActorSpawnParameters SpawnParams;
-        AActor* PersonSpawnPoint = GetWorld()->SpawnActor<AActor>(PersonSpawnPointClass, SpawnParams);
-        if (PersonSpawnPoint)
+
+        // 사람 스폰 포인트 찾기
+        TArray<AActor*> FoundPersonSpawns;
+        UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PersonSpawnPoint"), FoundPersonSpawns);
+
+        if (FoundPersonSpawns.Num() > 0)
         {
-            NewSpawnLocation = PersonSpawnPoint->GetActorLocation();
-            NewSpawnRotation = PersonSpawnPoint->GetActorRotation();
-            // 사용 후 SpawnPoint 제거 (선택사항)
-            PersonSpawnPoint->Destroy();
+            AActor* PersonSpawnPoint = FoundPersonSpawns[0]; // 첫번째로 찾은 Person Spawn Point 사용
+            NewSpawnLocation = PersonSpawnPoint -> GetActorLocation();
+            NewSpawnRotation = PersonSpawnPoint -> GetActorRotation();
+        }
+
+        else
+        {
+            // 검색에 실패할 경우, 기본 위치로 스폰
+            NewSpawnLocation = FVector(0.0f, 0.0f, 200.0f);
+            NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
 
-    else if (!bIsPersonCharacterSelected && DroneSpawnPointClass)
+    else if (false == bIsPersonCharacterSelected) // 드론이 선택된 경우
     {
-        FActorSpawnParameters SpawnParams;
-        AActor* DroneSpawnPoint = GetWorld()->SpawnActor<AActor>(DroneSpawnPointClass, SpawnParams);
-        if (DroneSpawnPoint)
+        // 드론 스폰 포인트 찾기
+        TArray<AActor*> FoundDroneSpawns;
+        UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("DroneSpawnPoint"), FoundDroneSpawns);
+
+        if (FoundDroneSpawns.Num() > 0)
         {
-            NewSpawnLocation = DroneSpawnPoint->GetActorLocation();
-            NewSpawnRotation = DroneSpawnPoint->GetActorRotation();
-            // 사용 후 SpawnPoint 제거 (선택사항)
-            DroneSpawnPoint->Destroy();
+            AActor* DroneSpawnPoint = FoundDroneSpawns[0]; // 첫번째로 찾은 Drone Spawn Point 사용
+            NewSpawnLocation = DroneSpawnPoint -> GetActorLocation();
+            NewSpawnRotation = DroneSpawnPoint -> GetActorRotation();
         }
-    }
-    else
-    {
-        // 스폰 포인트가 설정되지 않은 경우 기본 로직 사용
-        AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
-        if (GameMode)
-        {
-            AActor* PlayerStartSpot = GameMode->FindPlayerStart(this);
-            if (PlayerStartSpot)
-            {
-                NewSpawnLocation = PlayerStartSpot->GetActorLocation();
-                NewSpawnRotation = PlayerStartSpot->GetActorRotation();
-            }
-            else
-            {
-                // 기본 위치 (필요한 경우 조정)
-                NewSpawnLocation = FVector(0.f, 0.f, 100.f);
-                NewSpawnRotation = FRotator::ZeroRotator;
-            }
-        }
+
         else
         {
-            // GameMode가 없는 경우 기본 위치 사용
-            NewSpawnLocation = FVector(0.f, 0.f, 100.f);
+            // 검색에 실패할 경우, 기본 위치로 스폰
+            NewSpawnLocation = FVector (0.0f, 0.0f, 100.0f);
             NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
