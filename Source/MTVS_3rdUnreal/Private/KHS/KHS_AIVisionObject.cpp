@@ -14,10 +14,11 @@ AKHS_AIVisionObject::AKHS_AIVisionObject()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	SetRootComponent(SphereComp);
-
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	MeshComp->SetupAttachment(RootComponent);
+	
+	//플레이어측 요청으로 Root수정
+	SetRootComponent(MeshComp);
+	SphereComp->SetupAttachment(RootComponent);
 
 	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
 	WidgetComp->SetupAttachment(RootComponent);
