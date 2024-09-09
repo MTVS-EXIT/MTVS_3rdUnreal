@@ -24,6 +24,7 @@ AKHS_AIVisionObject::AKHS_AIVisionObject()
 	WidgetComp->SetupAttachment(RootComponent);
 	WidgetComp->SetRelativeScale3D(FVector(0.15f));
 
+	
 }
 
 // Called when the game starts or when spawned

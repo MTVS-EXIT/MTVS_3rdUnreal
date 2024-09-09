@@ -100,6 +100,12 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	//RPC설정 추가
 	SetReplicates(true);
 	SetReplicateMovement(true);
+
+	//SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//SphereComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	//SphereComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	//SphereComp->SetSimulatePhysics(true);  // 물리 시뮬레이션 활성화
+	//SphereComp->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 }
 
 // Called when the game starts or when spawned
