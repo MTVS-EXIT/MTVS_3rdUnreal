@@ -88,11 +88,19 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 
 void UKJH_GameInstance::RefreshServerList()
 {
+
+	// 기존 세션 검색 결과 초기화
+	if (SessionSearch.IsValid())
+	{
+		SessionSearch.Reset();
+	}
+
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
 
 	if (SessionSearch.IsValid())
 	{
 		//SessionSearch->bIsLanQuery = true; // LAN 사용 여부, true 면 LAN 세션을 찾고 false 면 인터넷 세션을 찾음.
+		SessionSearch->bIsLanQuery = false; // LAN 세션 검색 여부 설정
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
