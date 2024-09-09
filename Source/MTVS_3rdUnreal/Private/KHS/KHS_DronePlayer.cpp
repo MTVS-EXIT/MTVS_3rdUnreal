@@ -125,20 +125,20 @@ void AKHS_DronePlayer::BeginPlay()
 		}
 	}
 	
-	//드론 Main UI초기화
-	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled())
-	{
-		if (DroneMainUIFactory)
-		{
-			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
-			if(DroneMainUI)
-			{
-				DroneMainUI->AddToViewport(0);
-				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-			}
-		}
-	}
+	////드론 Main UI초기화
+	////로컬 플레이어인 경우에만 UI생성하도록 수정
+	//if (IsLocallyControlled())
+	//{
+	//	if (DroneMainUIFactory)
+	//	{
+	//		DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+	//		if(DroneMainUI)
+	//		{
+	//			DroneMainUI->AddToViewport(0);
+	//			UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+	//		}
+	//	}
+	//}
 
 	//메시 위치, 회전 저장
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
@@ -307,6 +307,22 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); // 기본 클래스의 Possess 로직을 다시 실행하여 Pawn과 Controller 간의 연결을 설정
+
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if (IsLocallyControlled())
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if (DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
+
 
 	// 입력 컴포넌트 초기화
 	// Possess 이후에 입력 컴포넌트를 다시 설정하여 드론의 입력 바인딩이 올바르게 이루어지도록 함.
