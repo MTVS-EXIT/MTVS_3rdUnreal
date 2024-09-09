@@ -72,7 +72,7 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	// VOIP Talker 컴포넌트를 생성하고, VOIPTalkerComponent 포인터에 할당합니다.
 	VOIPTalkerComp = CreateDefaultSubobject<UVOIPTalker>(TEXT("VOIPTalkerComp"));
 
-	// 기본 렌더 타겟 생성 및 설정
+	// 이미지 캡쳐 용도 렌더 타겟 생성 및 설정
 	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
 	RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
 	RenderTarget->InitAutoFormat(1280, 720); // 원하는 해상도로 초기화
@@ -88,9 +88,12 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	RollFrequency = 1.0f;
 
 	//Drone 스탯 초기화
-	DroneMaxSpeed = 3000.0f;
-	DroneAccelerateRate = 450.0f;
-	DroneDecelerateRate = 400.0f;
+	//DroneMaxSpeed = 3000.0f;
+	DroneMaxSpeed = 1500.0f;
+	//DroneAccelerateRate = 450.0f;
+	DroneAccelerateRate = 300.0f;
+	//DroneDecelerateRate = 400.0f;
+	DroneDecelerateRate = 250.0f;
 	DroneCurrentSpeed = FVector::ZeroVector;
 	DroneAcceleration = FVector::ZeroVector;
 
@@ -477,7 +480,7 @@ void AKHS_DronePlayer::DroneShowOutline()
 		}
 	}
 
-	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 UI를 숨김
+	// 이전에 감지된 액터 중에서 이번 라인트레이스에서 감지되지 않은 액터를 찾아 윤곽선 해제
 	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
 	{
 		if (!DetectedOutlineObjects.Contains(DetectedObject))
@@ -502,7 +505,6 @@ void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
 			HitMeshComp->CustomDepthStencilValue = 1; // 스텐실 값을 1로 설정
 		}
 	}
-
 }
 // 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
 void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)

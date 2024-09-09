@@ -161,7 +161,8 @@ public:
 
 	//AI Image Sending URL
 	//FString AIDetectionURL = "meta-ai.iptime.org:7722/detect";
-	FString AIDetectionURL = "192.168.219.105:7722/detect";
+	//FString AIDetectionURL = "192.168.219.105:7722/detect";
+	FString AIDetectionURL = "meta-ai.iptime.org:7722/detect";
 
 	// SceneCapture2D 액터 참조
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
@@ -193,6 +194,12 @@ public:
 
 	//Drone Outline PostProcess 효과 함수
 	void DroneShowOutline();
+
+	// 라인트레이스 기반 윤곽선 표시 함수
+	void DroneEnableOutline(AActor* HitActor);
+
+	// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
+	void DroneDisableOutline(AActor* HitActor);
 
 	// VOIP 관련 초기화 작업을 수행
 	void InitializeVOIP();
@@ -236,11 +243,5 @@ public:
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
-
-	// 라인트레이스 기반 윤곽선 표시 함수
-	void DroneEnableOutline(AActor* HitActor);
-
-	// 라인트레이스 기반 시야 벗어났을때 윤곽선 해제 함수
-	void DroneDisableOutline(AActor* HitActor);
 
 };
