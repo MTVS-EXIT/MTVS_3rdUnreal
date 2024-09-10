@@ -64,15 +64,11 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UInputAction* ReadyAction;
 	
 public:
-	// Sets default values for this character's properties
 	AJSH_Player();
 
 protected:
-
-	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
+	
 	void Look(const FInputActionValue& Value);
 	
 	void Watch(const FInputActionValue& Value);
@@ -86,13 +82,10 @@ protected:
 	void R(const FInputActionValue& Value);
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return SpringArm; }
-	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return Camera; }
 
 	
@@ -216,21 +209,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UArrowComponent* FireEXSpray;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
 	
 	// 도끼
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)

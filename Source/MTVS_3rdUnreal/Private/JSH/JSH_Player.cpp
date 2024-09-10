@@ -36,13 +36,11 @@ AJSH_Player::AJSH_Player()
     }
 		
 	bUseControllerRotationPitch = false;
-	// Third -> First Camera Feel (1)
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
-	// Third -> First Camera Feel (2)
-	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 
 
