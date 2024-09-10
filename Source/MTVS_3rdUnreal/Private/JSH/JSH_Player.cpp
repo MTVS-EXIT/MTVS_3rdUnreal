@@ -471,7 +471,7 @@ void AJSH_Player::MyReleaseAX()
 	// 총의 오너를 취소하고싶다.
 	if ( GrabAXActor )
 	{
-		DetachAX();
+		DetachAX(GrabAXActor);
 
 		GrabAXActor->SetOwner(nullptr);
 		// 총을 잊고싶다.
@@ -492,11 +492,11 @@ void AJSH_Player::AttachAX(AActor* AXActor)
 	}
 }
 
-void AJSH_Player::DetachAX()
+void AJSH_Player::DetachAX(AActor* AXActor)
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
-	// 총의 메쉬를 가져와서
-	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
+	// 도끼의 메쉬를 가져와서
+	auto* mesh = AXActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
 	if ( mesh )
 	{
@@ -555,7 +555,7 @@ void AJSH_Player::MyReleaseFire()
 	// 총의 오너를 취소하고싶다.
 	if ( GrabFireActor )
 	{
-		DetachFire();
+		DetachFire(GrabFireActor);
 
 		GrabFireActor->SetOwner(nullptr);
 		// 총을 잊고싶다.
@@ -575,10 +575,10 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 	}
 }
 
-void AJSH_Player::DetachFire()
+void AJSH_Player::DetachFire(AActor* FireActor)
 {
 	// 총의 메쉬를 가져와서
-	auto* mesh = GrabFireActor->GetComponentByClass<UStaticMeshComponent>();
+	auto* mesh = FireActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
 	if ( mesh )
 	{

@@ -180,7 +180,7 @@ public:
 
 	void AttachAX(AActor* AXActor);
 
-	void DetachAX();
+	void DetachAX(AActor* AXActor);
 	void MyTakeAX();
 	void MyReleaseAX();
 
@@ -209,7 +209,7 @@ public:
 	class AActor* GrabFireActor;
 	
 	void AttachFire(AActor* FireActor);
-	void DetachFire();
+	void DetachFire(AActor* FireActor);
 	void MyTakeFire();
 	void MyReleaseFire();
 
