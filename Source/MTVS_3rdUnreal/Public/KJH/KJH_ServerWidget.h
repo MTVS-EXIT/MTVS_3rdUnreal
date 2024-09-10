@@ -82,7 +82,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HostServer(); // Interface에서 Host 함수를 호출하는 함수
 
-	void SetServerList(TArray<FString> ServerNames); // 생성된 Session 목록을 설정하는 함수
+	void SetServerList(TArray<FServerData> ServerNames); // 상단에 선언된 FServerData 구조체를 바탕으로 Session 목록을 설정하는 함수
 
 	void SelecetIndex(uint32 Index); // 서버의 인덱스를 선택하는 함수
 

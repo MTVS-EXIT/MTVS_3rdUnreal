@@ -133,7 +133,7 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 
 	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
-	TArray<FString> ServerNames;
+	TArray<FServerData> ServerNames;
 	//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
 	//ServerNames.Add("Test Servr2");
 	//ServerNames.Add("Test Servr3");
@@ -144,7 +144,9 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 
 	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 	{
-		FString SessionName = SearchResult.GetSessionIdStr();
+		FServerData Data
+		Data.Name = SearchResult.GetSessionIdStr();
+
 		if (SessionName.IsEmpty())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Found session with empty name."));
