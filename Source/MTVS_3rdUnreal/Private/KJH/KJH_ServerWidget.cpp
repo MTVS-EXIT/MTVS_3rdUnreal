@@ -57,22 +57,25 @@ void UKJH_ServerWidget::HostServer()
 {
 	if (MenuInterface)
 	{
-		MenuInterface->Host();
+		MenuInterface->Host("Hello");
 	}
 }
 
-void UKJH_ServerWidget::SetServerList(TArray<FString> ServerNames)
+void UKJH_ServerWidget::SetServerList(TArray<FServerData> ServerNames)
 {
 	ServerList->ClearChildren();
 
 	uint32 i = 0;
-	for (const FString& ServerName : ServerNames)
+	for (const FServerData& ServerData : ServerNames)
 	{
 	// ServerRowFactory를 통해 ServerRowUI 위젯 생성
 	ServerRow = CreateWidget<UKJH_ServerRow>(this, ServerRowFactory);
 
 	// 텍스트의 이름을 설정
-	ServerRow->ServerName->SetText(FText::FromString(ServerName));
+	ServerRow->ServerName->SetText(FText::FromString(ServerData.Name));
+	ServerRow->HostUser->SetText(FText::FromString(ServerData.HostUserName));
+	ServerRow->ConnectedPlayer->SetText(FText::FromString
+								(FString::Printf(TEXT("%d/%d"), ServerData.CurrentPlayers, ServerData.MaxPlayers)));
 	ServerRow->Setup(this, i);
 	++i;
 

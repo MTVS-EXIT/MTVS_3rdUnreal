@@ -72,7 +72,7 @@ public:
 	class UPanelWidget* ServerList;
 
 
-////////// 변수 참조 구간 -----------------------------------------------------------------------------------------------------
+////////// 변수 및 클래스 선언 구간 -------------------------------------------------------------------------------------------
 
 	TOptional <uint32> SelectedIndex; // 서버의 인덱스를 참조 선언
 	
@@ -99,5 +99,5 @@ public:
 	void QuitPressed(); // 게임을 종료하는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateChildren(); // 
+	void UpdateChildren();
 };
