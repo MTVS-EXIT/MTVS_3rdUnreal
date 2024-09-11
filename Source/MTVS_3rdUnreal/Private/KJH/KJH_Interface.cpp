@@ -5,7 +5,7 @@
 
 // Add default functionality here for any IKJH_Interface functions that are not pure virtual.
 
-void IKJH_Interface::Host()
+void IKJH_Interface::Host(FString ServerName)
 {
 
 }
