@@ -16,21 +16,19 @@
 #include "Components/WidgetComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/Image.h"
 
 #include "Engine/StaticMesh.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "ImageUtils.h"
+#include "TextureResource.h"
 #include "Misc/FileHelper.h"
+#include "Net/VoiceConfig.h"
 
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
-
-#include "Net/VoiceConfig.h"
-#include "TextureResource.h"
-
-#include "Kismet/GameplayStatics.h"
 
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystem.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/VoiceInterface.h"
@@ -38,17 +36,16 @@
 #include "HttpModule.h"
 #include "HttpFwd.h"
 
-
-#include "Components/Image.h"
-
+#include "Kismet/GameplayStatics.h"
 #include <KHS/KHS_JsonParseLib.h>
+
+
 
 // Sets default values
 AKHS_DronePlayer::AKHS_DronePlayer()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 
 	//충돌체, 메시, 카메라
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -69,8 +66,9 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 		MeshComp->SetRelativeScale3D(FVector(0.15f));
 	}
 
-	// VOIP Talker 컴포넌트를 생성하고, VOIPTalkerComponent 포인터에 할당합니다.
+	// VOIP Talker 컴포넌트를 생성하고, VOIPTalkerComponent 포인터에 할당.
 	VOIPTalkerComp = CreateDefaultSubobject<UVOIPTalker>(TEXT("VOIPTalkerComp"));
+
 
 	// 이미지 캡쳐 용도 렌더 타겟 생성 및 설정
 	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
@@ -139,6 +137,7 @@ void AKHS_DronePlayer::BeginPlay()
 			}
 		}
 	}
+
 
 	//메시 위치, 회전 저장
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
@@ -602,7 +601,6 @@ bool AKHS_DronePlayer::IsLocallyControlled() const
 {
 	return IsPlayerControlled();
 }
-
 //StartNetworkVoice 네트워크로 사운드를 보냄
 void AKHS_DronePlayer::SetUpNetworkVoice()
 {
@@ -624,7 +622,6 @@ void AKHS_DronePlayer::SetUpNetworkVoice()
 		}
 	}
 }
-
 //StopNetworkVoice 네트워크로 사운드 보내기 중지
 void AKHS_DronePlayer::StopVoice()
 {
@@ -645,7 +642,6 @@ void AKHS_DronePlayer::StopVoice()
 		}
 	}
 }
-
 //VOIP 대상자 등록
 void AKHS_DronePlayer::RegisterRemoteTalker()
 {
@@ -670,7 +666,6 @@ void AKHS_DronePlayer::RegisterRemoteTalker()
 		}
 	}
 }
-
 //VOIP관련 초기화 작업
 void AKHS_DronePlayer::InitializeVOIP()
 {
@@ -1007,5 +1002,79 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 
 #pragma endregion
 
+#pragma region STT AI ChatBot Function
 
+// 서버로 오디오 파일 전송 함수
+void AKHS_DronePlayer::SendAudioToServer(const FString& FilePath)
+{
+	// 프로젝트의 Saved/Recorded 폴더에 있는 "RecordedSound.wav" 파일 경로 설정
+	FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
+	FString RecordedFilePath = FPaths::Combine(SavedDirectory, TEXT("RecordedSound.wav"));
+
+	// 파일 데이터를 불러올 배열
+	TArray<uint8> FileData;
+
+	// 파일 데이터 로드 실패 시 로그 출력 및 함수 종료
+	if (!FFileHelper::LoadFileToArray(FileData, *RecordedFilePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("File Data loading is failed: %s"), *RecordedFilePath);
+		return;
+	}
+
+	// Boundary와 multipart/form-data 준비
+	FString Boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+	FString BeginBoundary = FString("--") + Boundary + TEXT("\r\n");
+	FString EndBoundary = FString("\r\n--") + Boundary + TEXT("--\r\n");
+
+	// 파일 헤더 설정 (Content-Disposition, Content-Type 등)
+	FString FileHeader = "Content-Disposition: form-data; name=\"file\"; filename=\"" + FPaths::GetCleanFilename(RecordedFilePath) + "\"\r\n";
+	FileHeader.Append("Content-Type: audio/wav\r\n\r\n");
+
+	// multipart/form-data의 각 파트를 바이트 배열로 변환
+	TArray<uint8> Payload;
+	FString PayloadString = BeginBoundary + FileHeader;
+	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*PayloadString)), PayloadString.Len());
+
+	// 오디오 파일 데이터 추가
+	Payload.Append(FileData);
+
+	// 끝나는 경계를 추가
+	FString EndPayloadString = EndBoundary;
+	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*EndPayloadString)), EndPayloadString.Len());
+
+	// HTTP 요청 생성 및 설정
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+	Request->SetURL(AIChatbotURL);  // 서버 URL을 설정
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("Content-Type"), TEXT("multipart/form-data; boundary=") + Boundary);
+	Request->SetContent(Payload);
+
+	// 요청 완료 시 콜백 함수 바인딩
+	Request->OnProcessRequestComplete().BindUObject(this, &AKHS_DronePlayer::OnAudioUploadComplete);
+
+	// 요청 전송
+	if (Request->ProcessRequest())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Audio Wav File Uploading Request Success"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Audio Wav File Uploading Request Failed"));
+	}
+}
+
+// 서버로 오디오 파일 업로드 완료 시 호출되는 콜백 함수
+void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (bWasSuccessful && Response.IsValid())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Audio File Uploading Failed"));
+	}
+}
+
+#pragma endregion
 

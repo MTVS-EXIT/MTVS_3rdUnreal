@@ -10,7 +10,7 @@ public class MTVS_3rdUnreal : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", 
 															"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineSubsystemUtils",
-                                                            "HTTP", "Json", "JsonUtilities", "GameplayTasks"});
+                                                            "HTTP", "Json", "JsonUtilities", "GameplayTasks", "AudioCapture", "AudioMixer"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
