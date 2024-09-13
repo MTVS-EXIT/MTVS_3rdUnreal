@@ -71,7 +71,7 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 
 	// 프로토 맵으로 listen 서버를 열고 이동한다.
-	GetWorld()->ServerTravel(TEXT("/Game/ProtoMap/ProtoPT?listen"));
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
 
 
 }
