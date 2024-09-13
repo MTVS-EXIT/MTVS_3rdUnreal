@@ -21,6 +21,7 @@
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer) // 에디터 실행할 때 실행하는 생성자.
 {
@@ -133,27 +134,27 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 
 	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
-	TArray<FString> ServerNames;
-	//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
-	//ServerNames.Add("Test Servr2");
-	//ServerNames.Add("Test Servr3");
-	if (SessionSearch->SearchResults.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete: No sessions found."));
-	}
+	TArray<FServerData> ServerNames;
 
 	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 	{
-		FString SessionName = SearchResult.GetSessionIdStr();
-		if (SessionName.IsEmpty())
+		FServerData Data;
+		Data.Name = SearchResult.GetSessionIdStr();
+		Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections; // 입장가능한 최대 플레이어 수
+		Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections; 
+							 // 최대 플레이어 수 - 비어있는 슬롯의 수 = 접속 중인 플레이어 수
+		Data.HostUserName = SearchResult.Session.OwningUserName;
+		FString ServerName;
+		if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found session with empty name."));
+			Data.Name = SearchResult.GetSessionIdStr();
 		}
 		else
 		{
-			ServerNames.Add(SessionName);
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Name: %s"), *SessionName);
+			Data.Name = "Could not Find Name";
 		}
+
+		ServerNames.Add(Data);
 	}
 
 	// ServerWidget이 유효하고 SetServerList 호출이 안전한 경우에만 실행
@@ -199,8 +200,10 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 ////////// 사용자 정의형 함수 구간 시작 ----------------------------------------------------------------------------------
 
 // 서버 열기 함수
-void UKJH_GameInstance::Host()
+void UKJH_GameInstance::Host(FString ServerName)
 {
+	 DesiredServerName = ServerName;
+
 	// 만약, 세션 인터페이스가 유효하다면,
 	if (SessionInterface.IsValid())
 	{
@@ -264,6 +267,7 @@ void UKJH_GameInstance::CreateSession()
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
 		SessionSettings.bUseLobbiesIfAvailable = true; // 로비기능을 활성화한다. (Host 하려면 필요)
 		SessionSettings.bUsesPresence = true;
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
 																		   // 실행되면 'CreateSession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.

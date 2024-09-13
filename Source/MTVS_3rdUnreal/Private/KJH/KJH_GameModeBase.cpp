@@ -23,25 +23,17 @@ AKJH_GameModeBase::AKJH_GameModeBase()
 void AKJH_GameModeBase::BeginPlay()
 {
     Super::BeginPlay();
-
-    // 기본적으로 RestartPlayer를 호출하지 않고, 특정 이벤트나 조건에서만 호출되도록 조정
-    // 예를 들어, 플레이어가 캐릭터를 선택할 때 호출되도록 함
-
-    // 캐릭터 선택 후에만 RestartPlayer가 호출되도록 설정
-    // 실제 캐릭터 선택 로직에서 GameMode의 RestartPlayer를 호출하도록 설정함
-    // 이건 GameInstance의 OnCharacterSelected 에서 처리함.
 }
 
+////////// Login 관련 함수 선언 (PreLogin -> Login -> PostLogin 순서로 호출) ============================================================
+// PreLogin
 void AKJH_GameModeBase::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
     FString Value;
     UGameplayStatics::ParseOption(TEXT("PlayerSelected"), Value);
-
     UE_LOG(LogTemp,Warning, TEXT("PreLogin"));
-
     Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 }
-
 
 void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 {
@@ -51,17 +43,31 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
     // 필요한 경우 추가적인 초기화 작업을 여기에 삽입
     // 예: 플레이어 상태 초기화, 게임 상태 업데이트 등
+
+    ++NumberOfPlayers; // 플레이어가 입장하였으므로 증가
+
+   // if (NumberOfPlayers >= 2)
+   // {
+   //     UWorld* World = GetWorld();
+   //     if (false != World)
+   //     {
+   //         bUseSeamlessTravel = true;
+   //         World -> ServerTravel(TEXT("/Game/ProtoMap/ProtoPT?listen"));
+   //     }
+   //}
 }
 
+void AKJH_GameModeBase::Logout(AController* Exiting)
+{
+    Super::Logout(Exiting);
+    --NumberOfPlayers; // 플레이어가 퇴장하였으므로 감소
+}
 
-
+////////// 플레이어가 게임에 참여할 때 호출되어 캐릭터를 스폰하는 함수 ========================================================
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
     Super::RestartPlayer(NewPlayer);
 }
 
-////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------
 
-
-////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
 

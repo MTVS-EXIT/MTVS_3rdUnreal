@@ -41,9 +41,9 @@ public:
 
 	// 메뉴 체인지 관련 //
 	UPROPERTY(meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher; // UI를 체인지 시킬 수 있는 Switcher
+	class UWidgetSwitcher* MenuSwitcher; // 각 메뉴로 전환시킬 수 있는 Menu Switcher
 
-	// 메인메뉴 UI 관련 //
+	// 메인메뉴 UI 관련 -----------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* MainMenu; // 메인 메뉴 Widget UI
 
@@ -55,9 +55,24 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* MainMenu_QuitButton; // 게임종료 버튼
+	// ------------------------------------------------------------------------------
+	
+	// 방 개설 메뉴 UI 관련 // ------------------------------------------------------
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* HostMenu; // 방 개설 메뉴 Widget UI
 
+	UPROPERTY(meta = (BindWidget))
+	class UEditableTextBox* ServerHostName;
 
-	// 로비메뉴 UI 관련 //
+	UPROPERTY(meta = (BindWidget))
+	class UButton* HostMenu_CancelButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* HostMenu_ConfirmButton;
+
+	// ------------------------------------------------------------------------------
+	
+	// 로비메뉴 UI 관련 // ----------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* LobbyMenu; // 로비 메뉴 Widget UI
 
@@ -67,12 +82,13 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* LobbyMenu_JoinButton; // 로비에서 실제 세션으로 접속하는 버튼
 
+
 	// 임시 //
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;
 
 
-////////// 변수 참조 구간 -----------------------------------------------------------------------------------------------------
+////////// 변수 및 클래스 선언 구간 -------------------------------------------------------------------------------------------
 
 	TOptional <uint32> SelectedIndex; // 서버의 인덱스를 참조 선언
 	
@@ -82,12 +98,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HostServer(); // Interface에서 Host 함수를 호출하는 함수
 
-	void SetServerList(TArray<FString> ServerNames); // 생성된 Session 목록을 설정하는 함수
+	void SetServerList(TArray<FServerData> ServerNames); // 상단에 선언된 FServerData 구조체를 바탕으로 Session 목록을 설정하는 함수
 
 	void SelecetIndex(uint32 Index); // 서버의 인덱스를 선택하는 함수
 
 	UFUNCTION(BlueprintCallable)
 	void JoinServer(); // 생성된 Session에 접속하는 함수
+
+	UFUNCTION(BlueprintCallable)
+	void OpenHostMenu(); // 방 개설 메뉴로 접속하는 함수
 
 	UFUNCTION(BlueprintCallable)
 	void OpenLobbyMenu(); // 로비로 접속하는 함수
@@ -99,5 +118,5 @@ public:
 	void QuitPressed(); // 게임을 종료하는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateChildren(); // 
+	void UpdateChildren();
 };
