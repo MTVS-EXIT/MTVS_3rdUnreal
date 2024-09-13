@@ -15,31 +15,31 @@ class MTVS_3RDUNREAL_API AKJH_GameModeBase : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	// 생성자 선언
+	// GameMode의 생성자 선언 =================================================================================================
 	AKJH_GameModeBase();
 
+	// GameMode의 BeginPlay 선언 ==============================================================================================
+	virtual void BeginPlay() override;
 
-	// BeginPlay 함수 선언
-	virtual void BeginPlay() override; // BeginPlay 함수를 오버라이드하여 선언
-
-	virtual void PreLogin(const FString& Options, const FString& Address, 
-	const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
-
+	// Login 관련 함수 선언 ===================================================================================================
+	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Logout(AController* Exiting) override;
 
-	// 플레이어가 게임에 참여할 때 호출되어 캐릭터를 스폰하는 함수
+////////// 플레이어가 게임에 참여할 때 호출되어 캐릭터를 스폰하는 함수 ========================================================
 	virtual void RestartPlayer(AController* NewPlayer) override;
 
 
-////////// RPC 함수 구간 ------------------------------------------------------------------------------------------------------
+////////// 변수 참조 구간 ======================================================================================================
+	
+	uint32 NumberOfPlayers = 0; // 접속한 플레이어의 수
+
+
+////////// 사용자 정의형 함수 구간 ============================================================================================
 
 
 
-////////// 사용자 정의형 함수 구간 ---------------------------------------------------------------------------------------------
-
-
-
-////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
+////////// TSubclass & class 참조 구간 =======================================================================================
 
 
 };
