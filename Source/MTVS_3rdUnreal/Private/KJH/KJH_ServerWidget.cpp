@@ -22,15 +22,15 @@ bool UKJH_ServerWidget::Initialize()
 {
 	Super::Initialize();
 
-////////// 메인메뉴 버튼 바인딩 구간 ----------------------------------------------------------------------------------------------------------------
+////////// 메인메뉴 버튼 바인딩 구간 ==================================================================================================================
 	if (MainMenu_HostButton)
 	{
-	MainMenu_HostButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenHostMenu); // Host 버튼 눌렀을 때 HostServer 함수 호출
+	MainMenu_HostButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenHostMenu); // Host 버튼 눌렀을 때 OpenHostMenu 함수 호출
 	}
 
 	if (MainMenu_JoinButton)
 	{
-		MainMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenLobbyMenu); // Join 버튼 눌렀을 때 OpenJoinMenu 함수 호출
+		MainMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenLobbyMenu); // Join 버튼 눌렀을 때 OpenLobbyMenu 함수 호출
 	}
 
 	if (MainMenu_QuitButton)
@@ -38,22 +38,21 @@ bool UKJH_ServerWidget::Initialize()
 		MainMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::QuitPressed); // Quit 버튼 눌렀을 때 QuitPressed 함수 호출
 	}
 
-////////// 방 개설메뉴 버튼 바인딩 구간 ----------------------------------------------------------------------------------------------------------------
+////////// 방 개설메뉴 버튼 바인딩 구간 ===============================================================================================================
+	if (HostMenu_ConfirmButton)
+	{
+		HostMenu_ConfirmButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::CreateRoom); // Confirm 버튼 눌렀을 때 HostServer 함수 호출
+	}
+
 	if (HostMenu_CancelButton)
 	{
 		HostMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::OpenMainMenu); // Cancel 버튼 눌렀을 때 OpenMainMenu 함수 호출
 	}
 
-	if (HostMenu_ConfirmButton)
-	{
-		HostMenu_ConfirmButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::HostServer); // Confirm 버튼 눌렀을 때 HostServer 함수 호출
-	}
-
-
-////////// 로비메뉴 버튼 바인딩 구간 ----------------------------------------------------------------------------------------------------------------
+////////// 로비메뉴 버튼 바인딩 구간 ==================================================================================================================
 	if (LobbyMenu_JoinButton)
 	{
-		LobbyMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::JoinServer); // Join 버튼 눌렀을 때 JoinServer 함수 호출
+		LobbyMenu_JoinButton->OnClicked.AddDynamic(this, &UKJH_ServerWidget::JoinRoom); // Join 버튼 눌렀을 때 JoinServer 함수 호출
 	}
 
 	if (LobbyMenu_CancelButton)
@@ -70,11 +69,11 @@ void UKJH_ServerWidget::OpenHostMenu()
 	MenuSwitcher->SetActiveWidget(HostMenu); // HostMenu로 전환하여 활성화한다.
 }
 
-void UKJH_ServerWidget::HostServer()
+void UKJH_ServerWidget::CreateRoom()
 {
 	if (MenuInterface)
 	{
-		FString ServerName = ServerHostName->Text.ToString();
+		FString ServerName = ServerHostName->GetText().ToString();
 		MenuInterface->Host(ServerName);
 	}
 }
@@ -109,7 +108,7 @@ void UKJH_ServerWidget::SelecetIndex(uint32 Index)
 	UpdateChildren();
 }
 
-void UKJH_ServerWidget::JoinServer()
+void UKJH_ServerWidget::JoinRoom()
 {
 	if (SelectedIndex.IsSet() && MenuInterface != nullptr)
 	{

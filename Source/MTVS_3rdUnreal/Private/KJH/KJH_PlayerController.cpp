@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "KJH/KJH_PlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
@@ -13,7 +10,7 @@ void AKJH_PlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    // BeginPlay에서 ShowCharacterSelectWidget을 호출하여 클라이언트에서만 UI를 생성하도록 설정
+    // BeginPlay에서 ShowCharacterSelectWidget을 호출하여 로컬 클라이언트에서만 UI를 생성하도록 설정
     if (IsLocalController()) // 로컬 클라이언트일 때만 실행
     {
         ShowCharacterSelectWidget();
@@ -38,7 +35,6 @@ void AKJH_PlayerController::OnPossess(APawn* aPawn)
             Client_SetupDroneUI();
         }
     }
-
 }
 
 void AKJH_PlayerController::ShowCharacterSelectWidget()
@@ -74,12 +70,9 @@ void AKJH_PlayerController::ClientShowCharacterSelectWidget_Implementation()
     ShowCharacterSelectWidget();
 }
 
-
-
-
 void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 {
-    if (false == HasAuthority()) // 클라이언트에서 실행된 경우
+    if (!HasAuthority()) // 클라이언트에서 실행된 경우
     {
         ServerSpawnCharacterBasedOnSelection(bIsPersonCharacterSelected);
         return;
@@ -95,7 +88,6 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 
     if (bIsPersonCharacterSelected)
     {
-
         // 사람 스폰 포인트 찾기
         TArray<AActor*> FoundPersonSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PersonSpawnPoint"), FoundPersonSpawns);
@@ -103,10 +95,9 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
         if (FoundPersonSpawns.Num() > 0)
         {
             AActor* PersonSpawnPoint = FoundPersonSpawns[0]; // 첫번째로 찾은 Person Spawn Point 사용
-            NewSpawnLocation = PersonSpawnPoint -> GetActorLocation();
-            NewSpawnRotation = PersonSpawnPoint -> GetActorRotation();
+            NewSpawnLocation = PersonSpawnPoint->GetActorLocation();
+            NewSpawnRotation = PersonSpawnPoint->GetActorRotation();
         }
-
         else
         {
             // 검색에 실패할 경우, 기본 위치로 스폰
@@ -114,8 +105,7 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
             NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
-
-    else if (false == bIsPersonCharacterSelected) // 드론이 선택된 경우
+    else
     {
         // 드론 스폰 포인트 찾기
         TArray<AActor*> FoundDroneSpawns;
@@ -124,14 +114,13 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
         if (FoundDroneSpawns.Num() > 0)
         {
             AActor* DroneSpawnPoint = FoundDroneSpawns[0]; // 첫번째로 찾은 Drone Spawn Point 사용
-            NewSpawnLocation = DroneSpawnPoint -> GetActorLocation();
-            NewSpawnRotation = DroneSpawnPoint -> GetActorRotation();
+            NewSpawnLocation = DroneSpawnPoint->GetActorLocation();
+            NewSpawnRotation = DroneSpawnPoint->GetActorRotation();
         }
-
         else
         {
             // 검색에 실패할 경우, 기본 위치로 스폰
-            NewSpawnLocation = FVector (0.0f, 0.0f, 100.0f);
+            NewSpawnLocation = FVector(0.0f, 0.0f, 100.0f);
             NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
@@ -164,7 +153,7 @@ void AKJH_PlayerController::ServerSpawnCharacterBasedOnSelection_Implementation(
 
 bool AKJH_PlayerController::ServerSpawnCharacterBasedOnSelection_Validate(bool bIsPersonSelected)
 {
-	return true;
+    return true;
 }
 
 void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
@@ -180,4 +169,3 @@ void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
         }
     }
 }
-

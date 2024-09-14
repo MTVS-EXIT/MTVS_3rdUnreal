@@ -1,0 +1,252 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "KJH/KJH_LoginWidget.h"
+#include "Components/Button.h"
+#include "Components/EditableTextBox.h"
+#include "Components/Widget.h"
+#include "Components/WidgetSwitcher.h"
+#include "Json.h"
+#include "JsonUtilities.h"
+#include "KJH/KJH_GameInstance.h"
+#include "Serialization/JsonSerializer.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpResponse.h"
+#include "Delegates/Delegate.h"
+
+////////// 생성자 & 초기화 함수 구간 ===================================================================
+bool UKJH_LoginWidget::Initialize()
+{
+	LoginMenu_CreateAccountButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenCreateAccountMenu); // CreateAccountButton 버튼 눌렀을 때 OpenRegisterMenu 함수 호출
+	LoginMenu_LoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyLogin); // LoginMenu_LoginButton 버튼 눌렀을 때 OnLoginToPlay 함수 호출
+
+	CreateAccountMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton 버튼 눌렀을 때 OnRegisterMyInfo 함수 호출
+	CreateAccountMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton 버튼 눌렀을 때 OpenLoginMenu 함수 호출
+
+	return true;
+}
+
+////////// 사용자 정의형 함수 구간 - UI 전환 관련 ====================================================================================================
+// 계정생성 메뉴 전환 함수
+void UKJH_LoginWidget::OpenCreateAccountMenu()
+{
+	MenuSwitcher->SetActiveWidget(CreateAccountMenu);
+}
+
+// 로그인 메뉴 전환 함수
+void UKJH_LoginWidget::OpenLoginMenu()
+{
+	MenuSwitcher->SetActiveWidget(LoginMenu);
+}
+
+////////// 사용자 정의형 함수 구간 - 계정생성 관련 ====================================================================================================
+// 계정생성 요청 함수
+void UKJH_LoginWidget::OnMyRegister()
+{
+	// 입력된 로그인 정보를 가져옴.
+	FString RegisterUserID = CreateAccountMenu_UserIDText->GetText().ToString();
+	FString RegisterNickname = CreateAccountMenu_UserNicknameText->GetText().ToString();
+	FString RegisterPassword = CreateAccountMenu_UserPasswordText->GetText().ToString();
+
+	// 계정생성 정보를 서버로 전송할 URL 설정
+	FString URL = ""; // 백엔드 서버 URL
+
+	// JSON 객체(Object) 생성 후 입력된 정보 추가
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject()); // 새로운 Json 객체 생성
+
+	if (false == JsonObject.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to Create JsonObject"))
+	}
+
+	JsonObject->SetStringField("user_id", RegisterUserID); // UserID 텍스트를 받아서 "user_id" 키에 저장
+	JsonObject->SetStringField("nickname", RegisterNickname); // Nickname 텍스트를 받아서 "nickname" 키에 저장
+	JsonObject->SetStringField("password", RegisterPassword); // Password 텍스트를 받아서 "password" 키에 저장
+
+	// JSON 데이터를 서버가 이해할 수 있는 문자열로 변환
+	FString JsonPayload; // 데이터를 담을 JsonPayload 라는 빈 문자열 생성
+
+	// JSON 데이터를 문자열로 바꾸는 도구(Writer)를 생성
+	TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonPayload);
+	
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer); // JSON 객체를 문자열로 변환하여 JsonPayload에 저장
+	if (false == FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to serialize JSON object"));
+		return;
+	}
+
+	// HTTP 요청을 POST 방식으로 서버로 전송
+	SendRegisterRequest(URL, JsonPayload, "POST");
+}
+
+// 계정생성 HTTP 요청을 보내는 함수
+void UKJH_LoginWidget::SendRegisterRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType)
+{
+	// 1. HTTP 요청 객체를 생성
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+
+	// 2. 요청이 완료되면 호출될 함수 지정 (응답을 처리하는 함수 바인딩)
+	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnRegisterResponseReceived);
+
+	// 3. 요청할 URL 설정
+	FString RequestURL = ""; // 요청을 처리할 URL 설정
+	Request->SetURL(RequestURL);
+
+	// 4. 요청 타입 설정 (Post, Get 등)
+	Request->SetVerb("POST");
+
+	// 5. 요청 헤더에 데이터를 어떤 형식으로 전송할지 설정 (JSON 등)
+	Request->SetHeader("Content-Type", "application/json");
+
+	// 6. 서버에 보낼 데이터를 담아 요청에 설정
+	Request->SetContentAsString(JsonPayload);
+
+	// 7. 설정한 요청을 서버로 전송
+	Request->ProcessRequest();
+}
+
+// 계정생성 HTTP 요청 결과를 처리하는 함수
+void UKJH_LoginWidget::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	// 1. 요청 성공과 응답성 유효에 대해 확인
+	if (false == bWasSuccessful || false == Response.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Register request failed")); // 요청 실패 로그
+		return;
+	}
+
+	// 2. 서버로부터 받은 응답을 문자열로 가져옴
+	FString ResponseContent = Response->GetContentAsString();
+	UE_LOG(LogTemp, Log, TEXT("HTTP Response: %s"), *ResponseContent);  // 받은 응답을 로그로 출력
+
+	// 3. JSON 응답을 처리하기 위해 JSON 객체 생성
+	TSharedPtr<FJsonObject> JsonObject;
+
+	// 4. 응답 내용을 Json 형식으로 읽기 위한 리더 객체 생성
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
+
+	// 5. JSON 응답을 파싱(구문 해석), 성공적으로 파싱 시, JsonObject에 데이터 삽입
+	if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	{
+		// 6. 서버 응답에서 "success" 라는 필드를 찾아, 성공 여부를 확인
+		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
+
+		if (bSuccess) // 계정생성에 성공 시, 계정생성이 완료되었습니다. UI 송출
+		{
+			// UI 송출하는 로직 (추후 추가)
+		}
+		else // 실패 시 로그 출력
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Register Failed!"));
+		}
+	}
+}
+
+////////// 사용자 정의형 함수 구간 - 로그인 관련 =======================================================================================================
+// 로그인 요청 함수
+void UKJH_LoginWidget::OnMyLogin()
+{
+	// 1. 입력된 정보를 가져옴
+	FString LoginUserID = LoginMenu_UserIDText->GetText().ToString();
+	FString LoginPassword = LoginMenu_UserPasswordText->GetText().ToString();
+
+	// 2. 로그인 정보를 서버로 전송할 URL 설정
+	FString URL = ""; // 백엔드 서버 URL
+
+	//// 3. JSON 객체 생성 후 입력된 정보 추가
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+	if (false == JsonObject.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to Create JsonObject"));
+	}
+
+	JsonObject->SetStringField("user_id", LoginUserID);
+	JsonObject->SetStringField("password", LoginPassword);
+
+	// 4. JSON 데이터를 서버가 이해할 수 있는 문자열로 변환
+	FString JsonPayload; // 데이터를 담을 JsonPayload 라는 빈 문자열 생성
+
+	// 5. JSON 데이터를 문자열로 바꾸는 도구(Writer)를 생성
+	TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonPayload);
+
+	// 6. JSON 객체를 문자열로 변환하여 JsonPayload에 저장
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+	if (false == FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to serialize JSON object"));
+		return;
+	}
+
+	// 7. HTTP 요청을 POST 방식으로 서버로 전송
+	SendLoginRequest(URL, JsonPayload, "POST");
+}
+
+
+// 로그인 HTTP 요청을 보내는 함수
+void UKJH_LoginWidget::SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType)
+{
+	// 1. HTTP 요청 객체를 생성
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+
+	// 2. 요청이 완료되면 호출될 함수 지정 (응답을 처리하는 함수 바인딩)
+	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnLoginResponseReceived);
+
+	// 3. 요청할 URL 설정
+	FString RequestURL = ""; // 요청을 처리할 URL 설정
+	Request->SetURL(RequestURL);
+
+	// 4. 요청 타입 설정 (Post, Get 등)
+	Request->SetVerb("POST");
+
+	// 5. 요청 헤더에 데이터를 어떤 형식으로 전송할지 설정 (JSON 등)
+	Request->SetHeader("Content-Type", "application/json");
+
+	// 6. 서버에 보낼 데이터를 담아 요청에 설정
+	Request->SetContentAsString(JsonPayload);
+
+	// 7. 설정한 요청을 서버로 전송
+	Request->ProcessRequest();
+}
+
+// 로그인 HTTP 요청 결과를 처리하는 함수
+void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	// 1. 요청 성공과 응답성 유효에 대해 확인
+	if (false == bWasSuccessful || false == Response.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Login request failed")); // 요청 실패 로그
+		return;
+	}
+
+	// 2. 서버로부터 받은 응답을 문자열로 가져옴
+	FString ResponseContent = Response->GetContentAsString();
+	UE_LOG(LogTemp, Log, TEXT("Login Response: %s"), *ResponseContent);  // 받은 응답을 로그로 출력
+
+	// 3. JSON 응답을 처리하기 위해 JSON 객체 생성
+	TSharedPtr<FJsonObject> JsonObject;
+
+	// 4. 응답 내용을 Json 형식으로 읽기 위한 리더 객체 생성
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
+
+	// 5. JSON 응답을 파싱(구문 해석), 성공적으로 파싱 시, JsonObject에 데이터 삽입
+	if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	{
+		// 6. 서버 응답에서 "success" 라는 필드를 찾아, 성공 여부를 확인
+		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
+
+		if (bSuccess) // 로그인에 성공 시, 게임 인스턴스를 가져와 ServerWidgetMap으로 이동
+		{
+			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+			if (GameInstance)
+			{
+				GameInstance->LoadServerWidgetMap();
+			}
+		}
+		else // 실패 시 로그 출력
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Login Failed!"));
+		}
+
+	}
+}

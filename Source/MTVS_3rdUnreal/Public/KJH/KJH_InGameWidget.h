@@ -16,17 +16,18 @@ class MTVS_3RDUNREAL_API UKJH_InGameWidget : public UKJH_WidgetSystem
 	
 public:
 
-	virtual bool Initialize();
+////////// 초기화 함수 구간 ===================================================================
+	virtual bool Initialize(); // UserWidget 초기화 함수
 
-////////// 바인딩 구간 -----------------------------------------------------------------
+////////// 바인딩 구간 ========================================================================
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UButton* InGameMenu_CancelButton; // 인게임 UI -> 게임으로 복귀하는 버튼
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* InGameMenu_QuitButton; // 인게임 UI -> 게임을 종료하는 버튼
+	class UButton* InGameMenu_QuitButton; // 인게임 UI -> 게임을 종료하여 메인메뉴로 이동하는 버튼
 
-	////////// 사용자 정의형 함수 구간 -----------------------------------------------------
+////////// 사용자 정의형 함수 선언 구간 ========================================================
 
 	UFUNCTION(BlueprintCallable)
 	void CancelPressed();

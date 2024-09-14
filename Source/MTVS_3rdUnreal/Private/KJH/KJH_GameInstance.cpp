@@ -72,8 +72,6 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 
 	// 프로토 맵으로 listen 서버를 열고 이동한다.
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
-
-
 }
 
 
@@ -87,10 +85,15 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 
 	if (nullptr != GEngine)
 	{
-		GEngine -> OnNetworkFailure().AddUObject(this,)
+		GEngine->OnNetworkFailure().AddUObject(this, &UKJH_GameInstance::OnNetworkFailure);
 	}
 }
 
+
+void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+{
+	LoadServerWidgetMap();
+}
 
 void UKJH_GameInstance::RefreshServerList()
 {
@@ -199,6 +202,7 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 	}
 }
 
+
 ////////// 델리게이트 바인딩 함수 구간 종료 ------------------------------------------------------------------------------
 
 
@@ -281,7 +285,7 @@ void UKJH_GameInstance::CreateSession()
 }
 
 ////////// UI 관련 함수 ----------------------------------------------------------------------------------------------------------------
-void UKJH_GameInstance::LoadServerWidget()
+void UKJH_GameInstance::CreateServerWidget()
 {
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
@@ -289,7 +293,7 @@ void UKJH_GameInstance::LoadServerWidget()
 	ServerWidget -> Setup();
 }
 
-void UKJH_GameInstance::LoadInGameWidget()
+void UKJH_GameInstance::CreateInGameWidget()
 {
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
