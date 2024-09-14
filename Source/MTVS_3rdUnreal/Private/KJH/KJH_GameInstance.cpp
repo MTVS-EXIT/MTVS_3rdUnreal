@@ -84,6 +84,11 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 	{
 		CreateSession(); // 세션을 만들어버린다. (기존에 세션이 있으면 그것을 부수고 새로운 세션을 만든다는 것이다.)
 	}
+
+	if (nullptr != GEngine)
+	{
+		GEngine -> OnNetworkFailure().AddUObject(this,)
+	}
 }
 
 
