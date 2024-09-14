@@ -81,6 +81,10 @@
 		{
 			"Name": "HairStrands",
 			"Enabled": true
+		},
+		{
+			"Name": "OpenCV",
+			"Enabled": true
 		}
 	]
 }

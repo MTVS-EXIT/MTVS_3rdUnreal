@@ -1027,7 +1027,7 @@ void AKHS_DronePlayer::SendAudioToServer(const FString& FilePath)
 	FString EndBoundary = FString("\r\n--") + Boundary + TEXT("--\r\n");
 
 	// 파일 헤더 설정 (Content-Disposition, Content-Type 등)
-	FString FileHeader = "Content-Disposition: form-data; name=\"file\"; filename=\"" + FPaths::GetCleanFilename(RecordedFilePath) + "\"\r\n";
+	FString FileHeader = "Content-Disposition: form-data; name=\"audio\"; filename=\"" + FPaths::GetCleanFilename(RecordedFilePath) + "\"\r\n";
 	FileHeader.Append("Content-Type: audio/wav\r\n\r\n");
 
 	// multipart/form-data의 각 파트를 바이트 배열로 변환
@@ -1069,10 +1069,134 @@ void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpRespo
 	if (bWasSuccessful && Response.IsValid())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
+
+		// STT 콜백 함수 호출
+		CallParsingAIText(Response->GetContentAsString());
+		// STS 콜백 함수 호출
+		CallParsingAISound(Response->GetContentAsString());
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Audio File Uploading Failed"));
+	}
+}
+
+// STT 콜백 함수
+void AKHS_DronePlayer::CallParsingAIText(const FString& json)
+{
+	// Json 파싱 후 텍스트 처리
+	FString ParsedText = KHSJsonLib->JsonParseGetAIText(json); // Json에서 output_text 필드를 파싱
+
+	
+	// UI에 텍스트 설정
+	UTextBlock* AIChatText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("Text_AIChatResult")));
+	if (AIChatText)
+	{
+		AIChatText->SetText(FText::FromString(ParsedText));
+		UE_LOG(LogTemp, Warning, TEXT("Update TEXT_AIChatResult Widget"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can not find Text_AIChatResult Widget in Drone Main UI"));
+	}
+}
+
+// STS 콜백 함수
+void AKHS_DronePlayer::CallParsingAISound(const FString& json)
+{
+	// Json에서 output_audio 필드를 파싱
+	TArray<uint8> AudioData = KHSJsonLib->JsonParseGetAIAudio(json);
+
+	// 디코딩한 데이터가 있을 때만 처리
+	if (AudioData.Num() > 0)
+	{
+		// 파일을 저장할 경로 설정
+		FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
+		FString FilePath = FPaths::Combine(SavedDirectory, TEXT("AIAudioResponse.wav"));
+
+		// 디렉토리가 존재하지 않으면 생성
+		if (!FPaths::DirectoryExists(SavedDirectory))
+		{
+			FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*SavedDirectory);
+		}
+		// 파일을 저장할 경로 설정
+		//FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
+		//FString FilePath = FPaths::Combine(SavedDirectory, TEXT("AIAudioResponse.wav"));
+		//FString FilePath = FPaths::ProjectSavedDir() + TEXT("AIAudioResponse.wav");
+
+		// 파일 저장
+		if (!FFileHelper::SaveArrayToFile(AudioData, *FilePath))
+		{
+			UE_LOG(LogTemp, Error, TEXT("AI Response Audio File Save Failed : %s"), *FilePath);
+			return;
+		}
+		UE_LOG(LogTemp, Log, TEXT("AI Response Audio File Save Success: %s"), *FilePath);
+
+		// 저장된 WAV 파일에서 데이터를 다시 읽어오기
+		TArray<uint8> SoundData;
+		if (!FFileHelper::LoadFileToArray(SoundData, *FilePath))
+		{
+			UE_LOG(LogTemp, Error, TEXT("File Data Loading Failed!: %s"), *FilePath);
+			return;
+		}
+
+		// WAV 헤더에서 샘플 속도 및 채널 수 정보 추출
+		int32 SampleRate = *(int32*)&SoundData[24];  // WAV 파일에서 샘플 속도 추출
+		int16 NumChannels = *(int16*)&SoundData[22]; // WAV 파일에서 채널 수 추출
+		int32 DataSize = *(int32*)&SoundData[40];    // WAV 파일에서 데이터 크기 추출
+		
+
+
+		// USoundWaveProcedural로 동적 사운드 웨이브 생성
+		USoundWaveProcedural* SoundWave = NewObject<USoundWaveProcedural>();
+		if (SoundWave)
+		{
+			// SoundWave 설정
+			SoundWave->SetSampleRate(SampleRate);   // 샘플 속도 설정
+			SoundWave->NumChannels = NumChannels;   // 채널 수 설정
+			SoundWave->Duration = static_cast<float>(DataSize) / (SampleRate * NumChannels * sizeof(int16)); // 오디오 지속시간 설정
+			SoundWave->bLooping = false; //(선택) 반복 여부 설정
+
+
+			// WAV 파일의 44바이트 이후부터가 오디오 데이터이므로 그 이후의 데이터를 추출
+			DataSize = SoundData.Num() - 44;  // 전체 데이터 크기에서 헤더 크기(44)를 뺀 값이 실제 PCM 데이터 크기입니다.
+			TArray<uint8> PCMData(SoundData.GetData() + 44, DataSize);  // 44바이트 이후의 데이터를 추출
+
+			if (PCMData.Num() > 0)
+			{
+				SoundWave->QueueAudio(PCMData.GetData(), PCMData.Num()); // 오디오 데이터를 SoundWave에 큐잉
+
+				UE_LOG(LogTemp, Log, TEXT("SampleRate: %d, NumChannels: %d, DataSize: %d"), SampleRate, NumChannels, DataSize);
+				// 오디오 재생을 위한 UAudioComponent 생성
+				UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+				if (AudioComponent)
+				{
+					AudioComponent->SetSound(SoundWave);  // 생성된 SoundWave 설정
+					AudioComponent->Play();  // 오디오 재생
+					UE_LOG(LogTemp, Warning, TEXT("Playing AI Response Audio ..."));
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("AudioComponent Create Failed"));
+				}
+
+				//// 오디오 재생
+				//UGameplayStatics::PlaySound2D(this, SoundWave);
+				//UE_LOG(LogTemp, Warning, TEXT("Playing AI Response Audio ..."));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("PCM data doesn't exist"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("SoundWave Create Failed"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No AI Response Audio Data Exist...."));
 	}
 }
 

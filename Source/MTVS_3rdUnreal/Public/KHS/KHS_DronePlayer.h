@@ -256,4 +256,10 @@ public:
 	// 서버로 오디오 파일 업로드 완료 시 호출되는 콜백 함수
 	void OnAudioUploadComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
+	// STT 콜백 함수
+	void CallParsingAIText(const FString& json);
+
+	// STS 콜백 함수
+	void CallParsingAISound(const FString& json);
+
 };
