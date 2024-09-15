@@ -27,17 +27,19 @@ class MTVS_3RDUNREAL_API UKJH_ServerWidget : public UKJH_WidgetSystem
 	GENERATED_BODY()
 
 public:
+
+////////// 생성자 & 초기화 함수 구간 ===========================================================================================
+	
 	UKJH_ServerWidget(const FObjectInitializer& ObjectInitialize); // 생성자 선언
+	virtual bool Initialize(); // 초기화 함수 선언
 
-	virtual bool Initialize(); // BeginPlay?
 
-
-////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
+////////// TSubclass & class 참조 구간 ==========================================================================================
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> ServerRowFactory; // ServerRow(Text UI) 공장
 	class UKJH_ServerRow* ServerRow; // ServerRow(Text UI) 선언
 
-////////// UI 바인딩 구간 ------------------------------------------------------------------------------------------------------
+////////// UI 바인딩 구간 =======================================================================================================
 
 	// 메뉴 체인지 관련 //
 	UPROPERTY(meta = (BindWidget))
@@ -96,14 +98,14 @@ public:
 
 ////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable)
-	void HostServer(); // Interface에서 Host 함수를 호출하는 함수
+	void CreateRoom(); // Interface에서 Host 함수를 호출하는 함수
 
 	void SetServerList(TArray<FServerData> ServerNames); // 상단에 선언된 FServerData 구조체를 바탕으로 Session 목록을 설정하는 함수
 
 	void SelecetIndex(uint32 Index); // 서버의 인덱스를 선택하는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void JoinServer(); // 생성된 Session에 접속하는 함수
+	void JoinRoom(); // 생성된 Session에 접속하는 함수
 
 	UFUNCTION(BlueprintCallable)
 	void OpenHostMenu(); // 방 개설 메뉴로 접속하는 함수

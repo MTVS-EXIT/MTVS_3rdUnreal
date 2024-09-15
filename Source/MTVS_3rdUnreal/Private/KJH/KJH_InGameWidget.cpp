@@ -22,16 +22,19 @@ bool UKJH_InGameWidget::Initialize()
 	return true;
 }
 
+////////// 사용자 정의형 함수 구간 ============================================================================================================
+// 인게임 Widget -> 게임으로 복귀하는 버튼
 void UKJH_InGameWidget::CancelPressed()
 {
-	Teardown();
+	Teardown(); // Widget 파괴
 }
 
+// 인게임 Widget -> 게임을 종료하여 메인메뉴로 이동하는 함수
 void UKJH_InGameWidget::QuitPressed()
 {
 	if (MenuInterface)
 	{
-		Teardown();
-		MenuInterface->LoadServerWidgetMap();
+		Teardown(); // Widget 파괴
+		MenuInterface->LoadServerWidgetMap(); // ServerWidget맵으로 이동
 	}
 }

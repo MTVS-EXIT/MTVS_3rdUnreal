@@ -19,24 +19,23 @@ class MTVS_3RDUNREAL_API UKJH_GameInstance : public UGameInstance, public IKJH_I
 	
 public:
 
-// GameInstance의 에디터 실행 시 생성자 함수 선언 (초기화만 해줌)
-	UKJH_GameInstance(const FObjectInitializer& ObjectInitializer);
+////////// 생성자 & 초기화 함수 구간 ===========================================================================================
 
-// GameInstance의 BeginPlay 시 생성자 함수 선언 (초기화만 해줌)
-	virtual void Init() override;
+	UKJH_GameInstance(const FObjectInitializer& ObjectInitializer); // GameInstance의 에디터 실행 시 생성자 함수 선언 (초기화만 해줌)
 
-	
+	virtual void Init() override; // GameInstance의 BeginPlay 시 생성자 함수 선언 (초기화만 해줌)
 
-////////// 델리게이트 바인딩 함수 구간 ----------------------------------------------------------------------------
+////////// 델리게이트 바인딩 함수 구간 =============================================================================
 	
 	void OnCreateSessionComplete(FName SessionName, bool Success); // 세션 생성 완료 시 호출될 함수
 	void OnDestroySessionComplete(FName SessionName, bool Success); // 세션 파괴 완료 시 호출될 함수
 	void OnFindSessionComplete(bool Success); // 세션 찾기 완료 시 호출될 함수. Success 인자만 있으면 된다.
 											  // 발견된 세션 목록은 SeesionSearch TSharedRef 포인터에 있기 때문이다.
+
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
-
-////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------
+	
+////////// 사용자 정의형 함수 구간 =================================================================================
 	
 	// 1) 세션 관련 함수 --------------------------------
 	UFUNCTION(Exec) // Exec: 콘솔창에 입력할 수 있도록 만든다.
@@ -53,10 +52,10 @@ public:
 
 	// 2) UI 관련 함수 ----------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Load Widget")
-	void LoadServerWidget(); // 시작화면 UI를 불러오는 함수
+	void CreateServerWidget(); // 시작화면 UI를 불러오는 함수
 
 	UFUNCTION(BlueprintCallable, Category = "Load Widget")
-	void LoadInGameWidget(); // 인게임 UI를 불러오는 함수
+	void CreateInGameWidget(); // 인게임 UI를 불러오는 함수
 
 
 
