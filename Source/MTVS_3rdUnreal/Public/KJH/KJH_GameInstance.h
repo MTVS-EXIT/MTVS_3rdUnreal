@@ -33,8 +33,8 @@ public:
 	void OnDestroySessionComplete(FName SessionName, bool Success); // 세션 파괴 완료 시 호출될 함수
 	void OnFindSessionComplete(bool Success); // 세션 찾기 완료 시 호출될 함수. Success 인자만 있으면 된다.
 											  // 발견된 세션 목록은 SeesionSearch TSharedRef 포인터에 있기 때문이다.
-
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	void OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 
 ////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------
 	

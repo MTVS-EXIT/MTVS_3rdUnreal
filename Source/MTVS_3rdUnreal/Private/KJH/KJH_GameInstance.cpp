@@ -20,7 +20,7 @@
 #include "KJH/KJH_PlayerController.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
-const static FName SESSION_NAME = TEXT("EXIT Session Game");
+const static FName SESSION_NAME = TEXT("Game");
 const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer) // 에디터 실행할 때 실행하는 생성자.
@@ -45,6 +45,11 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnFindSessionComplete);
 			SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnJoinSessionComplete);
 		}
+	}
+
+	if (nullptr != GEngine)
+	{
+		GEngine->OnNetworkFailure().AddUObject(this, &UKJH_GameInstance::OnNetworkFailure);
 	}
 }
 
@@ -194,6 +199,12 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 	}
 }
 
+// 네트워크 연결이 끊길 시, 호출되는 함수
+void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+{
+	LoadServerWidgetMap();
+}
+
 ////////// 델리게이트 바인딩 함수 구간 종료 ------------------------------------------------------------------------------
 
 
@@ -263,7 +274,7 @@ void UKJH_GameInstance::CreateSession()
 			SessionSettings.bIsLANMatch = false; // false 시 : 다른 네트워크와 연결 가능하도록 함. (Steam, XBox 등 공식플랫폼 연결 설정)
 		}
 
-		SessionSettings.NumPublicConnections = 5; // 플레이어 수
+		SessionSettings.NumPublicConnections = 3; // 플레이어 수
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
 		SessionSettings.bUseLobbiesIfAvailable = true; // 로비기능을 활성화한다. (Host 하려면 필요)
 		SessionSettings.bUsesPresence = true;
