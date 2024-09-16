@@ -1,10 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
-#include "PreOpenCVheaders.h"
-#include "PostOpenCVHeaders.h"
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include <Windows.h>
+#include "Windows/HideWindowsPlatformTypes.h"
+
+#include "PreOpenCVHeaders.h"
 #include <opencv2/opencv.hpp>
+#include "PostOpenCVHeaders.h"
+
 #include "Engine/Texture2D.h"
 
 #include "CoreMinimal.h"
@@ -24,21 +29,22 @@ public:
 
 	virtual void BeginPlay() override;
 
-	//openCVÈ°¿ë À¥Ä· ºñµğ¿À Ä¸ÃÄ
+	//openCVí™œìš© ì›¹ìº  ë¹„ë””ì˜¤ ìº¡ì³
 	cv::VideoCapture capture;
-	//openCVÈ°¿ë ¸ÅÅÍ¸®¾ó ÀÌ¹ÌÁö
+	//openCVí™œìš© ë§¤í„°ë¦¬ì–¼ ì´ë¯¸ì§€
 	cv::Mat image;
 
-	//ºí·çÇÁ¸°Æ®·Î ÇÁ·¹ÀÓ ÀĞ¾î³»´Â ÇÔ¼ö
+	//ë¸”ë£¨í”„ë¦°íŠ¸ë¡œ í”„ë ˆì„ ì½ì–´ë‚´ëŠ” í•¨ìˆ˜
 	UFUNCTION(BlueprintCallable)
 	void ReadScreenFrame();
 
-	//ÀÌ¹ÌÁö ¸ÅÅÍ¸®¾ó ÅØ½ºÃÄ·Î ¸¸µé±â
+	//ì´ë¯¸ì§€ ë§¤í„°ë¦¬ì–¼ í…ìŠ¤ì³ë¡œ ë§Œë“¤ê¸°
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UTexture2D* imageTexture;
 
-	//¸ÅÅÍ¸®¾óÀ» ÅØ½ºÃÄ·Î ¸¸µå´Â ÇÔ¼ö
+	//ë§¤í„°ë¦¬ì–¼ì„ í…ìŠ¤ì³ë¡œ ë§Œë“œëŠ” í•¨ìˆ˜
 	UTexture2D* MatToTexture2D(const cv::Mat InMat);
-
 	
+	//ë‚´ í™”ë©´ì„ CV Matíƒ€ì…ìœ¼ë¡œ ë§Œë“œëŠ” í•¨ìˆ˜
+	cv::Mat GetScreenToCVMat();
 };

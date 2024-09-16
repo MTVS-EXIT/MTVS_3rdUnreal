@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KHS/KHS_DroneGameMode.h"
@@ -18,34 +18,71 @@ void AKHS_DroneGameMode::BeginPlay()
 	}
 }
 
+//ë¸”ë£¨í”„ë¦°íŠ¸ë¡œ í”„ë ˆìž„ ì½ì–´ë‚´ëŠ” í•¨ìˆ˜
 void AKHS_DroneGameMode::ReadScreenFrame()
 {
-	//ºñµð¿ÀÄ¸ÃÄ°¡ ¾È¿­·ÁÀÖÀ¸¸é return
-	if(false == capture.isOpened())
-		return;
-	//ºñµð¿ÀÄ¸ÃÄ¿¡¼­ ¸ÅÅÍ¸®¾ó ÀÐ¾î³»±â
-	capture.read(image);
-	//¸ÅÅÍ¸®¾óÀ» Texture·Î º¯°æ
-	imageTexture = MatToTexture2D(image);
+	//ê¸°ì¡´ ì›¹ìº  ì½ì–´ì˜¤ë˜ ë‚´ìš©ì€ ì£¼ì„ì²˜ë¦¬
+	//
+	////ë¹„ë””ì˜¤ìº¡ì³ê°€ ì•ˆì—´ë ¤ìžˆìœ¼ë©´ return
+	//if(false == capture.isOpened())
+	//	return;
+	////ë¹„ë””ì˜¤ìº¡ì³ì—ì„œ ë§¤í„°ë¦¬ì–¼ ì½ì–´ë‚´ê¸°
+	//capture.read(image);
+
+	//ë‚´ ìŠ¤í¬ë¦° í™”ë©´ ì½ì–´ì˜¤ê¸° í•¨ìˆ˜ í˜¸ì¶œ
+	cv::Mat desktopImage = GetScreenToCVMat();
+
+	//ë§¤í„°ë¦¬ì–¼ì„ Textureë¡œ ë³€ê²½
+	//imageTexture = MatToTexture2D(image); //ê¸°ì¡´ ì›¹ìº  ì½ì–´ì˜¬ë•Œ
+	imageTexture = MatToTexture2D(desktopImage); //ìŠ¤í¬ë¦°í™”ë©´ ì½ì–´ì˜¬ë•Œ
 }
 
+//ë‚´ í™”ë©´ì„ CV Matíƒ€ìž…ìœ¼ë¡œ ë§Œë“œëŠ” í•¨ìˆ˜
+cv::Mat AKHS_DroneGameMode::GetScreenToCVMat()
+{
+	//Windows Device Contextë¥¼ Bitmapí˜•ì‹ìœ¼ë¡œ ë³€í™˜ í›„ CV Matí˜•ì‹ìœ¼ë¡œ ë³€í™˜í•˜ìž.
+
+	//Windows Device Contextê°’ ê°€ì ¸ì˜¤ê¸°
+	HDC hScreenDC = GetDC(NULL);
+	HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+	int screenWidth = GetDeviceCaps(hScreenDC, HORZRES);
+	int screenHeight = GetDeviceCaps(hScreenDC, VERTRES);
+
+	//Windows Device Context -> Bitmapíƒ€ìž…ìœ¼ë¡œ ë³€í™˜
+	HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, screenWidth, screenHeight);
+	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemoryDC, hBitmap);
+	BitBlt(hMemoryDC, 0, 0, screenWidth, screenHeight, hScreenDC, 0, 0, SRCCOPY);
+	SelectObject(hMemoryDC, hOldBitmap);
+
+	//Bitmapíƒ€ìž… -> CV Matíƒ€ìž… ë³€í™˜
+	cv::Mat matImage(screenHeight, screenWidth, CV_8UC4);
+	GetBitmapBits(hBitmap, matImage.total() * matImage.elemSize(), matImage.data);
+
+	//ì—¬ê¸°ì„œ ë§Œë“  CV::Matíƒ€ìž…ì€ CV_8UC4.
+	return matImage;
+}
+
+
+//ë§¤í„°ë¦¬ì–¼ì„ í…ìŠ¤ì³ë¡œ ë§Œë“œëŠ” í•¨ìˆ˜
 UTexture2D* AKHS_DroneGameMode::MatToTexture2D(const cv::Mat InMat)
 {
-	//»õ·Î¿î ÅØ½ºÃÄ¸¦ »ý¼º
+	//ìƒˆë¡œìš´ í…ìŠ¤ì³ë¥¼ ìƒì„±
 	UTexture2D* Texture = UTexture2D::CreateTransient(InMat.cols, InMat.rows, PF_B8G8R8A8);
-	//¿øÇÏ´Â Å¸ÀÔÀ¸·Î ¸ÅÅÍ¸®¾óÀ» Á¶Á¤ ÈÄ RETURN.
+	
+	//ì›í•˜ëŠ” íƒ€ìž…ìœ¼ë¡œ ë§¤í„°ë¦¬ì–¼ì„ ì¡°ì • í›„ RETURN.
+	//CV_8UC3íƒ€ìž…ì¸ ê²½ìš°(ì›¹ìº  ìŠ¤íŠ¸ë¦¬ë°)
 	if (InMat.type() == CV_8UC3)//example for pre-conversion of Mat
 	{
-		//¸ÅÅÍ¸®¾óÀÌ BGR Å¸ÀÔ¾Æ¶ó¸é BGRA Å¸ÀÔ ¸ÅÅÍ¸®¾ó·Î Convert.(¾ð¸®¾óÀº RGBA 4°³ Ã¤³ÎÀÌ´Ï±î)
+		//ë§¤í„°ë¦¬ì–¼ì´ BGR íƒ€ìž…ì•„ë¼ë©´ BGRA íƒ€ìž… ë§¤í„°ë¦¬ì–¼ë¡œ Convert.(ì–¸ë¦¬ì–¼ì€ RGBA 4ê°œ ì±„ë„ì´ë‹ˆê¹Œ)
 		cv::Mat bgraImage;
 		cv::cvtColor(InMat, bgraImage, cv::COLOR_BGR2BGRA);
 
 		//Texture->SRGB = 0;//set to 0 if Mat is not in srgb 
 		// (which is likely when coming from a webcam)
-		//(¼±ÅÃ) ´Ù¸¥ ¼¼ÆÃÀ» ÇÏ°í½Í´Ù¸é ¿©±â¿¡ Ãß°¡ÇÏ±â.
+		//(ì„ íƒ) ë‹¤ë¥¸ ì„¸íŒ…ì„ í•˜ê³ ì‹¶ë‹¤ë©´ ì—¬ê¸°ì— ì¶”ê°€í•˜ê¸°.
 		//Texture->UpdateResource();
 
-		//ÀÌ¹ÌÁö µ¥ÀÌÅÍ¸¦ ÅØ½ºÃÄ¿¡ ´ã±â
+		//ì´ë¯¸ì§€ ë°ì´í„°ë¥¼ í…ìŠ¤ì³ì— ë‹´ê¸°
 		FTexture2DMipMap& Mip = Texture->GetPlatformData()->Mips[0];
 		void* Data = Mip.BulkData.Lock(LOCK_READ_WRITE);//lock the texture data
 		FMemory::Memcpy(Data, bgraImage.data, bgraImage.total() * bgraImage.elemSize());//copy the data
@@ -55,9 +92,26 @@ UTexture2D* AKHS_DroneGameMode::MatToTexture2D(const cv::Mat InMat)
 
 		return Texture;
 	}
-	//¸¸¾à ÅØ½ºÃÄ°¡ Á¦´ë·ÎµÈ ÇÈ¼¿µ¥ÀÌÅÍ°¡ ¾ø´Ù¸é Abort.
+	//CV_8UC4íƒ€ìž…ì¸ ê²½ìš°(ìŠ¤í¬ë¦° í™”ë©´ê³µìœ )
+	else if (InMat.type() == CV_8UC4)
+	{
+		////ì´ë¯¸ì§€ ë°ì´í„°ë¥¼ í…ìŠ¤ì³ì— ë‹´ê¸°
+		FTexture2DMipMap& Mip = Texture->GetPlatformData()->Mips[0];
+		void* Data = Mip.BulkData.Lock(LOCK_READ_WRITE);//lock the texture data
+		FMemory::Memcpy(Data, InMat.data, InMat.total() * InMat.elemSize());//copy the data
+		Mip.BulkData.Unlock();
+		Texture->PostEditChange();
+		Texture->UpdateResource();
+
+		return Texture;
+	}
+
+	//ë§Œì•½ í…ìŠ¤ì³ê°€ ì œëŒ€ë¡œëœ í”½ì…€ë°ì´í„°ê°€ ì—†ë‹¤ë©´ Abort.
 	Texture->PostEditChange();
 	Texture->UpdateResource();
 
 	return Texture;
 }
+
+
+
