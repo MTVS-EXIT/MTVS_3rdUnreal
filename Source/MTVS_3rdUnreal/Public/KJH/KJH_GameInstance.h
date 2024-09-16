@@ -50,18 +50,21 @@ public:
 	UFUNCTION()
 	void RefreshServerList(); // 서버목록을 찾는 함수
 
-	// 2) UI 관련 함수 ----------------------------------
-	UFUNCTION(BlueprintCallable, Category = "Load Widget")
-	void CreateServerWidget(); // 시작화면 UI를 불러오는 함수
+	// 2) UI 생성 관련 함수 ----------------------------------
+	UFUNCTION(BlueprintCallable, Category = "Create Widget")
+	void CreateLoginWidget(); // 로그인 UI를 생성하는 함수
 
-	UFUNCTION(BlueprintCallable, Category = "Load Widget")
-	void CreateInGameWidget(); // 인게임 UI를 불러오는 함수
+	UFUNCTION(BlueprintCallable, Category = "Create Widget")
+	void CreateServerWidget(); // 시작화면 UI를 생성하는 함수
+
+	UFUNCTION(BlueprintCallable, Category = "Create Widget")
+	void CreateInGameWidget(); // 인게임 UI를 생성하는 함수
 
 
 
-	UFUNCTION(BlueprintCallable, Category = "Load Widget")
+
+	UFUNCTION(BlueprintCallable, Category = "Load Widget Map")
 	void LoadServerWidgetMap(); // ServerWidget UI가 있는 맵으로 로드시키는 함수 (UI를 레벨에 Attach 해놓았음.)
-
 
 
 	// 캐릭터 선택 관련 함수 ----------------------------------
@@ -75,12 +78,16 @@ public:
 
 ////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UUserWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
+	TSubclassOf<class UKJH_LoginWidget> LoginWidgetFactory; // ServerWidget(UI) 공장
+	class UKJH_LoginWidget* LoginWidget; // ServerWidget(UI) 참조 선언
+	
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) 공장
 	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) 참조 선언
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UUserWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
-	class UKJH_WidgetSystem* InGameWidget; // InGameWidget(UI) 참조 선언
+	TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
+	class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) 참조 선언
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장

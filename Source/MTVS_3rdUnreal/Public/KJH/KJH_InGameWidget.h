@@ -19,7 +19,11 @@ public:
 ////////// 초기화 함수 구간 ===================================================================
 	virtual bool Initialize(); // UserWidget 초기화 함수
 
+	virtual void Setup() override;
 ////////// 바인딩 구간 ========================================================================
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* InGameMenuAnim; // 인게임 UI 호출 시 등장하는 애니메이션 참조
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UButton* InGameMenu_CancelButton; // 인게임 UI -> 게임으로 복귀하는 버튼

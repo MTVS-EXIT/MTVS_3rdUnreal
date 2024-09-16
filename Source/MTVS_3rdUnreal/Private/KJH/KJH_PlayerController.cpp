@@ -5,6 +5,9 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
+#include "KJH/KJH_InGameWidget.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
@@ -15,7 +18,38 @@ void AKJH_PlayerController::BeginPlay()
     {
         ShowCharacterSelectWidget();
     }
+
+    // InGameWidget 초기화
+    if (InGameWidgetFactory)
+    {
+        InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
+        if (InGameWidget)
+        {
+            InGameWidget->SetMyInterface(Cast<IKJH_Interface>(GetGameInstance()));
+            bIsInGameWidgetVisible = false; // 처음엔 false로 설정하여 InGameWidget이 안보이게 설정
+        }
+    }
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (Subsystem)
+	{
+        Subsystem->AddMappingContext(IMC_Common, 1);
+	}
 }
+
+void AKJH_PlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+
+    if (EnhancedInput)
+    {
+        EnhancedInput -> BindAction(IA_ToggleInGameWidget, ETriggerEvent::Triggered, this, &AKJH_PlayerController::ToggleInGameWidget);
+    }
+
+}
+
+
 
 void AKJH_PlayerController::OnPossess(APawn* aPawn)
 {
@@ -37,6 +71,7 @@ void AKJH_PlayerController::OnPossess(APawn* aPawn)
     }
 }
 
+// 사용자 정의형 함수 구간 - 캐릭터 선택 및 스폰 관련 ================================================================================
 void AKJH_PlayerController::ShowCharacterSelectWidget()
 {
     // 로컬 컨트롤러에서만 UI를 생성하도록 설정
@@ -167,5 +202,32 @@ void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
             DronePlayer->DroneMainUI->AddToViewport(0);
             UE_LOG(LogTemp, Warning, TEXT("Drone UI created for player."));
         }
+    }
+}
+
+// 사용자 정의형 함수 구간 - 인게임 UI 관련 ================================================================================
+// InGameWidget ON/ OFF 함수
+void AKJH_PlayerController::ToggleInGameWidget(const FInputActionValue& Value)
+{
+    if (false == IsLocalPlayerController())
+    {
+        return;
+    }
+
+    if (nullptr == InGameWidget)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("InGameWidget is not Valid!"));
+        return;
+    }
+
+    if (bIsInGameWidgetVisible)
+    {
+        InGameWidget->Teardown();
+        bIsInGameWidgetVisible = false;
+    }
+    else
+    {
+        InGameWidget->Setup();
+        bIsInGameWidgetVisible = true;
     }
 }

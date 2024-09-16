@@ -14,29 +14,68 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Delegates/Delegate.h"
 
+#include "Engine/TimerHandle.h"
 ////////// 생성자 & 초기화 함수 구간 ===================================================================
 bool UKJH_LoginWidget::Initialize()
 {
-	LoginMenu_CreateAccountButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenCreateAccountMenu); // CreateAccountButton 버튼 눌렀을 때 OpenRegisterMenu 함수 호출
+	Super::Initialize();
+
+	// 버튼 클릭 이벤트 바인딩 구간 --------------------------------------------------------------------
+	if (LoginMenu_RegisterButton)
+	LoginMenu_RegisterButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenRegisterMenu); // CreateAccountButton 버튼 눌렀을 때 OpenRegisterMenu 함수 호출
+	
+	if (LoginMenu_LoginButton)
 	LoginMenu_LoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyLogin); // LoginMenu_LoginButton 버튼 눌렀을 때 OnLoginToPlay 함수 호출
 
-	CreateAccountMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton 버튼 눌렀을 때 OnRegisterMyInfo 함수 호출
-	CreateAccountMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton 버튼 눌렀을 때 OpenLoginMenu 함수 호출
+	if (RegisterMenu_CreateButton)
+	RegisterMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton 버튼 눌렀을 때 OnRegisterMyInfo 함수 호출
+	
+	if (RegisterMenu_CancelButton)
+	RegisterMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton 버튼 눌렀을 때 OpenLoginMenu 함수 호출
 
 	return true;
 }
 
 ////////// 사용자 정의형 함수 구간 - UI 전환 관련 ====================================================================================================
 // 계정생성 메뉴 전환 함수
-void UKJH_LoginWidget::OpenCreateAccountMenu()
+void UKJH_LoginWidget::OpenRegisterMenu()
 {
-	MenuSwitcher->SetActiveWidget(CreateAccountMenu);
+	if (DisappearLoginMenuAnim)
+	PlayAnimation(DisappearLoginMenuAnim);
+
+	FTimerHandle TimerHandle_MenuSwitch;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]() 
+	{
+		if (MenuSwitcher)
+		MenuSwitcher->SetActiveWidget(RegisterMenu);
+		PlayAnimation(AppearRegisterMenuAnim);
+	}, 1.0f, false);
+
+	UE_LOG(LogTemp, Log, TEXT("OpenRegisterMenu called"));
 }
+
 
 // 로그인 메뉴 전환 함수
 void UKJH_LoginWidget::OpenLoginMenu()
 {
-	MenuSwitcher->SetActiveWidget(LoginMenu);
+
+	if (DisappearRegisterMenuAnim)
+	{
+		PlayAnimation(DisappearRegisterMenuAnim);
+	}
+
+	FTimerHandle TimerHandle_MenuSwitch;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]()
+	{
+		if (MenuSwitcher)
+		MenuSwitcher->SetActiveWidget(LoginMenu);
+		PlayAnimation(AppearLoginMenuAnim);
+
+	}, 1.0f, false);
+
+
+	UE_LOG(LogTemp, Log, TEXT("OpenLoginMenu called"));
+
 }
 
 ////////// 사용자 정의형 함수 구간 - 계정생성 관련 ====================================================================================================
@@ -44,9 +83,9 @@ void UKJH_LoginWidget::OpenLoginMenu()
 void UKJH_LoginWidget::OnMyRegister()
 {
 	// 입력된 로그인 정보를 가져옴.
-	FString RegisterUserID = CreateAccountMenu_UserIDText->GetText().ToString();
-	FString RegisterNickname = CreateAccountMenu_UserNicknameText->GetText().ToString();
-	FString RegisterPassword = CreateAccountMenu_UserPasswordText->GetText().ToString();
+	FString RegisterUserID = RegisterMenu_UserIDText->GetText().ToString();
+	FString RegisterNickname = RegisterMenu_UserNicknameText->GetText().ToString();
+	FString RegisterPassword = RegisterMenu_UserPasswordText->GetText().ToString();
 
 	// 계정생성 정보를 서버로 전송할 URL 설정
 	FString URL = ""; // 백엔드 서버 URL

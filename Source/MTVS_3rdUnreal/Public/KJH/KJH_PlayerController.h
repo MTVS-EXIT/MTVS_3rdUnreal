@@ -25,8 +25,12 @@ public:
     virtual void BeginPlay() override; // BeginPlay 초기화 함수
     virtual void OnPossess(APawn* aPawn) override; // 캐릭터가 Possess될 때 호출되는 함수
 
-////////// 사용자 정의형 함수 구간 - 캐릭터 선택 UI 관련 =============================================================================================
-   
+    // 입력 구성 요소 설정 함수 선언
+    virtual void SetupInputComponent() override; // SetupInputComponent 함수 선언
+
+////////// 사용자 정의형 함수 구간 ==================================================================================================================
+ 
+     // 1) 캐릭터 선택 UI 관련 ---------------------------------------------------------------------------
     void ShowCharacterSelectWidget();  // 캐릭터 선택 UI를 표시하는 함수 (로컬 클라이언트에서만 실행)
 
     UFUNCTION(Client, Reliable)
@@ -40,25 +44,43 @@ public:
     UFUNCTION(Client, Reliable)
     void Client_SetupDroneUI(); // 서버 -> 클라이언트 드론 UI를 설정하는 함수
 
+    // 2) InGameWidget UI 관련 ---------------------------------------------------------------------------
+    void ToggleInGameWidget(const FInputActionValue& Value);
+
 ////////// 전역 변수 구간 ============================================================================================================================
     bool bIsPersonCharacterSelected; // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
+    bool bIsInGameWidgetVisible; // InGameWidget 가시성 상태 변수
 
 ////////// TSubclass & class 참조 구간 ================================================================================================================
+    // 1) 캐릭터 공통 입력 키 EnhancedInput 관련 --------------------------------------------
+    UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+    class UInputMappingContext* IMC_Common; // Mapping Context 참조
+
+    UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+    class UInputAction* IA_ToggleInGameWidget; // InputAction 참조
+
+    // 2) UI 관련 ---------------------------------------------------------------------------
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
+    TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
+    class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
+    TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
+    class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) 참조 선언
 
+    // 3) 캐릭터 블루프린트 관련 ------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP 참조
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP 참조
 
+    // 4) SpawnPoint 블루프린트 관련 ------------------------------------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
     TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP 참조
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
     TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP 참조
+
+
 };

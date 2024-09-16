@@ -18,6 +18,7 @@
 #include "Engine/TimerHandle.h"
 #include "KJH/KJH_CharacterSelectWidget.h"
 #include "KJH/KJH_PlayerController.h"
+#include "KJH/KJH_LoginWidget.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -284,7 +285,17 @@ void UKJH_GameInstance::CreateSession()
 	}
 }
 
-////////// UI 관련 함수 ----------------------------------------------------------------------------------------------------------------
+// UI 생성 관련 함수 ----------------------------------------------------------------------------------------------------------------
+// 로그인 UI 생성 함수
+void UKJH_GameInstance::CreateLoginWidget()
+{
+	// ServerUIFactory를 통해 ServerUI 위젯 생성
+	LoginWidget = CreateWidget<UKJH_LoginWidget>(this, LoginWidgetFactory);
+	LoginWidget->SetMyInterface(this);
+	LoginWidget->Setup();
+}
+
+// 서버 메인메뉴 UI 생성 함수
 void UKJH_GameInstance::CreateServerWidget()
 {
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
@@ -293,24 +304,34 @@ void UKJH_GameInstance::CreateServerWidget()
 	ServerWidget -> Setup();
 }
 
+// 인게임 UI 생성 함수
 void UKJH_GameInstance::CreateInGameWidget()
 {
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
-	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
+	InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
 }
 
 
 
+
+
 void UKJH_GameInstance::LoadServerWidgetMap()
 {
-	// 플레이어의 첫번째 컨트롤러를 가져온다.
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (PlayerController) // 컨트롤러가 있으면,
+	// AKJH_PlayerController를 가져온다,
+	AKJH_PlayerController* KJHPlayerController = Cast<AKJH_PlayerController>(GetFirstLocalPlayerController());
+	//// 플레이어의 첫번째 컨트롤러를 가져온다.
+	//APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // 컨트롤러가 있으면,
 	{
 		// ServerUI가 있는 맵으로 이동시킨다.
-		PlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap.ServerWidgetMap", ETravelType::TRAVEL_Absolute);
+		KJHPlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap", ETravelType::TRAVEL_Absolute);
+	}
+
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerController in LoadServerWidgetMap."));
 	}
 }
 
