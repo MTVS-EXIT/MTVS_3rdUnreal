@@ -7,6 +7,7 @@
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "KJH_Interface.h"
 #include "UObject/Interface.h"
+#include "Engine/StreamableManager.h"
 #include "KJH_GameInstance.generated.h"
 
 /**
@@ -93,6 +94,10 @@ public:
 	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
 	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UKJH_LoadingWidget> LoadingWidgetFactory; // CharacterSelectWidget(UI) 공장
+	class UKJH_LoadingWidget* LoadingWidget; // CharacterSelectWidget(UI) 참조 선언
+
 ////////// 전역 변수 & 인스턴스 선언 구간 -------------------------------------------------------------------------------
 
 	IOnlineSessionPtr SessionInterface; // 세션 인터페이스를 전역인수로 선언
@@ -103,5 +108,10 @@ public:
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 	FString DesiredServerName; // Host 시 서버 이름을 지정하여 설정하기 위한 변수
 
-////////// 타이머핸들 선언 구간 -----------------------------------------------------------------------------------------
+////////// Temp -----------------------------------------------------------------------------------------
+    FStreamableManager StreamableManager;
+
+    UFUNCTION()
+    void OnMapPreloadComplete();
+
 };

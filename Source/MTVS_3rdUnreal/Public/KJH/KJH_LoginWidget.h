@@ -29,10 +29,10 @@ public :
 
 	// 2) 로그인 메뉴 관련 ---------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* AppearLoginMenuAnim;
+	class UWidgetAnimation* ShowLoginMenuAnim; // 로그인 메뉴 Show 애니메이션
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* DisappearLoginMenuAnim;
+	class UWidgetAnimation* HideLoginMenuAnim; // 로그인 메뉴 Hide 애니메이션
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UWidget* LoginMenu; // 로그인 메뉴 위젯
@@ -49,12 +49,15 @@ public :
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* LoginMenu_UserPasswordText; // 로그인 메뉴의 패스워드 입력 필드
 
+	UPROPERTY(meta = (BindWidget))
+	class UButton* LoginMenu_GuestLoginButton; // Guest 로그인 버튼 -> 바로 서버메뉴로 넘어갈 수 있음.
+
 	// 3) 계정생성 메뉴 관련 --------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* AppearRegisterMenuAnim;
+	class UWidgetAnimation* ShowRegisterMenuAnim; // 계정생성 메뉴 Show 애니메이션
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* DisappearRegisterMenuAnim;
+	class UWidgetAnimation* HideRegisterMenuAnim; // 계정생성 메뉴 Hide 애니메이션
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UWidget* RegisterMenu; // 계정생성 메뉴 위젯
@@ -95,4 +98,8 @@ public :
 
 	void SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // 로그인 HTTP 요청을 보내는 함수
 	void OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // 로그인 HTTP 요청 결과를 처리하는 함수
+
+////////// 사용자 정의형 함수 구간 - 게스트 로그인 관련 =======================================================================================================
+	void OnMyGuestLogin();
+
 };

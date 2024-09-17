@@ -20,19 +20,26 @@ bool UKJH_LoginWidget::Initialize()
 {
 	Super::Initialize();
 
-	// 버튼 클릭 이벤트 바인딩 구간 --------------------------------------------------------------------
+
+////////// 버튼 클릭 이벤트 델리게이트 구간 ====================================================================================================
+	// 로그인 메뉴 버튼 델리게이트 바인딩
 	if (LoginMenu_RegisterButton)
 	LoginMenu_RegisterButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenRegisterMenu); // CreateAccountButton 버튼 눌렀을 때 OpenRegisterMenu 함수 호출
 	
 	if (LoginMenu_LoginButton)
 	LoginMenu_LoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyLogin); // LoginMenu_LoginButton 버튼 눌렀을 때 OnLoginToPlay 함수 호출
 
+	if (LoginMenu_GuestLoginButton)
+	LoginMenu_GuestLoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyGuestLogin); // GuestLoginButton 버튼 눌렀을 때 OnMyGuestLogin 함수 호출
+
+	// 계정 생성 메뉴 버튼 델리게이트 바인딩
 	if (RegisterMenu_CreateButton)
 	RegisterMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton 버튼 눌렀을 때 OnRegisterMyInfo 함수 호출
 	
 	if (RegisterMenu_CancelButton)
 	RegisterMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton 버튼 눌렀을 때 OpenLoginMenu 함수 호출
 
+	
 	return true;
 }
 
@@ -40,15 +47,15 @@ bool UKJH_LoginWidget::Initialize()
 // 계정생성 메뉴 전환 함수
 void UKJH_LoginWidget::OpenRegisterMenu()
 {
-	if (DisappearLoginMenuAnim)
-	PlayAnimation(DisappearLoginMenuAnim);
+	if (HideLoginMenuAnim)
+	PlayAnimation(HideLoginMenuAnim);
 
 	FTimerHandle TimerHandle_MenuSwitch;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]() 
 	{
 		if (MenuSwitcher)
 		MenuSwitcher->SetActiveWidget(RegisterMenu);
-		PlayAnimation(AppearRegisterMenuAnim);
+		PlayAnimation(ShowRegisterMenuAnim);
 	}, 1.0f, false);
 
 	UE_LOG(LogTemp, Log, TEXT("OpenRegisterMenu called"));
@@ -59,9 +66,9 @@ void UKJH_LoginWidget::OpenRegisterMenu()
 void UKJH_LoginWidget::OpenLoginMenu()
 {
 
-	if (DisappearRegisterMenuAnim)
+	if (HideRegisterMenuAnim)
 	{
-		PlayAnimation(DisappearRegisterMenuAnim);
+		PlayAnimation(HideRegisterMenuAnim);
 	}
 
 	FTimerHandle TimerHandle_MenuSwitch;
@@ -69,7 +76,7 @@ void UKJH_LoginWidget::OpenLoginMenu()
 	{
 		if (MenuSwitcher)
 		MenuSwitcher->SetActiveWidget(LoginMenu);
-		PlayAnimation(AppearLoginMenuAnim);
+		PlayAnimation(ShowLoginMenuAnim);
 
 	}, 1.0f, false);
 
@@ -278,9 +285,7 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 		{
 			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
 			if (GameInstance)
-			{
 				GameInstance->LoadServerWidgetMap();
-			}
 		}
 		else // 실패 시 로그 출력
 		{
@@ -288,4 +293,12 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 		}
 
 	}
+}
+
+////////// 사용자 정의형 함수 구간 - 게스트 로그인 관련 =======================================================================================================
+void UKJH_LoginWidget::OnMyGuestLogin()
+{
+	UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+	if (GameInstance)
+		GameInstance->LoadServerWidgetMap();
 }

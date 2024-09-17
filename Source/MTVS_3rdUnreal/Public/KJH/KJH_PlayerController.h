@@ -8,6 +8,7 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "JSH/JSH_Player.h"
 #include "GameFramework/Actor.h"
+#include "Engine/AssetManager.h"
 #include "KJH_PlayerController.generated.h"
 
 /**
@@ -47,6 +48,9 @@ public:
     // 2) InGameWidget UI 관련 ---------------------------------------------------------------------------
     void ToggleInGameWidget(const FInputActionValue& Value);
 
+    // 3) 캐릭터 블루프린트 비동기 로딩 관련 -------------------------------------------------------------
+
+
 ////////// 전역 변수 구간 ============================================================================================================================
     bool bIsPersonCharacterSelected; // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
     bool bIsInGameWidgetVisible; // InGameWidget 가시성 상태 변수
@@ -68,12 +72,16 @@ public:
     TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
     class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) 참조 선언
 
-    // 3) 캐릭터 블루프린트 관련 ------------------------------------------------------------
+    // 3-1) 캐릭터 블루프린트 관련 ------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP 참조
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP 참조
+
+    // 3-2) 캐릭터 블루프린트 비동기 로딩 관련 ------------------------------------------------
+    TSharedPtr<FStreamableHandle> PersonClassHandle; // 사람 캐릭터 클래스의 비동기 로딩을 추적하는 핸들
+    TSharedPtr<FStreamableHandle> DroneClassHandle; // 드론 캐릭터 클래스의 비동기 로딩을 추적하는 핸들
 
     // 4) SpawnPoint 블루프린트 관련 ------------------------------------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")

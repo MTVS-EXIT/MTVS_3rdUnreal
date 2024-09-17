@@ -19,6 +19,7 @@
 #include "KJH/KJH_CharacterSelectWidget.h"
 #include "KJH/KJH_PlayerController.h"
 #include "KJH/KJH_LoginWidget.h"
+#include "KJH/KJH_LoadingWidget.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -52,18 +53,32 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 ////////// 델리게이트 바인딩 함수 구간 시작 ------------------------------------------------------------------------------
 void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 {
+	// 세션 생성 실패 시,
 	if (!Success)
 	{
+		if (LoadingWidget)
+			LoadingWidget->Teardown();
 		return;
 	}
 
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
-	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
-	if (ServerWidget)
-	{
+	// 세션이 성공적으로 생성 시,
+	if (ServerWidget) // ServerWidget 제거
 		ServerWidget->Teardown();
-	}
+
+	if (LoadingWidget) // LoadingWidget 생성
+		LoadingWidget->Setup();
+
+	// 맵 전환 전, 비동기 로딩을 시작 -> 끝나면 OnMapPreloadComplete을 호출하여 ServerTravel 시작
+	StreamableManager.RequestAsyncLoad(FSoftObjectPath(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap")),
+		FStreamableDelegate::CreateUObject(this, &UKJH_GameInstance::OnMapPreloadComplete));
+}
+
+void UKJH_GameInstance::OnMapPreloadComplete()
+{
+	if (LoadingWidget)
+		LoadingWidget->Teardown();
 
 	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
@@ -71,9 +86,10 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	// 수혁이 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 
-	// 프로토 맵으로 listen 서버를 열고 이동한다.
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
 }
+
+
 
 
 // 세션 파괴 완료 시 호출되는 함수
@@ -217,6 +233,13 @@ void UKJH_GameInstance::Host(FString ServerName)
 	// 만약, 세션 인터페이스가 유효하다면,
 	if (SessionInterface.IsValid())
 	{
+		// LoadingWidget 초기화
+		if (LoadingWidgetFactory)
+			LoadingWidget = CreateWidget<UKJH_LoadingWidget>(this, LoadingWidgetFactory);
+
+		if (LoadingWidget)
+		LoadingWidget -> Setup();
+
 		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);  // 현재 세션 정보 얻기
 		if (ExistingSession) // 세션이 이미 존재한다면
 		{
@@ -285,11 +308,12 @@ void UKJH_GameInstance::CreateSession()
 	}
 }
 
+
 // UI 생성 관련 함수 ----------------------------------------------------------------------------------------------------------------
 // 로그인 UI 생성 함수
 void UKJH_GameInstance::CreateLoginWidget()
 {
-	// ServerUIFactory를 통해 ServerUI 위젯 생성
+	// LoginWidgetFactory를 통해 LogInUI 위젯 생성
 	LoginWidget = CreateWidget<UKJH_LoginWidget>(this, LoginWidgetFactory);
 	LoginWidget->SetMyInterface(this);
 	LoginWidget->Setup();
@@ -307,15 +331,11 @@ void UKJH_GameInstance::CreateServerWidget()
 // 인게임 UI 생성 함수
 void UKJH_GameInstance::CreateInGameWidget()
 {
-	// ServerUIFactory를 통해 ServerUI 위젯 생성
+	// InGameWidgetFactory를 통해 InGameUI 위젯 생성
 	InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
 }
-
-
-
-
 
 void UKJH_GameInstance::LoadServerWidgetMap()
 {
