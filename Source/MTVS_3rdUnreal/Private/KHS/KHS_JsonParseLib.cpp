@@ -33,10 +33,72 @@ TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIImage(const FString& json)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("JSON Pasing Failed"));
+		UE_LOG(LogTemp, Error, TEXT("JSON PARSING FAILED"));
 	}
 	//호출한 쪽에 적용된 Value값 반환
 	return arrayData;
+}
+
+//AI STT 처리 반환 이벤트 Json Reader 함수
+FString UKHS_JsonParseLib::JsonParseGetAIText(const FString& json)
+{
+	FString OutputText;
+	//Json Reader 생성
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
+	//Parsing결과를 담을 변수 생성
+	TSharedPtr<FJsonObject> JsonObject;
+	//전달받은 json 해석
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		// "output_text" 필드가 존재하는지 확인
+		if (JsonObject->HasField(TEXT("output_text")))
+		{
+			//해당 필드의 값을 OutputText에 담기
+			OutputText = JsonObject->GetStringField(TEXT("output_text"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Can not find output_text field on Json Data"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("JSON PARSING FAILED"));
+	}
+
+	return OutputText;
+}
+
+//AI STS 처리 반환 이벤트 Json Reader 함수
+TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIAudio(const FString& json)
+{
+	TArray<uint8> AudioData;
+	//Json Reader 생성
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
+	// Parsing결과를 담을 변수 생성
+	TSharedPtr<FJsonObject> JsonObject;
+	//전달받은 json 해석
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		// "output_audio" 필드가 존재하는지 확인
+		if (JsonObject->HasField(TEXT("output_audio")))
+		{
+			//해당 String 필드의 값을 Audio Data로 변환
+			FString Base64String = JsonObject->GetStringField(TEXT("output_audio"));
+			// Base64 디코딩
+			FBase64::Decode(Base64String, AudioData);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Can not find output_audio field on Json Data"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("JSON PARSING FAILED"));
+	}
+
+	return AudioData;
 }
 
 FString UKHS_JsonParseLib::MakeJson(const TMap<FString, FString> source)

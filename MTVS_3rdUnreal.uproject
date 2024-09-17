@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"UMG",
-				"Engine"
+				"Engine",
+				"AudioCapture"
 			]
 		}
 	],
@@ -79,6 +80,10 @@
 		},
 		{
 			"Name": "HairStrands",
+			"Enabled": true
+		},
+		{
+			"Name": "OpenCV",
 			"Enabled": true
 		}
 	]

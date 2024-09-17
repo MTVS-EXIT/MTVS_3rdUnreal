@@ -28,6 +28,13 @@ public:
 	//AI 이미지 처리 반환 이벤트 Json Reader 함수
 	TArray<uint8> JsonParseGetAIImage(const FString& json);
 
+	//AI STT 처리 반환 이벤트 Json Reader 함수
+	FString JsonParseGetAIText(const FString& json);
+
+	//AI STS 처리 반환 이벤트 Json Reader 함수
+	TArray<uint8> JsonParseGetAIAudio(const FString& json);
+
+
 	//Json Writer 함수
 	static FString MakeJson(const TMap<FString, FString> source);
 

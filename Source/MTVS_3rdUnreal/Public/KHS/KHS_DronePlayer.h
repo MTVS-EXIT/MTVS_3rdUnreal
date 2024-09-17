@@ -6,8 +6,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "GameFramework/Pawn.h"
-#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputLibrary.h"
+#include "EnhancedInputLibrary.h"
 #include "Engine/Scene.h"
+#include "KHS_AudioCaptureComp.h"
 #include "KHS_DronePlayer.generated.h"
 
 UCLASS()
@@ -50,6 +51,8 @@ public:
 	// VOIP Talker 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voice Chat", meta = (AllowPrivateAccess = "true"))
 	class UVOIPTalker* VOIPTalkerComp;
+
+
 
 	//이동속도
 	UPROPERTY(EditDefaultsOnly)
@@ -160,9 +163,7 @@ public:
 	bool bIsCurrentlyDetecting;
 
 	//AI Image Sending URL
-	//FString AIDetectionURL = "meta-ai.iptime.org:7722/detect";
-	//FString AIDetectionURL = "192.168.219.105:7722/detect";
-	FString AIDetectionURL = "meta-ai.iptime.org:7722/detect";
+	FString AIDetectionURL = "metaai.iptime.org:7722/detect";
 
 	// SceneCapture2D 액터 참조
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
@@ -171,6 +172,10 @@ public:
 	// 캡처 데이터를 저장할 텍스처 렌더 타겟
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
+
+	//AIChatBot Sending URL
+	FString AIChatbotURL = "metaai.iptime.org:7722/chatbot";
+
 
 	//==============================================
 	//함수
@@ -243,5 +248,18 @@ public:
 
 	// SceneCaptureActor를 드론의 카메라와 같은 위치 및 각도로 동기화하는 함수
 	void SyncSceneCaptureWithCamera();
+
+	// 서버로 오디오 파일 전송 함수
+	UFUNCTION(BlueprintCallable)
+	void SendAudioToServer(const FString& FilePath);
+
+	// 서버로 오디오 파일 업로드 완료 시 호출되는 콜백 함수
+	void OnAudioUploadComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	// STT 콜백 함수
+	void CallParsingAIText(const FString& json);
+
+	// STS 콜백 함수
+	void CallParsingAISound(const FString& json);
 
 };

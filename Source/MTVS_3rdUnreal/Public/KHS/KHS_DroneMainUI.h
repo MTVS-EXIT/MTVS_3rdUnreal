@@ -24,4 +24,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* AIImage;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Text_AIChatResult;
+
 };
