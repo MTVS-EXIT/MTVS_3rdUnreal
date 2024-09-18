@@ -31,6 +31,10 @@ public:
 ////////// 생성자 & 초기화 함수 구간 ===========================================================================================
 	
 	UKJH_ServerWidget(const FObjectInitializer& ObjectInitialize); // 생성자 선언
+
+	// 위젯 생성 시 자동으로 호출되는 함수
+	virtual void NativeConstruct() override;
+
 	virtual bool Initialize(); // 초기화 함수 선언
 
 
@@ -45,7 +49,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher; // 각 메뉴로 전환시킬 수 있는 Menu Switcher
 
-	// 메인메뉴 UI 관련 -----------------------------------------------------------
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowTransitionAnim;
+
+	// 2-1) 메인메뉴 UI 관련 -----------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* MainMenu; // 메인 메뉴 Widget UI
 
@@ -57,9 +64,17 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* MainMenu_QuitButton; // 게임종료 버튼
-	// ------------------------------------------------------------------------------
+
+	// 2-2) 메인메뉴 UI 애니메이션 관련 -------------------------------------------------
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowMainMenuAnim; // 메인메뉴로 전환 시 Show 애니메이션 송출
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* HideMainMenuAnim; // 메인메뉴 Hide 애니메이션 송출
+
+	// ----------------------------------------------------------------------------------
 	
-	// 방 개설 메뉴 UI 관련 // ------------------------------------------------------
+	// 3-1)방 개설 메뉴 UI 관련 // ------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* HostMenu; // 방 개설 메뉴 Widget UI
 
@@ -72,9 +87,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostMenu_ConfirmButton;
 
-	// ------------------------------------------------------------------------------
+	// 3-2) 로비메뉴 UI 애니메이션 관련 -------------------------------------------------
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowHostMenuAnim; // 방 개설 메뉴로 전환 시 Show 애니메이션 송출
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* HideHostMenuAnim; // 방 개설 메뉴 Hide 애니메이션 송출
+	// -----------------------------------------------------------------------------------
 	
-	// 로비메뉴 UI 관련 // ----------------------------------------------------------
+	// 4-1) 로비메뉴 UI 관련 // ----------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* LobbyMenu; // 로비 메뉴 Widget UI
 
@@ -84,6 +105,13 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* LobbyMenu_JoinButton; // 로비에서 실제 세션으로 접속하는 버튼
 
+	// 4-2) 로비메뉴 UI 애니메이션 관련 -------------------------------------------------
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowLobbyMenuAnim; // 메인메뉴로 전환 시 Show 애니메이션 송출
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* HideLobbyMenuAnim; // 메인메뉴 Hide 애니메이션 송출
+	// -----------------------------------------------------------------------------------
 
 	// 임시 //
 	UPROPERTY(meta = (BindWidget))
@@ -121,4 +149,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateChildren();
+
+	// 2) 위젯 애니메이션 관련 함수 --------------------------------------------------------------------
+    //UFUNCTION()
+    //void OnShowMainMenuAnimFinished(); // 애니메이션 종료 시 호출될 함수
 };

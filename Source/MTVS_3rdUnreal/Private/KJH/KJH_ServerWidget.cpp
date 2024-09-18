@@ -18,6 +18,17 @@ UKJH_ServerWidget::UKJH_ServerWidget(const FObjectInitializer& ObjectInitialize)
 
 }
 
+void UKJH_ServerWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (ShowMainMenuAnim)
+	{
+		// 애니메이션 재생
+		PlayAnimation(ShowTransitionAnim);
+		PlayAnimation(ShowMainMenuAnim);
+	}
+}
+
 bool UKJH_ServerWidget::Initialize()
 {
 	Super::Initialize();
@@ -66,7 +77,21 @@ bool UKJH_ServerWidget::Initialize()
 ////////// 사용자 정의형 함수 구간 -------------------------------------------------------------------------------------------------
 void UKJH_ServerWidget::OpenHostMenu()
 {
-	MenuSwitcher->SetActiveWidget(HostMenu); // HostMenu로 전환하여 활성화한다.
+	if (HideMainMenuAnim)
+		PlayAnimation(HideMainMenuAnim);
+
+		// 타이머로 시간 제어를 통해 LobbyMenu 전환 및 전환 애니메이션 실행
+		FTimerHandle TimerHandle_MenuSwitch;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]()
+		{
+			if (MenuSwitcher)
+			{
+				MenuSwitcher->SetActiveWidget(HostMenu); // LobbyMenu로 전환하여 활성화
+				PlayAnimation(ShowHostMenuAnim);
+				UE_LOG(LogTemp, Warning, TEXT("HostMenu is Activate"));
+			}
+		}, 1.0f, false);
+
 }
 
 void UKJH_ServerWidget::CreateRoom()
@@ -99,7 +124,6 @@ void UKJH_ServerWidget::SetServerList(TArray<FServerData> ServerNames)
 	// 버튼 누를 시, 서버목록 생성
 	ServerList->AddChild(ServerRow);
 	}
-
 }
 
 void UKJH_ServerWidget::SelecetIndex(uint32 Index)
@@ -124,26 +148,45 @@ void UKJH_ServerWidget::JoinRoom()
 
 void UKJH_ServerWidget::OpenLobbyMenu()
 {
-	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
-	if (MenuSwitcher)
-	{
-		MenuSwitcher->SetActiveWidget(LobbyMenu); // LobbyMenu로 전환하여 활성화한다.
-		UE_LOG(LogTemp, Warning, TEXT("LobbyMenu is Activate"));
+	if (HideMainMenuAnim)
+		PlayAnimation(HideMainMenuAnim);
 
-		if (MenuInterface)
+		// 타이머로 시간 제어를 통해 LobbyMenu 전환 및 전환 애니메이션 실행
+		FTimerHandle TimerHandle_MenuSwitch;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]() 
 		{
-			MenuInterface->RefreshServerList();
-		}
-	}
+			if (MenuSwitcher)
+			{
+				MenuSwitcher->SetActiveWidget(LobbyMenu); // LobbyMenu로 전환하여 활성화
+				PlayAnimation(ShowLobbyMenuAnim);
+				UE_LOG(LogTemp, Warning, TEXT("LobbyMenu is Activate"));
+			
+				if (MenuInterface)
+					MenuInterface->RefreshServerList();
+			}
+		}, 1.0f, false);
 }
 
 void UKJH_ServerWidget::OpenMainMenu()
 {
-	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
-	if (MenuSwitcher)
-	{
-		MenuSwitcher->SetActiveWidget(MainMenu); // MainMenu로 전환하여 활성화한다.
-	}
+	if (HideHostMenuAnim)
+		PlayAnimation(HideHostMenuAnim);
+
+	if (HideLobbyMenuAnim)
+		PlayAnimation(HideLobbyMenuAnim);
+
+		// 타이머로 시간 제어를 통해 MainMenu 전환 및 전환 애니메이션 실행
+		FTimerHandle TimerHandle_MenuSwitch;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_MenuSwitch, [this]()
+		{
+			if (MenuSwitcher)
+			{
+				MenuSwitcher->SetActiveWidget(MainMenu); // MainMenu로 전환하여 활성화
+				PlayAnimationReverse(HideMainMenuAnim);
+
+				UE_LOG(LogTemp, Warning, TEXT("MainMenu is Activate"));
+			}
+		}, 1.0f, false);
 }
 
 void UKJH_ServerWidget::QuitPressed()
@@ -165,3 +208,6 @@ void UKJH_ServerWidget::UpdateChildren()
 		}
 	}
 }
+
+////////// 사용자 정의형 함수 - 위젯 애니메이션 관련 ======================================================================
+

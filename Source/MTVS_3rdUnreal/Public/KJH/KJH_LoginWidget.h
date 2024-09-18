@@ -100,6 +100,7 @@ public :
 	void OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // 로그인 HTTP 요청 결과를 처리하는 함수
 
 ////////// 사용자 정의형 함수 구간 - 게스트 로그인 관련 =======================================================================================================
+	UFUNCTION(BlueprintCallable)
 	void OnMyGuestLogin();
 
 };

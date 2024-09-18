@@ -32,6 +32,10 @@ UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer
 
 void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만 시켜준다.
 {
+
+	//// 월드 초기화 후 호출되는 델리게이트 바인딩
+	//FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UKJH_GameInstance::OnPostWorldInitialization);
+
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
 	if (Subsystem) // 만약, Subsystem이 유효하다면,
 	{
@@ -88,9 +92,6 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
 }
-
-
-
 
 // 세션 파괴 완료 시 호출되는 함수
 void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success)
@@ -407,3 +408,25 @@ void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerCont
 	// 서버에서 캐릭터 선택을 처리
 	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
+
+
+////////// Temp ================================================================================================================================
+//void UKJH_GameInstance::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS)
+//{
+//	if (World)
+//	{
+//		// 로드된 월드의 맵 이름 확인
+//		FString MapName = World->GetMapName();
+//
+//		// 맵 이름에 "ServerWidgetMap"이 포함되어 있다면 위젯 생성
+//		if (MapName.Contains("ServerWidgetMap"))
+//		{
+//			UE_LOG(LogTemp, Log, TEXT("ServerWidgetMap detected, creating server widget..."));
+//			// 0.1초 타이머 설정. 실제 딜레이는 Tick마다 처리되므로 안전하게 처리됨.
+//
+//			// 위젯 생성용 타이머 핸들
+//			FTimerHandle WidgetCreationTimerHandle;
+//			GetWorld()->GetTimerManager().SetTimer(WidgetCreationTimerHandle, this, &UKJH_GameInstance::CreateServerWidget, 0.01f, false);
+//		}
+//	}
+//}

@@ -114,4 +114,7 @@ public:
     UFUNCTION()
     void OnMapPreloadComplete();
 
+    //// 월드 초기화 후 호출되는 함수
+    //void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS);
+
 };

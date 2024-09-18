@@ -13,9 +13,7 @@ void UKJH_WidgetSystem::Setup()
 {
 	// UI가 유효하다면 Viewport에 추가
 	if (this)
-	{
 		this->AddToViewport();
-	}
 
 	// GetWorld()가 유효한지 확인
 	UWorld* World = GetWorld();
@@ -69,14 +67,11 @@ void UKJH_WidgetSystem::Teardown()
 	{
 		// 게임 전용 입력 모드 설정
 		FInputModeGameOnly InputGameModeData; // Game과 상호작용을 할 수 있는 입력모드를 'InputGameModeData'란 이름으로 설정
-
 		PlayerController->SetInputMode(InputGameModeData); // 입력 모드를 게임 모드로 설정
 		PlayerController->bShowMouseCursor = false; // 마우스 커서를 보이게 하지 않음.
 	}
 
 	// Viewport에서 UI 제거
 	if (this->IsInViewport())
-	{
 		this->RemoveFromParent();
-	}
 }
