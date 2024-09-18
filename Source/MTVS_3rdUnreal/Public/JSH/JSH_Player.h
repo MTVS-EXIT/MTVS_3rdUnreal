@@ -21,6 +21,9 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* TwinSkeletal;
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
@@ -233,7 +236,7 @@ public:
 
 	//걷기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
-	bool WantWalk = true;
+	bool WantWalk = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool WantSprint = false;

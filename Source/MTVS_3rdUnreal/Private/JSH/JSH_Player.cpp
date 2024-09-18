@@ -34,7 +34,8 @@ AJSH_Player::AJSH_Player()
 	    GetMesh()->SetSkeletalMesh(TMesh.Object);
     	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
     }
-		
+	
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
@@ -50,6 +51,17 @@ AJSH_Player::AJSH_Player()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+
+
+	TwinSkeletal = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TwinSkeletal"));
+	TwinSkeletal->SetupAttachment(GetMesh());
+	TwinSkeletal->SetRelativeScale3D(FVector(0.9f, 0.9f, 0.9f));
+	// ConstructorHelpers::FObjectFinder<USkeletalMesh> TTMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Personnel/Meshes/Clothes/SK_BioWorker.SK_BioWorker'"));
+	// if (TTMesh.Succeeded())
+	// {
+	// 	GetMesh()->SetSkeletalMesh(TTMesh.Object);
+	// 	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
+	// }
 
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -70,17 +82,17 @@ AJSH_Player::AJSH_Player()
 
 
 	DigitalWatch = CreateDefaultSubobject<UChildActorComponent>(TEXT("DigitalWatch"));
-	DigitalWatch->SetupAttachment(GetMesh(), FName("lowerarm_twist_01_l"));
-	DigitalWatch->SetRelativeLocation(FVector(2.801333f, -0.27828f, 0.180322f));
-	DigitalWatch->SetRelativeRotation(FRotator(0.592057f, 3.560301f, -74.855599f));
-	DigitalWatch->SetRelativeScale3D(FVector(1.25f, 1.25f, 1.25f));
-
-
+	DigitalWatch->SetupAttachment(TwinSkeletal, FName("lowerarm_twist_01_l"));
+	DigitalWatch->SetRelativeLocation(FVector(14.226082f, 0.685825f, 0.382135f));
+	DigitalWatch->SetRelativeRotation(FRotator(13.876860f, -0.433584f, -59.389724f));
+	DigitalWatch->SetRelativeScale3D(FVector(1.15f, 1.15f, 1.15f));
+	
+	
 	WatchWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WatchWidget"));
 	WatchWidget->SetupAttachment(DigitalWatch);
-	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.06378f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
+	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.063780f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
-
+	
 
 	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
 	GassMask->SetupAttachment(GetMesh(), FName("head"));
@@ -96,13 +108,25 @@ AJSH_Player::AJSH_Player()
 	// AX->SetVisibility(false);
 
 
+	// HandComp = CreateDefaultSubobject<USceneComponent>(TEXT("HandComp"));
+	// HandComp->SetupAttachment(GetMesh() , TEXT("GrabPosition"));
+	// // HandComp->SetRelativeLocationAndRotation(FVector(-17.586273f , -0.273735f , 15.693467f) , FRotator(-62.920062f , 9.732144f , 29.201706f));
+
 	HandComp = CreateDefaultSubobject<USceneComponent>(TEXT("HandComp"));
-	HandComp->SetupAttachment(GetMesh() , TEXT("GrabPosition"));
-	// HandComp->SetRelativeLocationAndRotation(FVector(-17.586273f , -0.273735f , 15.693467f) , FRotator(-62.920062f , 9.732144f , 29.201706f));
-
+	HandComp->SetupAttachment(TwinSkeletal , TEXT("Bio_AX"));
+	
+		
 	FireHandComp = CreateDefaultSubobject<USceneComponent>(TEXT("FireHandComp"));
-	FireHandComp->SetupAttachment(GetMesh() , TEXT("FirePosition"));
+	FireHandComp->SetupAttachment(TwinSkeletal , TEXT("Bio_FirePosition"));
 
+	
+
+
+
+	// FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
+	// FireEXSpray->SetupAttachment(GetMesh(), TEXT("FirePosition"));
+	// FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
+	// FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
 	FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
 	FireEXSpray->SetupAttachment(GetMesh(), TEXT("FirePosition"));
 	FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
@@ -397,28 +421,28 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 
 	
 
-	if (GassMaskOn == false)
-	{
-		for ( AActor* GM : GMList )
-		{
-			float tempDist = GetDistanceTo(GM);
-			if ( tempDist > GrabDistance )
-				continue;
-			if ( nullptr != GM->GetOwner() )
-				continue;
-			
-			GrabGMActor = GM;
-			
-			GM->SetOwner(this);
-			GassMaskOn = true;
-
-			tempGMOwner = GM->GetOwner();
-			
-			GrabGMActor->Destroy();
-			GassMask->SetVisibility(true);
-			break;
-		}
-	}
+	// if (GassMaskOn == false)
+	// {
+	// 	for ( AActor* GM : GMList )
+	// 	{
+	// 		float tempDist = GetDistanceTo(GM);
+	// 		if ( tempDist > GrabDistance )
+	// 			continue;
+	// 		if ( nullptr != GM->GetOwner() )
+	// 			continue;
+	// 		
+	// 		GrabGMActor = GM;
+	// 		
+	// 		GM->SetOwner(this);
+	// 		GassMaskOn = true;
+	//
+	// 		tempGMOwner = GM->GetOwner();
+	// 		
+	// 		GrabGMActor->Destroy();
+	// 		GassMask->SetVisibility(true);
+	// 		break;
+	// 	}
+	// }
 }
 
 void AJSH_Player::MyTakeAX()
