@@ -32,9 +32,7 @@ void AKJH_PlayerController::BeginPlay()
 
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
-	{
         Subsystem->AddMappingContext(IMC_Common, 1);
-	}
 }
 
 void AKJH_PlayerController::SetupInputComponent()
@@ -43,13 +41,9 @@ void AKJH_PlayerController::SetupInputComponent()
     UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
 
     if (EnhancedInput)
-    {
         EnhancedInput -> BindAction(IA_ToggleInGameWidget, ETriggerEvent::Triggered, this, &AKJH_PlayerController::ToggleInGameWidget);
-    }
 
 }
-
-
 
 void AKJH_PlayerController::OnPossess(APawn* aPawn)
 {
@@ -123,7 +117,19 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 
     if (bIsPersonCharacterSelected)
     {
-        
+        if (CharacterSelectWidgetFactory)
+        {
+            // 위젯 생성
+            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(this, CharacterSelectWidgetFactory);
+            if (CharacterSelectWidget)
+            {
+                // 위젯 설정 및 뷰포트에 추가
+                CharacterSelectWidget->Setup();
+                CharacterSelectWidget->ShowSpawnWidget();
+                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget is Setting!"));
+            }
+        }
+
         // 사람 스폰 포인트 찾기
         TArray<AActor*> FoundPersonSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PersonSpawnPoint"), FoundPersonSpawns);
@@ -141,8 +147,22 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
             NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
-    else
+    else // 드론이 선택됐을 경우,
     {
+
+        if (CharacterSelectWidgetFactory)
+        {
+            // 위젯 생성
+            CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(this, CharacterSelectWidgetFactory);
+            if (CharacterSelectWidget)
+            {
+                // 위젯 설정 및 뷰포트에 추가
+                CharacterSelectWidget->Setup();
+                CharacterSelectWidget->ShowSpawnWidget();
+                UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget is Setting!"));
+            }
+        }
+
         // 드론 스폰 포인트 찾기
         TArray<AActor*> FoundDroneSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("DroneSpawnPoint"), FoundDroneSpawns);

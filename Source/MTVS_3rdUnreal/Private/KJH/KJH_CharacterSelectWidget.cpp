@@ -8,6 +8,7 @@
 #include "KJH/KJH_GameInstance.h"
 #include "Components/WidgetSwitcher.h"
 #include "KJH/KJH_PlayerController.h"
+#include "Engine/World.h"
 
 UKJH_CharacterSelectWidget::UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize)
 {
@@ -58,7 +59,13 @@ void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 		PlayerController->ServerSpawnCharacterBasedOnSelection(true);
 		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
 		UpdateSelectButtonStates();
-		Teardown();
+
+		// 스폰 애니메이션이 충분히 재생된 후 Teardown
+		FTimerHandle TimerHandle_TeardownControl;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TeardownControl, [this]()
+		{
+			Teardown();
+		}, 2.0f, false);
 	}
 }
 
@@ -71,7 +78,13 @@ void UKJH_CharacterSelectWidget::SelectDroneCharacter()
 		PlayerController->ServerSpawnCharacterBasedOnSelection(false);
 		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
 		UpdateSelectButtonStates();
-		Teardown();
+
+		// 스폰 애니메이션이 충분히 재생된 후 Teardown
+		FTimerHandle TimerHandle_TeardownControl;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TeardownControl, [this]()
+		{
+			Teardown();
+		}, 2.0f, false);
 	}
 }
 
@@ -94,12 +107,21 @@ void UKJH_CharacterSelectWidget::UpdateSelectButtonStates()
 	}
 }
 
-void UKJH_CharacterSelectWidget::ShowCharacterSpawnWidget()
+void UKJH_CharacterSelectWidget::ShowSpawnWidget()
 {
 	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
 	if (MenuSwitcher)
 	{
 		MenuSwitcher->SetActiveWidget(CharacterSpawnWidget); // CharacterSpawnWidget로 전환하여 활성화한다.
 		UE_LOG(LogTemp, Warning, TEXT("CharacterSpawnWidget is Activate"));
+	}
+
+	if (GetWorld())
+	{
+		FTimerHandle TimerHandle_TransitionAnimControl;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TransitionAnimControl, [this]()
+		{
+			PlayAnimation(ShowSpawnTransitionAnim);
+		}, 2.3f, false);
 	}
 }

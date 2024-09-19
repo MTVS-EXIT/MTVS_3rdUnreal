@@ -41,7 +41,10 @@ public :
 
 	// 3) 스폰 UI 관련 ------------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterSpawnWidget; // 캐릭터 스폰 시 나타나는 Widget UI
+	class UWidget* CharacterSpawnWidget; // 캐릭터 스폰 시 Glitch Widget UI
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowSpawnTransitionAnim; // 캐릭터 스폰 시 화면 밝아지는 Widget UI
 
 ////////// TSubclass & class 참조 구간 ============================================================================================
 	class UKJH_GameInstance* GameInstance; // GameInstance 참조 선언
@@ -60,5 +63,5 @@ public :
 	void UpdateSelectButtonStates(); // 선택된 버튼 상태를 확인하고 그 여부에 따라 업데이트하는 함수
 
 ////////// 사용자 정의형 함수 구간 - 캐릭터 스폰 애니메이션 관련 =============================================================================
-	void ShowCharacterSpawnWidget();
+	void ShowSpawnWidget();
 };
