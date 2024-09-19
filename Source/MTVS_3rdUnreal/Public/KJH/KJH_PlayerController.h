@@ -72,23 +72,21 @@ public:
     TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
     class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) 참조 선언
 
-    // 3-1) 캐릭터 블루프린트 관련 ------------------------------------------------------------
+    // 3) 캐릭터 블루프린트 관련 ------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP 참조
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
 	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP 참조
 
-    // 3-2) 캐릭터 블루프린트 비동기 로딩 관련 ------------------------------------------------
-    TSharedPtr<FStreamableHandle> PersonClassHandle; // 사람 캐릭터 클래스의 비동기 로딩을 추적하는 핸들
-    TSharedPtr<FStreamableHandle> DroneClassHandle; // 드론 캐릭터 클래스의 비동기 로딩을 추적하는 핸들
-
     // 4) SpawnPoint 블루프린트 관련 ------------------------------------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP 참조
+    TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP 참조 (현재 코드에선 태그로 찾으므로 필수는 아님)
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP 참조
+    TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP 참조 (현재 코드에선 태그로 찾으므로 필수는 아님)
+
+
 
 
 };

@@ -24,14 +24,10 @@ bool UKJH_CharacterSelectWidget::Initialize()
 ////////// 캐릭터 선택 버튼 바인딩 구간 -------------------------------------------------------------------------------------------------------------
 
 	if (PersonSelectButton)
-	{
 		PersonSelectButton->OnClicked.AddDynamic(this, &UKJH_CharacterSelectWidget::SelectPersonCharacter);
-	}
 
 	if (DroneSelectButton)
-	{
 		DroneSelectButton->OnClicked.AddDynamic(this, &UKJH_CharacterSelectWidget::SelectDroneCharacter);
-	}
 
 	// 캐릭터 선택 버튼 상태 업데이트
 	UpdateSelectButtonStates();
