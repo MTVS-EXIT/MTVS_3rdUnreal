@@ -107,7 +107,7 @@ void AKJH_PlayerController::ClientShowCharacterSelectWidget_Implementation()
 
 void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 {
-    if (!HasAuthority()) // 클라이언트에서 실행된 경우
+    if (false == HasAuthority()) // 클라이언트에서 실행된 경우
     {
         ServerSpawnCharacterBasedOnSelection(bIsPersonCharacterSelected);
         return;
@@ -123,6 +123,7 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 
     if (bIsPersonCharacterSelected)
     {
+        
         // 사람 스폰 포인트 찾기
         TArray<AActor*> FoundPersonSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PersonSpawnPoint"), FoundPersonSpawns);

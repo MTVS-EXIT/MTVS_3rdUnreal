@@ -93,3 +93,13 @@ void UKJH_CharacterSelectWidget::UpdateSelectButtonStates()
 		}
 	}
 }
+
+void UKJH_CharacterSelectWidget::ShowCharacterSpawnWidget()
+{
+	// WidgetSwitcher 타입인 MenuSwitcher가 있으면
+	if (MenuSwitcher)
+	{
+		MenuSwitcher->SetActiveWidget(CharacterSpawnWidget); // CharacterSpawnWidget로 전환하여 활성화한다.
+		UE_LOG(LogTemp, Warning, TEXT("CharacterSpawnWidget is Activate"));
+	}
+}
