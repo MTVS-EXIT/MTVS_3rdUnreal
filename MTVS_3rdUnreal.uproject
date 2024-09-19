@@ -85,6 +85,14 @@
 		{
 			"Name": "OpenCV",
 			"Enabled": true
+		},
+		{
+			"Name": "PixelStreaming",
+			"Enabled": true
+		},
+		{
+			"Name": "PixelStreamingPlayer",
+			"Enabled": true
 		}
 	]
 }
