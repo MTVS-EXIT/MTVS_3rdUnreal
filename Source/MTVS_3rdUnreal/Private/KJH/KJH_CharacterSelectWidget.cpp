@@ -92,14 +92,10 @@ void UKJH_CharacterSelectWidget::UpdateSelectButtonStates()
 	{
 		// 버튼 활성화/비활성화 설정 구간
 		if (GameInstance->bIsPersonSelected)
-		{
 			PersonSelectButton->SetIsEnabled(false); // 사람 플레이어 버튼이 이미 선택된 경우 비활성화
-		}
 
 		if (GameInstance->bIsDroneSelected)
-		{
 			DroneSelectButton->SetIsEnabled(false); // 드론 플레이어 버튼이 이미 선택된 경우 비활성화
-		}
 	}
 }
 
