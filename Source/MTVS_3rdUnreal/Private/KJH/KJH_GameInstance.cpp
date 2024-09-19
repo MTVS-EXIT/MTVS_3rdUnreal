@@ -32,14 +32,13 @@ UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer
 
 void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만 시켜준다.
 {
-
 	//// 월드 초기화 후 호출되는 델리게이트 바인딩
 	//FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UKJH_GameInstance::OnPostWorldInitialization);
 
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
+	
 	if (Subsystem) // 만약, Subsystem이 유효하다면,
 	{
-
 		SessionInterface = Subsystem->GetSessionInterface(); // 세션 인터페이스 가져오기
 		
 		// 만약, 세션 인터페이스가 유효하다면,
@@ -197,7 +196,6 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 // 세션에 들어올 경우 호출되는 함수
 void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
-
 	FString Address;
 
 	if (SessionInterface.IsValid())
@@ -289,7 +287,7 @@ void UKJH_GameInstance::CreateSession()
 		FOnlineSessionSettings SessionSettings; // CreateSession을 위해 임의로 세션세팅을 만들어준다.
 		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem 이 NULL 로 세팅되면 (NULL : 로컬 연결 설정)
 		{
-			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
+			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정)
 		}
 
 		else
