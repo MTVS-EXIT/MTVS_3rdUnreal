@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
@@ -127,6 +128,15 @@ public:
 	void NetMulti_WatchSee();
 
 
+	// 손전등
+	UPROPERTY(EditAnywhere, Category=FlashLight)
+	UChildActorComponent* FlashLightChildActor;
+
+	UPROPERTY(EditAnywhere, Category=FlashLight)
+	USpotLightComponent* FlashLight;
+
+
+	
 	// 방독면
 	UPROPERTY(EditAnywhere, Category=GassMask)
 	UChildActorComponent* GassMask;

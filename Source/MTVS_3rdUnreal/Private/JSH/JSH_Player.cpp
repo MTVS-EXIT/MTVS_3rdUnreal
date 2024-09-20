@@ -12,6 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/ArrowComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -92,8 +93,21 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetupAttachment(DigitalWatch);
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.063780f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
-	
 
+
+
+	FlashLightChildActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("FlashLightChildActor"));
+	FlashLightChildActor->SetupAttachment(TwinSkeletal, FName("spine_03"));
+	FlashLightChildActor->SetRelativeLocation(FVector(-3.098716f, 13.331717f, -14.229190f));
+	FlashLightChildActor->SetRelativeRotation(FRotator(-1.688164f, -94.706464f, 80.203971f));
+	FlashLightChildActor->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.05f));
+	
+	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
+	FlashLight->SetupAttachment(TwinSkeletal, FName("spine_03"));
+	FlashLight->SetRelativeLocation(FVector(7.721326f, 16.548045f, -11.446471f));
+	FlashLight->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+	FlashLight->SetRelativeScale3D(FVector(1.111111f, 1.111111f, 1.111111f));
+	
 	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
 	GassMask->SetupAttachment(GetMesh(), FName("head"));
 	GassMask->SetRelativeLocation(FVector(-2.608696f, 1.521739f, 0.304348f));
