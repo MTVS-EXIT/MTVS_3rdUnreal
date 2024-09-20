@@ -356,9 +356,7 @@ void AJSH_Player::NetMulti_RedyAction_Implementation()
 
 
 
-AActor* tempOwner;
-AActor* tempGMOwner;
-AActor* tempFireOwner;
+
 void AJSH_Player::Grab(const FInputActionValue& Value)
 {
 	Server_Grab();
@@ -436,7 +434,6 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	// 		GM->SetOwner(this);
 	// 		GassMaskOn = true;
 	//
-	// 		tempGMOwner = GM->GetOwner();
 	// 		
 	// 		GrabGMActor->Destroy();
 	// 		GassMask->SetVisibility(true);
@@ -466,8 +463,6 @@ void AJSH_Player::MyTakeAX()
 		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
 		AX->SetOwner(this);
 		bHasAX = true;
-
-		tempOwner = AX->GetOwner();
 
 		// 총액터를 HandComp에 붙이고싶다.
 		AttachAX(GrabAXActor);
@@ -552,8 +547,6 @@ void AJSH_Player::MyTakeFire()
 		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
 		Fire->SetOwner(this);
 		bHasFire = true;
-
-		tempFireOwner = Fire->GetOwner();
 
 		// 총액터를 HandComp에 붙이고싶다.
 		AttachFire(GrabFireActor);
