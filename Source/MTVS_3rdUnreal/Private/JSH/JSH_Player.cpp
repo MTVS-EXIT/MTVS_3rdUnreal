@@ -349,20 +349,26 @@ void AJSH_Player::Server_RedyAction_Implementation()
 
 void AJSH_Player::NetMulti_RedyAction_Implementation()
 {
-	if (bHasFire)
-	{
-		FireEXOn = !FireEXOn;
-		WantWalk = true;
-		if (WatchSee == false)
-		{
-			USkeletalMeshComponent* MeshComp = GetMesh();
-			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-			WatchSee = true;
-		}
-	}
+	// if (bHasFire)
+	// {
+	// 	FireEXOn = !FireEXOn;
+	// 	WantWalk = true;
+	// 	if (WatchSee == false)
+	// 	{
+	// 		USkeletalMeshComponent* MeshComp = GetMesh();
+	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+	// 		WatchSee = true;
+	// 	}
+	// }
 
 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
 	// WatchSee = false;
+
+
+	if (bHasAX)
+	{
+		AxModeON = !AxModeON;
+	}
 }
 
 
@@ -389,8 +395,9 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	if ( bHasAX )
 	{
 		MyReleaseAX();
-		WantWalk = true;
+		// WantWalk = true;
 		AxModeON = false;
+		WantWalk = false;
 		if (WatchSee == false)
 		{
 			USkeletalMeshComponent* MeshComp = GetMesh();
@@ -401,17 +408,17 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	else
 	{
 		MyTakeAX();
-		if ( GrabAXActor != nullptr )
-		{
-			AxModeON = true;
-		}
+		// if ( GrabAXActor != nullptr )
+		// {
+		// 	AxModeON = true;
+		// }
 	}
 
 	
 	if ( bHasFire )
 	{
 		MyReleaseFire();
-		WantWalk = true;
+		WantWalk = false;
 		FireEXOn = false;
 		if (WatchSee == false)
 		{
@@ -480,7 +487,8 @@ void AJSH_Player::MyTakeAX()
 
 		// 총액터를 HandComp에 붙이고싶다.
 		AttachAX(GrabAXActor);
-		WantWalk = true;
+		AxModeON = true;
+		// WantWalk = true;
 		break;
 	}
 }
@@ -570,26 +578,27 @@ void AJSH_Player::MyTakeFire()
 
 void AJSH_Player::MyReleaseFire()
 {
-	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+	// 소화기를 잡고 있지 않다면 버릴 수 없음
 	if ( false == bHasFire)
 		return;
 	
 
-	// 총을 이미 잡은 상태 -> 놓고싶다.
+	// 소화기를 이미 잡은 상태 -> 놓고싶다.
 	if ( bHasFire )
 	{
 		bHasFire = false;
 	}
 
-	// 총의 오너를 취소하고싶다.
+	// 소화기의 오너를 취소하고싶다.
 	if ( GrabFireActor )
 	{
 		DetachFire(GrabFireActor);
 
 		GrabFireActor->SetOwner(nullptr);
-		// 총을 잊고싶다.
+		// 소화기를 잊고싶다.
 		GrabFireActor = nullptr;
 	}
+	
 }
 
 void AJSH_Player::AttachFire(AActor* FireActor)
@@ -647,12 +656,28 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 	
 
 	// 도끼를 잡고 있다면
-	if (AxModeON)
+	if (bHasAX)
 	{
 		USkeletalMeshComponent* MeshComp = GetMesh();
 		if (MeshComp && MeshComp->GetAnimInstance())
 		{
 			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+		}
+	}
+
+	if (bHasFire)
+	{
+		FireEXOn = !FireEXOn;
+		WantWalk = true;
+		if (WatchSee == false)
+		{
+			USkeletalMeshComponent* MeshComp = GetMesh();
+			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+			WatchSee = true;
+		}
+		if (FireEXOn == false)
+		{
+			WantWalk = false;
 		}
 	}
 }
