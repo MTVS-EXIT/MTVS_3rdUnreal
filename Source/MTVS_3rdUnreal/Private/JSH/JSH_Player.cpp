@@ -442,6 +442,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 		WantWalk = false;
 		FireEXOn = false;
 		FireEXNiagara->Deactivate();
+		FireEXSprayOnBool = false;
 		if (WatchSee == false)
 		{
 			USkeletalMeshComponent* MeshComp = GetMesh();
