@@ -489,26 +489,22 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 void AJSH_Player::MyTakeAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
-	// 총을 잡지 않은 상태 -> 잡고싶다.
-	// 총목록을 검사하고싶다.
+
 	for ( AActor* AX : AXList )
 	{
-		// 나와 총과의 거리가 GrabDistance 이하라면
-		// 그 중에 소유자가 없는 총이라면
 		float tempDist = GetDistanceTo(AX);
 		if ( tempDist > GrabDistance )
 			continue;
 		if ( nullptr != AX->GetOwner() )
 			continue;
 		
-
-		// 그 총을 기억하고싶다. (GrabPistolActor)
+		
 		GrabAXActor = AX;
-		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
+	
 		AX->SetOwner(this);
 		bHasAX = true;
 
-		// 총액터를 HandComp에 붙이고싶다.
+
 		AttachAX(GrabAXActor);
 		AxModeON = true;
 		// WantWalk = true;
@@ -519,24 +515,24 @@ void AJSH_Player::MyTakeAX()
 void AJSH_Player::MyReleaseAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
-	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+
 	if ( false == bHasAX)
 		return;
 	
 
-	// 총을 이미 잡은 상태 -> 놓고싶다.
+
 	if ( bHasAX )
 	{
 		bHasAX = false;
 	}
 
-	// 총의 오너를 취소하고싶다.
+
 	if ( GrabAXActor )
 	{
 		DetachAX(GrabAXActor);
 
 		GrabAXActor->SetOwner(nullptr);
-		// 총을 잊고싶다.
+
 		GrabAXActor = nullptr;
 	}
 }
@@ -574,12 +570,10 @@ void AJSH_Player::DetachAX(AActor* AXActor)
 
 void AJSH_Player::MyTakeFire()
 {
-	//  잡지 않은 상태 -> 잡고싶다.
-	// 목록을 검사하고싶다.
+
 	for ( AActor* Fire : FireList )
 	{
-		// 나와 총과의 거리가 GrabDistance 이하라면
-		// 그 중에 소유자가 없는 총이라면
+
 		float tempFireDist = GetDistanceTo(Fire);
 		if ( tempFireDist > GrabDistance )
 			continue;
@@ -587,13 +581,12 @@ void AJSH_Player::MyTakeFire()
 			continue;
 		
 
-		// 그 총을 기억하고싶다. (GrabPistolActor)
+
 		GrabFireActor = Fire;
-		// 잡은총의 소유자를 나로 하고싶다. -> 액터의 오너는 플레이어 컨트롤러이다.
+		
 		Fire->SetOwner(this);
 		bHasFire = true;
 
-		// 총액터를 HandComp에 붙이고싶다.
 		AttachFire(GrabFireActor);
 		break;
 	}
@@ -640,14 +633,13 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 
 void AJSH_Player::DetachFire(AActor* FireActor)
 {
-	// 총의 메쉬를 가져와서
+
 	auto* mesh = FireActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
 	if ( mesh )
 	{
-		// 물리를 켜주고싶다.
+
 		mesh->SetSimulatePhysics(true);
-		// 분리하고싶다..
 		mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	}
 }
