@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "JSH_Player.generated.h"
 
 class USpringArmComponent;
@@ -221,6 +223,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UArrowComponent* FireEXSpray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraComponent* FireEXNiagara;
+
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool FireEXSprayOnBool = false;
+	
+	void FireEXSprayTrace(float DeltaTime);
+	float currtime = 0;
+	float spraytime = 3;
 
 	
 	// 도끼

@@ -142,9 +142,23 @@ AJSH_Player::AJSH_Player()
 	// FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
 	// FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
 	FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
-	FireEXSpray->SetupAttachment(GetMesh(), TEXT("FirePosition"));
+	FireEXSpray->SetupAttachment(TwinSkeletal, TEXT("FirePosition"));
 	FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
 	FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
+
+
+	
+	FireEXNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FireEXNiagara"));
+	FireEXNiagara->SetupAttachment(TwinSkeletal, TEXT("Bio_FirePosition"));
+	ConstructorHelpers::FObjectFinder<UNiagaraSystem> TempFireEX(TEXT("/Script/Niagara.NiagaraSystem'/Game/MAPS/TA_NYH/Fire_Extinguisher_And_Effect/NS_Fire_Extinguisher.NS_Fire_Extinguisher'"));
+	if (TempFireEX.Succeeded())
+	{
+		FireEXNiagara->SetAsset(TempFireEX.Object);
+	}
+	FireEXNiagara->SetRelativeLocation(FVector(-45.439986f, -5.781532f, 18.888889f));
+	FireEXNiagara->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
+	FireEXNiagara->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+	FireEXNiagara->SetAutoActivate(false);
 }
 
 
@@ -170,6 +184,11 @@ void AJSH_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	if (FireEXSprayOnBool)
+	{
+		FireEXSprayTrace(DeltaTime);
+	}
 }
 
 
@@ -233,6 +252,8 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, GassMaskOn);
 	DOREPLIFETIME(AJSH_Player, bHasFire);
 	DOREPLIFETIME(AJSH_Player, FireEXOn);
+	DOREPLIFETIME(AJSH_Player, FireEXSprayOnBool);
+
 }
 
 
@@ -420,6 +441,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 		MyReleaseFire();
 		WantWalk = false;
 		FireEXOn = false;
+		FireEXNiagara->Deactivate();
 		if (WatchSee == false)
 		{
 			USkeletalMeshComponent* MeshComp = GetMesh();
@@ -601,6 +623,8 @@ void AJSH_Player::MyReleaseFire()
 	
 }
 
+
+
 void AJSH_Player::AttachFire(AActor* FireActor)
 {
 	GrabFireActor = FireActor;
@@ -667,18 +691,100 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 
 	if (bHasFire)
 	{
-		FireEXOn = !FireEXOn;
-		WantWalk = true;
-		if (WatchSee == false)
+		if (FireEXOn)
 		{
-			USkeletalMeshComponent* MeshComp = GetMesh();
-			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-			WatchSee = true;
-		}
-		if (FireEXOn == false)
-		{
+			FireEXOn = false;
 			WantWalk = false;
+			FireEXNiagara->Deactivate();
+			FireEXSprayOnBool = false;
 		}
+		else
+		{
+			FireEXOn = true;
+			WantWalk = true;
+			if (WatchSee == false)
+			{
+				USkeletalMeshComponent* MeshComp = GetMesh();
+				MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+				WatchSee = true;
+			}
+			FireEXNiagara->Activate();
+			FireEXSprayOnBool = true;
+			
+			// FVector Start = FireEXNiagara->GetComponentLocation();
+			// FVector End = FireEXNiagara->GetComponentLocation() + (FireEXNiagara->GetForwardVector() * 500.0f);
+			// FHitResult HitResult;
+			// FCollisionQueryParams params;
+			// params.AddIgnoredActor(this);
+			// bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, params);
+
+			
+		}
+	}
+}
+
+
+void AJSH_Player::FireEXSprayTrace(float DeltaTime)
+{
+	currtime += DeltaTime;
+
+	if (spraytime <= currtime)
+	{
+	
+	    FVector StartLocation = FireEXNiagara->GetComponentLocation();
+	    
+	  
+	    FVector ForwardVector = FireEXNiagara->GetForwardVector();
+	    
+
+	    FVector EndLocation = StartLocation + (ForwardVector * 300.0f);
+	    
+
+	    TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	    ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+	    
+
+	    float SphereRadius = 160.0f;
+
+
+	    TArray<AActor*> ActorsToIgnore;
+	    ActorsToIgnore.Add(this);  
+
+
+	    TArray<FHitResult> OutHits;
+
+
+	    bool bHit = UKismetSystemLibrary::SphereTraceMultiForObjects(
+	        GetWorld(),
+	        StartLocation,
+	        EndLocation,
+	        SphereRadius,
+	        ObjectTypes,
+	        false,
+	        ActorsToIgnore,
+	        EDrawDebugTrace::ForDuration, 
+	        OutHits,
+	        true
+	    );
+	    
+
+	    if (bHit)
+	    {
+	        for (auto& Hit : OutHits)
+	        {
+
+	            AActor* HitActor = Hit.GetActor();
+	            
+	            if (HitActor && HitActor->ActorHasTag(FName("FireOnOff"))) 
+	            {
+	                HitActor->Destroy();
+	            	
+	                break;
+	            }
+	        }
+	    }
+
+		currtime = 0;
 	}
 }
 // ------------------------------------------------------------------------
