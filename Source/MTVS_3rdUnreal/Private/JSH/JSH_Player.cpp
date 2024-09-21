@@ -107,6 +107,7 @@ AJSH_Player::AJSH_Player()
 	FlashLight->SetRelativeLocation(FVector(7.721326f, 16.548045f, -11.446471f));
 	FlashLight->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 	FlashLight->SetRelativeScale3D(FVector(1.111111f, 1.111111f, 1.111111f));
+	FlashLight->SetVisibility(false);
 	
 	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
 	GassMask->SetupAttachment(GetMesh(), FName("head"));
@@ -253,7 +254,7 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, bHasFire);
 	DOREPLIFETIME(AJSH_Player, FireEXOn);
 	DOREPLIFETIME(AJSH_Player, FireEXSprayOnBool);
-
+	DOREPLIFETIME(AJSH_Player, FlashON);
 }
 
 
@@ -384,11 +385,21 @@ void AJSH_Player::NetMulti_RedyAction_Implementation()
 
 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
 	// WatchSee = false;
-
-
-	if (bHasAX)
+	
+	// if (bHasAX)
+	// {
+	// 	AxModeON = !AxModeON;
+	// }
+	
+	if (FlashON)
 	{
-		AxModeON = !AxModeON;
+		FlashLight->SetVisibility(false);
+		FlashON = false;
+	}
+	else
+	{
+		FlashLight->SetVisibility(true);
+		FlashON = true;
 	}
 }
 
@@ -730,14 +741,14 @@ void AJSH_Player::FireEXSprayTrace(float DeltaTime)
 	    FVector ForwardVector = FireEXNiagara->GetForwardVector();
 	    
 
-	    FVector EndLocation = StartLocation + (ForwardVector * 300.0f);
+	    FVector EndLocation = StartLocation + (ForwardVector * 450.0f);
 	    
 
 	    TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	    ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
 	    
 
-	    float SphereRadius = 160.0f;
+	    float SphereRadius = 100.0f;
 
 
 	    TArray<AActor*> ActorsToIgnore;

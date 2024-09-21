@@ -137,6 +137,9 @@ public:
 	UPROPERTY(EditAnywhere, Category=FlashLight)
 	USpotLightComponent* FlashLight;
 
+	UPROPERTY(Replicated)
+	bool FlashON = false;
+
 
 	
 	// 방독면
