@@ -160,6 +160,16 @@ AJSH_Player::AJSH_Player()
 	FireEXNiagara->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
 	FireEXNiagara->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 	FireEXNiagara->SetAutoActivate(false);
+
+
+	PushCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("PushCapsule"));
+	PushCapsule->SetupAttachment(TwinSkeletal);
+	PushCapsule->SetRelativeLocation(FVector(0.0f, 93.333336f, 131.111115f));
+	PushCapsule->SetRelativeRotation(FRotator(90.0f, -0.007734f, -0.007734f));
+	PushCapsule->SetRelativeScale3D(FVector(1.111111f, 1.111111f, 1.111111f));
+	PushCapsule->SetCapsuleHalfHeight(33.20842f);
+	PushCapsule->SetCapsuleRadius(11.289260f);
+	PushCapsule->SetCollisionProfileName(TEXT("Hand"));
 }
 
 
@@ -230,6 +240,9 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(LeftClickAction, ETriggerEvent::Started, this, &AJSH_Player::LeftMouse);
 
 		EnhancedInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AJSH_Player::Walk);
+
+		
+		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Started, this, &AJSH_Player::E);
 	}
 	else
 	{
@@ -255,6 +268,8 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, FireEXOn);
 	DOREPLIFETIME(AJSH_Player, FireEXSprayOnBool);
 	DOREPLIFETIME(AJSH_Player, FlashON);
+	DOREPLIFETIME(AJSH_Player, PushMode);
+	DOREPLIFETIME(AJSH_Player, PushPossible);
 }
 
 
@@ -356,13 +371,70 @@ void AJSH_Player::NetMulti_Walk_Implementation()
 
 
 
+// * Push Actor =================================================
+void AJSH_Player::E(const FInputActionValue& Value)
+{
+	Server_E();
+}
+
+void AJSH_Player::NetMulti_E_Implementation()
+{
+	NetMulti_E();
+}
+
+void AJSH_Player::Server_E_Implementation()
+{
+	
+	if (FireEXOn == false)
+	{
+		if (PushMode)
+		{
+			PushMode = false;
+			PushPossible = false;
+			WantWalk = false;
+			//PushCapsule->SetCollisionProfileName(TEXT("NoCollision"));
+		}
+		else
+		{
+			PushMode = true;
+			PushPossible = true;
+			//PushCapsule->SetCollisionProfileName(TEXT("Hand"));
+			WantWalk = true;
+
+			MyReleaseFire();
+			MyReleaseAX();
+			
+			AxModeON = false;
+			FireEXOn = false;
+			FireEXNiagara->Deactivate();
+			FireEXSprayOnBool = false;
+		
+			
+			if (WatchSee == false)
+			{
+				USkeletalMeshComponent* MeshComp = GetMesh();
+				MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+				WatchSee = true;
+			}
+		}
+	}
+	
+	
+
+}
+// ================================================= {Push Actor}
 
 
-//Grab에 일단 통일 시켜둠
+
+
+
+// Flash On / Off
 void AJSH_Player::R(const FInputActionValue& Value)
 {
 	Server_RedyAction();
 }
+
+
 
 void AJSH_Player::Server_RedyAction_Implementation()
 {
@@ -371,26 +443,6 @@ void AJSH_Player::Server_RedyAction_Implementation()
 
 void AJSH_Player::NetMulti_RedyAction_Implementation()
 {
-	// if (bHasFire)
-	// {
-	// 	FireEXOn = !FireEXOn;
-	// 	WantWalk = true;
-	// 	if (WatchSee == false)
-	// 	{
-	// 		USkeletalMeshComponent* MeshComp = GetMesh();
-	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-	// 		WatchSee = true;
-	// 	}
-	// }
-
-	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
-	// WatchSee = false;
-	
-	// if (bHasAX)
-	// {
-	// 	AxModeON = !AxModeON;
-	// }
-	
 	if (FlashON)
 	{
 		FlashLight->SetVisibility(false);
@@ -421,7 +473,7 @@ void AJSH_Player::Server_Grab_Implementation()
 
 void AJSH_Player::NetMulti_Grab_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
+	//GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
 	
 	
 	if ( bHasAX )
@@ -440,10 +492,6 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	else
 	{
 		MyTakeAX();
-		// if ( GrabAXActor != nullptr )
-		// {
-		// 	AxModeON = true;
-		// }
 	}
 
 	
@@ -464,37 +512,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	else
 	{
 		MyTakeFire();
-		// if ( GrabFireActor != nullptr )
-		// {
-		// 	FireEXOn = true;
-		// }
 	}
-
-
-
-	
-
-	// if (GassMaskOn == false)
-	// {
-	// 	for ( AActor* GM : GMList )
-	// 	{
-	// 		float tempDist = GetDistanceTo(GM);
-	// 		if ( tempDist > GrabDistance )
-	// 			continue;
-	// 		if ( nullptr != GM->GetOwner() )
-	// 			continue;
-	// 		
-	// 		GrabGMActor = GM;
-	// 		
-	// 		GM->SetOwner(this);
-	// 		GassMaskOn = true;
-	//
-	// 		
-	// 		GrabGMActor->Destroy();
-	// 		GassMask->SetVisibility(true);
-	// 		break;
-	// 	}
-	// }
 }
 
 void AJSH_Player::MyTakeAX()
@@ -546,6 +564,9 @@ void AJSH_Player::MyReleaseAX()
 
 		GrabAXActor = nullptr;
 	}
+
+
+	AxModeON = false;
 }
 
 void AJSH_Player::AttachAX(AActor* AXActor)
@@ -669,7 +690,6 @@ void AJSH_Player::DetachFire(AActor* FireActor)
 void AJSH_Player::LeftMouse(const FInputActionValue& Value)
 {
 	Server_LeftMouseAction();
-	GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("1")));
 }
 
 void AJSH_Player::Server_LeftMouseAction_Implementation()
@@ -680,8 +700,6 @@ void AJSH_Player::Server_LeftMouseAction_Implementation()
 void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 {
 	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
-	// AxMode가 ON일때만 도끼 찍는 애니메이션 실행, 추후 도끼 주웠을때 AXMODE가 ON, 도끼 버렸을때 OFF 되도록 하기
-	
 
 	// 도끼를 잡고 있다면
 	if (bHasAX)
@@ -791,4 +809,32 @@ void AJSH_Player::FireEXSprayTrace(float DeltaTime)
 		currtime = 0;
 	}
 }
+
+
+
+void AJSH_Player::AllOff()
+{
+	AxModeON = false;
+	
+	MyReleaseFire();
+	WantWalk = false;
+	
+	FireEXOn = false;
+	FireEXNiagara->Deactivate();
+	FireEXSprayOnBool = false;
+	
+
+	
+	MyReleaseAX();
+	AxModeON = false;
+	
+	if (WatchSee == false)
+	{
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+		WatchSee = true;
+	}
+}
+
+
 // ------------------------------------------------------------------------

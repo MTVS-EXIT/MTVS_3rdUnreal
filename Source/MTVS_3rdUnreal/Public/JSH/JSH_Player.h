@@ -27,27 +27,25 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* TwinSkeletal;
 	
-	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
 
-	/** Follow camera */
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
-	
-	/** MappingContext */
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
-	/** Jump Input Action */
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
-	/** Move Input Action */
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
-	/** Look Input Action */
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
@@ -69,6 +67,9 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ReadyAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PushAction;
+	
 public:
 	AJSH_Player();
 
@@ -87,6 +88,8 @@ protected:
 	
 	void R(const FInputActionValue& Value);
 
+	void E(const FInputActionValue& Value);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -96,17 +99,14 @@ public:
 
 	
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// Network Bool Replicated
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	
-	// 시계
+	// * 시계 ==================================
 
 	UPROPERTY(EditAnywhere, Category=Watch)
 	UChildActorComponent* DigitalWatch;
@@ -128,9 +128,11 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_WatchSee();
+	// ================================== {시계}
 
 
-	// 손전등
+	
+	// * 손전등 ========================================
 	UPROPERTY(EditAnywhere, Category=FlashLight)
 	UChildActorComponent* FlashLightChildActor;
 
@@ -139,10 +141,12 @@ public:
 
 	UPROPERTY(Replicated)
 	bool FlashON = false;
+	//  ======================================== {손전등}
+
 
 
 	
-	// 방독면
+	// * 방독면 =======================================
 	UPROPERTY(EditAnywhere, Category=GassMask)
 	UChildActorComponent* GassMask;
 
@@ -155,19 +159,21 @@ public:
 	// 소유한 방독면
 	UPROPERTY()
 	class AActor* GrabGMActor;
-
+	// ======================================= {방독면}
 	
 
 
-	// Ready Mode
+	// * Ready Mode ===================
 	UFUNCTION(Server, Reliable)
 	void Server_RedyAction();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_RedyAction();
-	
+	//  =================== {Ready Mode}
 
-	// 잡기
+
+	
+	// * 잡기(f) ======================================================
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
 	bool bHasAX;
 
@@ -200,10 +206,13 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_Grab();
+	// =============================================== {잡기(f)}
+
+
+
 	
 
-
-	// FireEX 잡기
+	// * FireEX ===========================================
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
 	bool bHasFire;
 
@@ -235,11 +244,16 @@ public:
 	bool FireEXSprayOnBool = false;
 	
 	void FireEXSprayTrace(float DeltaTime);
+	
 	float currtime = 0;
-	float spraytime = 3;
+	float spraytime = 5;
+	// =========================================== {FireEX}
+
+
 
 	
-	// 도끼
+	
+	// * 도끼 =============================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool AxModeON = false;
 	
@@ -257,10 +271,12 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_LeftMouseAction();
+	// =============================================={도끼}
 
 
 
-	//걷기
+	
+	// * 걷기 ===============================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool WantWalk = false;
 
@@ -275,6 +291,30 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulti_Walk();
+	//=============================================== {걷기}
+
+
+
+	// * Push Actor =================================================
+	// ** Key: E
 	
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool PushMode = false;
+
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool PushPossible= false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	class UCapsuleComponent* PushCapsule;
 	
+	UFUNCTION(Server, Reliable)
+	void Server_E();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulti_E();
+	
+	// ================================================= {Push Actor}
+
+	// 모든 인터렉션 끄기
+	void AllOff();
 };
