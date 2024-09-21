@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SpotLightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "JSH_Player.generated.h"
 
 class USpringArmComponent;
@@ -127,6 +130,15 @@ public:
 	void NetMulti_WatchSee();
 
 
+	// 손전등
+	UPROPERTY(EditAnywhere, Category=FlashLight)
+	UChildActorComponent* FlashLightChildActor;
+
+	UPROPERTY(EditAnywhere, Category=FlashLight)
+	USpotLightComponent* FlashLight;
+
+
+	
 	// 방독면
 	UPROPERTY(EditAnywhere, Category=GassMask)
 	UChildActorComponent* GassMask;
@@ -211,6 +223,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UArrowComponent* FireEXSpray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraComponent* FireEXNiagara;
+
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
+	bool FireEXSprayOnBool = false;
+	
+	void FireEXSprayTrace(float DeltaTime);
+	float currtime = 0;
+	float spraytime = 3;
 
 	
 	// 도끼

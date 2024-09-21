@@ -12,6 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/ArrowComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -92,8 +93,21 @@ AJSH_Player::AJSH_Player()
 	WatchWidget->SetupAttachment(DigitalWatch);
 	WatchWidget->SetRelativeLocationAndRotation(FVector(-0.063780f, 2.781286f, 0.11564f), FRotator(0.f, 90.0f, 0.f));
 	WatchWidget->SetRelativeScale3D(FVector(0.0013f, 0.003f, 0.003f));
-	
 
+
+
+	FlashLightChildActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("FlashLightChildActor"));
+	FlashLightChildActor->SetupAttachment(TwinSkeletal, FName("spine_03"));
+	FlashLightChildActor->SetRelativeLocation(FVector(-3.098716f, 13.331717f, -14.229190f));
+	FlashLightChildActor->SetRelativeRotation(FRotator(-1.688164f, -94.706464f, 80.203971f));
+	FlashLightChildActor->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.05f));
+	
+	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
+	FlashLight->SetupAttachment(TwinSkeletal, FName("spine_03"));
+	FlashLight->SetRelativeLocation(FVector(7.721326f, 16.548045f, -11.446471f));
+	FlashLight->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+	FlashLight->SetRelativeScale3D(FVector(1.111111f, 1.111111f, 1.111111f));
+	
 	GassMask = CreateDefaultSubobject<UChildActorComponent>(TEXT("GassMask"));
 	GassMask->SetupAttachment(GetMesh(), FName("head"));
 	GassMask->SetRelativeLocation(FVector(-2.608696f, 1.521739f, 0.304348f));
@@ -128,9 +142,23 @@ AJSH_Player::AJSH_Player()
 	// FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
 	// FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
 	FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
-	FireEXSpray->SetupAttachment(GetMesh(), TEXT("FirePosition"));
+	FireEXSpray->SetupAttachment(TwinSkeletal, TEXT("FirePosition"));
 	FireEXSpray->SetRelativeLocation(FVector(-50.210770f, 0.279998f, 13.0f));
 	FireEXSpray->SetRelativeRotation(FRotator(0.0f, 174.999999f, 0.0f));
+
+
+	
+	FireEXNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FireEXNiagara"));
+	FireEXNiagara->SetupAttachment(TwinSkeletal, TEXT("Bio_FirePosition"));
+	ConstructorHelpers::FObjectFinder<UNiagaraSystem> TempFireEX(TEXT("/Script/Niagara.NiagaraSystem'/Game/MAPS/TA_NYH/Fire_Extinguisher_And_Effect/NS_Fire_Extinguisher.NS_Fire_Extinguisher'"));
+	if (TempFireEX.Succeeded())
+	{
+		FireEXNiagara->SetAsset(TempFireEX.Object);
+	}
+	FireEXNiagara->SetRelativeLocation(FVector(-45.439986f, -5.781532f, 18.888889f));
+	FireEXNiagara->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
+	FireEXNiagara->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+	FireEXNiagara->SetAutoActivate(false);
 }
 
 
@@ -156,6 +184,11 @@ void AJSH_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	if (FireEXSprayOnBool)
+	{
+		FireEXSprayTrace(DeltaTime);
+	}
 }
 
 
@@ -219,6 +252,8 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, GassMaskOn);
 	DOREPLIFETIME(AJSH_Player, bHasFire);
 	DOREPLIFETIME(AJSH_Player, FireEXOn);
+	DOREPLIFETIME(AJSH_Player, FireEXSprayOnBool);
+
 }
 
 
@@ -335,20 +370,26 @@ void AJSH_Player::Server_RedyAction_Implementation()
 
 void AJSH_Player::NetMulti_RedyAction_Implementation()
 {
-	if (bHasFire)
-	{
-		FireEXOn = !FireEXOn;
-		WantWalk = true;
-		if (WatchSee == false)
-		{
-			USkeletalMeshComponent* MeshComp = GetMesh();
-			MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
-			WatchSee = true;
-		}
-	}
+	// if (bHasFire)
+	// {
+	// 	FireEXOn = !FireEXOn;
+	// 	WantWalk = true;
+	// 	if (WatchSee == false)
+	// 	{
+	// 		USkeletalMeshComponent* MeshComp = GetMesh();
+	// 		MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+	// 		WatchSee = true;
+	// 	}
+	// }
 
 	// WatchSee는 켜고 끄는 애니메이션 조종용이기에 false로 바꿔봤자 원래 동장인게 아님
 	// WatchSee = false;
+
+
+	if (bHasAX)
+	{
+		AxModeON = !AxModeON;
+	}
 }
 
 
@@ -375,8 +416,9 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	if ( bHasAX )
 	{
 		MyReleaseAX();
-		WantWalk = true;
+		// WantWalk = true;
 		AxModeON = false;
+		WantWalk = false;
 		if (WatchSee == false)
 		{
 			USkeletalMeshComponent* MeshComp = GetMesh();
@@ -387,18 +429,19 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	else
 	{
 		MyTakeAX();
-		if ( GrabAXActor != nullptr )
-		{
-			AxModeON = true;
-		}
+		// if ( GrabAXActor != nullptr )
+		// {
+		// 	AxModeON = true;
+		// }
 	}
 
 	
 	if ( bHasFire )
 	{
 		MyReleaseFire();
-		WantWalk = true;
+		WantWalk = false;
 		FireEXOn = false;
+		FireEXNiagara->Deactivate();
 		if (WatchSee == false)
 		{
 			USkeletalMeshComponent* MeshComp = GetMesh();
@@ -466,7 +509,8 @@ void AJSH_Player::MyTakeAX()
 
 		// 총액터를 HandComp에 붙이고싶다.
 		AttachAX(GrabAXActor);
-		WantWalk = true;
+		AxModeON = true;
+		// WantWalk = true;
 		break;
 	}
 }
@@ -556,27 +600,30 @@ void AJSH_Player::MyTakeFire()
 
 void AJSH_Player::MyReleaseFire()
 {
-	// 총을 잡고 있지 않거나 재장전 중이면 총을 버릴 수 없다.
+	// 소화기를 잡고 있지 않다면 버릴 수 없음
 	if ( false == bHasFire)
 		return;
 	
 
-	// 총을 이미 잡은 상태 -> 놓고싶다.
+	// 소화기를 이미 잡은 상태 -> 놓고싶다.
 	if ( bHasFire )
 	{
 		bHasFire = false;
 	}
 
-	// 총의 오너를 취소하고싶다.
+	// 소화기의 오너를 취소하고싶다.
 	if ( GrabFireActor )
 	{
 		DetachFire(GrabFireActor);
 
 		GrabFireActor->SetOwner(nullptr);
-		// 총을 잊고싶다.
+		// 소화기를 잊고싶다.
 		GrabFireActor = nullptr;
 	}
+	
 }
+
+
 
 void AJSH_Player::AttachFire(AActor* FireActor)
 {
@@ -633,13 +680,111 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 	
 
 	// 도끼를 잡고 있다면
-	if (AxModeON)
+	if (bHasAX)
 	{
 		USkeletalMeshComponent* MeshComp = GetMesh();
 		if (MeshComp && MeshComp->GetAnimInstance())
 		{
 			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
 		}
+	}
+
+	if (bHasFire)
+	{
+		if (FireEXOn)
+		{
+			FireEXOn = false;
+			WantWalk = false;
+			FireEXNiagara->Deactivate();
+			FireEXSprayOnBool = false;
+		}
+		else
+		{
+			FireEXOn = true;
+			WantWalk = true;
+			if (WatchSee == false)
+			{
+				USkeletalMeshComponent* MeshComp = GetMesh();
+				MeshComp->GetAnimInstance()->Montage_Play(WatchReverseMontage, 3.0f);
+				WatchSee = true;
+			}
+			FireEXNiagara->Activate();
+			FireEXSprayOnBool = true;
+			
+			// FVector Start = FireEXNiagara->GetComponentLocation();
+			// FVector End = FireEXNiagara->GetComponentLocation() + (FireEXNiagara->GetForwardVector() * 500.0f);
+			// FHitResult HitResult;
+			// FCollisionQueryParams params;
+			// params.AddIgnoredActor(this);
+			// bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, params);
+
+			
+		}
+	}
+}
+
+
+void AJSH_Player::FireEXSprayTrace(float DeltaTime)
+{
+	currtime += DeltaTime;
+
+	if (spraytime <= currtime)
+	{
+	
+	    FVector StartLocation = FireEXNiagara->GetComponentLocation();
+	    
+	  
+	    FVector ForwardVector = FireEXNiagara->GetForwardVector();
+	    
+
+	    FVector EndLocation = StartLocation + (ForwardVector * 300.0f);
+	    
+
+	    TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	    ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+	    
+
+	    float SphereRadius = 160.0f;
+
+
+	    TArray<AActor*> ActorsToIgnore;
+	    ActorsToIgnore.Add(this);  
+
+
+	    TArray<FHitResult> OutHits;
+
+
+	    bool bHit = UKismetSystemLibrary::SphereTraceMultiForObjects(
+	        GetWorld(),
+	        StartLocation,
+	        EndLocation,
+	        SphereRadius,
+	        ObjectTypes,
+	        false,
+	        ActorsToIgnore,
+	        EDrawDebugTrace::ForDuration, 
+	        OutHits,
+	        true
+	    );
+	    
+
+	    if (bHit)
+	    {
+	        for (auto& Hit : OutHits)
+	        {
+
+	            AActor* HitActor = Hit.GetActor();
+	            
+	            if (HitActor && HitActor->ActorHasTag(FName("FireOnOff"))) 
+	            {
+	                HitActor->Destroy();
+	            	
+	                break;
+	            }
+	        }
+	    }
+
+		currtime = 0;
 	}
 }
 // ------------------------------------------------------------------------
