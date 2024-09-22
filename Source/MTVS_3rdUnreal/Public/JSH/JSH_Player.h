@@ -144,7 +144,7 @@ public:
 	UPROPERTY(EditAnywhere, Category=FlashLight)
 	USpotLightComponent* FlashLight;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool FlashON = false;
 	//  ======================================== {손전등}
 
@@ -179,8 +179,8 @@ public:
 
 	
 	// * 잡기(f) ======================================================
-	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
-	bool bHasAX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool BHasAX;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
 	bool AXOn;
@@ -219,7 +219,7 @@ public:
 
 	// * FireEX ===========================================
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
-	bool bHasFire;
+	bool BHasFire;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite, Replicated)
 	bool FireEXOn = false;

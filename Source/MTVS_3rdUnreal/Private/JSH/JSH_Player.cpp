@@ -263,10 +263,10 @@ void AJSH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AJSH_Player, AxAnimationplay);
 	DOREPLIFETIME(AJSH_Player, WantWalk);
 	DOREPLIFETIME(AJSH_Player, WantSprint);
-	DOREPLIFETIME(AJSH_Player, bHasAX);
+	DOREPLIFETIME(AJSH_Player, BHasAX);
 	DOREPLIFETIME(AJSH_Player, PossibleWalk);
 	DOREPLIFETIME(AJSH_Player, GassMaskOn);
-	DOREPLIFETIME(AJSH_Player, bHasFire);
+	DOREPLIFETIME(AJSH_Player, BHasFire);
 	DOREPLIFETIME(AJSH_Player, FireEXOn);
 	DOREPLIFETIME(AJSH_Player, FireEXSprayOnBool);
 	DOREPLIFETIME(AJSH_Player, FlashON);
@@ -480,7 +480,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	//GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
 	
 	
-	if ( bHasAX )
+	if ( BHasAX )
 	{
 		MyReleaseAX();
 		// WantWalk = true;
@@ -499,7 +499,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 	}
 
 	
-	if ( bHasFire )
+	if ( BHasFire )
 	{
 		MyReleaseFire();
 		WantWalk = false;
@@ -535,7 +535,7 @@ void AJSH_Player::MyTakeAX()
 		GrabAXActor = AX;
 	
 		AX->SetOwner(this);
-		bHasAX = true;
+		BHasAX = true;
 
 
 		AttachAX(GrabAXActor);
@@ -549,14 +549,14 @@ void AJSH_Player::MyReleaseAX()
 {
 	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
 
-	if ( false == bHasAX)
+	if ( false == BHasAX)
 		return;
 	
 
 
-	if ( bHasAX )
+	if ( BHasAX )
 	{
-		bHasAX = false;
+		BHasAX = false;
 	}
 
 
@@ -621,7 +621,7 @@ void AJSH_Player::MyTakeFire()
 		GrabFireActor = Fire;
 		
 		Fire->SetOwner(this);
-		bHasFire = true;
+		BHasFire = true;
 
 		AttachFire(GrabFireActor);
 		break;
@@ -631,14 +631,14 @@ void AJSH_Player::MyTakeFire()
 void AJSH_Player::MyReleaseFire()
 {
 	// 소화기를 잡고 있지 않다면 버릴 수 없음
-	if ( false == bHasFire)
+	if ( false == BHasFire)
 		return;
 	
 
 	// 소화기를 이미 잡은 상태 -> 놓고싶다.
-	if ( bHasFire )
+	if ( BHasFire )
 	{
-		bHasFire = false;
+		BHasFire = false;
 	}
 
 	// 소화기의 오너를 취소하고싶다.
@@ -706,7 +706,7 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
 
 	// 도끼를 잡고 있다면
-	if (bHasAX)
+	if (BHasAX)
 	{
 		USkeletalMeshComponent* MeshComp = GetMesh();
 		if (MeshComp && MeshComp->GetAnimInstance())
@@ -715,7 +715,7 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 		}
 	}
 
-	if (bHasFire)
+	if (BHasFire)
 	{
 		if (FireEXOn)
 		{
