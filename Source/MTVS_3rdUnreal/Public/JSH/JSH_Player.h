@@ -69,9 +69,9 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PushAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SlideAction;
+	
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	// UInputAction* SlideAction;
 	
 public:
 	AJSH_Player();
@@ -93,7 +93,7 @@ protected:
 
 	void E(const FInputActionValue& Value);
 
-	void Slide(const FInputActionValue& Value);
+	// void Slide(const FInputActionValue& Value);
 
 protected:
 	virtual void BeginPlay() override;

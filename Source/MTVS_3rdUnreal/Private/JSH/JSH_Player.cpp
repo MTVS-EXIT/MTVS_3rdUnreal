@@ -244,7 +244,7 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Started, this, &AJSH_Player::E);
 		
-		EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Started, this, &AJSH_Player::Slide);
+		// EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Started, this, &AJSH_Player::Slide);
 	}
 	else
 	{
