@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "KJH/KJH_GameModeBase.h"
 #include "JSH/JSH_Player.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AKJH_RescueNPC::AKJH_RescueNPC()
@@ -22,6 +23,10 @@ AKJH_RescueNPC::AKJH_RescueNPC()
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 	SkeletalMesh->SetupAttachment(InteractionSphere);
 
+	// RPC 설정
+	bReplicates = true;
+	bAlwaysRelevant = true;
+	PrimaryActorTick.bCanEverTick = true;
 	SetReplicates(true);
 }
 
@@ -64,7 +69,14 @@ void AKJH_RescueNPC::Server_NotifyPlayerContact_Implementation(AJSH_Player* Cont
 		if (GameMode)
 			GameMode->Multicast_TriggerGameEnd();
 
-		InteractionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (ContactPlayer)
+		{
+			ContactPlayer->GetCharacterMovement()->StopMovementImmediately();
+			ContactPlayer->GetCharacterMovement()->DisableMovement();
+		}
+
+		InteractionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 1회 충돌 시, 콜리전 비활성화
+		InteractionSphere->SetSimulatePhysics(false); // 1회 충돌 시, 물리 비활성화
 	}
 }
 

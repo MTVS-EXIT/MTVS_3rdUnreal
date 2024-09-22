@@ -127,6 +127,10 @@ void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
 		UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
 		if (ResultWidget)
 		{
+			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
+			if (GameInstance)
+			ResultWidget->SetMyInterface(GameInstance);
+
 			ResultWidget->Setup();
 			ResultWidget->PlayResultAnimations(); // 애니메이션 시작
 		}

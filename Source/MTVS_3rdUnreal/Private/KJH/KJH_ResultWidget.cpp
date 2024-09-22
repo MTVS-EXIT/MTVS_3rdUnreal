@@ -3,15 +3,56 @@
 #include "KJH/KJH_ResultWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Animation/WidgetAnimation.h"
+#include "Components/Button.h"
+#include "Components/WidgetSwitcher.h"
 
 bool UKJH_ResultWidget::Initialize()
 {
 	Super::Initialize();
 	
+    if (CommonResultMenu_QuitButton)
+        CommonResultMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::QuitPressed); // Quit 버튼 눌렀을 때 QuitPressed 함수 호출
+    
+    if (DroneResultMenu_PersonResultButton)
+        DroneResultMenu_PersonResultButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::SwitchToPersonResultMenu); // PersonResultButton 버튼 눌렀을 때 SwitchToPersonResultMenu 함수 호출
+
+    if (PersonResultMenu_DroneResultButton)
+        PersonResultMenu_DroneResultButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::SwitchToDroneResultMenu); // DroneResultButton 버튼 눌렀을 때 SwitchToDroneResultMenu 함수 호출
+
+
 	return true;
 }
 
-////////// 사용자 정의형 함수 구간 ==============================================================================
+////////// 사용자 정의형 함수 구간 - 버튼 함수 관련 ==============================================================================
+void UKJH_ResultWidget::QuitPressed()
+{
+    if (MenuInterface)
+    {
+        MenuInterface->LoadServerWidgetMap(); // ServerWidget맵으로 이동
+        Teardown(); // Widget 파괴
+    }
+}
+
+// 소방관 결과 메뉴로 전환 함수
+void UKJH_ResultWidget::SwitchToPersonResultMenu()
+{
+    if (MenuSwitcher)
+        MenuSwitcher->SetActiveWidget(PersonResultMenu);
+
+    PlayAnimation(ShowPersonResultAnim);
+}
+
+// 드론 결과 메뉴로 전환 함수
+void UKJH_ResultWidget::SwitchToDroneResultMenu()
+{
+    if (MenuSwitcher)
+        MenuSwitcher->SetActiveWidget(DroneResultMenu);
+
+    PlayAnimation(ShowDroneResultAnim);
+}
+
+////////// 사용자 정의형 함수 구간 - 위젯 애니메이션 관련 ==============================================================================
+// 
 void UKJH_ResultWidget::PlayResultAnimations()
 {
     if (ShowRescueAnim)
