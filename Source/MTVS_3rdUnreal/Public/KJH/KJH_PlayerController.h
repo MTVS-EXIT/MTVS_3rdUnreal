@@ -8,6 +8,7 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "JSH/JSH_Player.h"
 #include "GameFramework/Actor.h"
+#include "Engine/AssetManager.h"
 #include "KJH_PlayerController.generated.h"
 
 /**
@@ -20,57 +21,69 @@ class MTVS_3RDUNREAL_API AKJH_PlayerController : public APlayerController
 
 public:
 
-    // 초기화 함수, BeginPlay에서 호출
-    virtual void BeginPlay() override;
+////////// 생성자 & 초기화 함수 구간 ================================================================================================================
 
-    // 캐릭터가 Possess될 때 호출되는 함수
-    virtual void OnPossess(APawn* aPawn) override;
+    virtual void BeginPlay() override; // BeginPlay 초기화 함수
+    virtual void OnPossess(APawn* aPawn) override; // 캐릭터가 Possess될 때 호출되는 함수
 
-    // 캐릭터 선택 UI를 표시하는 함수
-    void ShowCharacterSelectWidget();
+    // 입력 구성 요소 설정 함수 선언
+    virtual void SetupInputComponent() override; // SetupInputComponent 함수 선언
+
+////////// 사용자 정의형 함수 구간 ==================================================================================================================
+ 
+     // 1) 캐릭터 선택 UI 관련 ---------------------------------------------------------------------------
+    void ShowCharacterSelectWidget();  // 캐릭터 선택 UI를 표시하는 함수 (로컬 클라이언트에서만 실행)
 
     UFUNCTION(Client, Reliable)
-    void ClientShowCharacterSelectWidget();
-
-
-
-
-    // 캐릭터 선택에 따라 캐릭터를 스폰하는 함수
-    void SpawnCharacterBasedOnSelection();
+    void ClientShowCharacterSelectWidget(); // 서버 -> 클라이언트 캐릭터 선택 UI를 보여주는 함수
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void ServerSpawnCharacterBasedOnSelection(bool bIsPersonSelected);
+    void ServerSpawnCharacterBasedOnSelection(bool bIsPersonSelected); // 클라이언트 -> 서버 캐릭터 스폰 요청 함수
 
-
-    // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
-    bool bIsPersonCharacterSelected;
-
-
+    void SpawnCharacterBasedOnSelection(); // 캐릭터 선택에 따라 캐릭터를 스폰하는 함수
 
     UFUNCTION(Client, Reliable)
-    void Client_SetupDroneUI();
+    void Client_SetupDroneUI(); // 서버 -> 클라이언트 드론 UI를 설정하는 함수
+
+    // 2) InGameWidget UI 관련 ---------------------------------------------------------------------------
+    void ToggleInGameWidget(const FInputActionValue& Value);
+
+    // 3) 캐릭터 블루프린트 비동기 로딩 관련 -------------------------------------------------------------
 
 
-    // 캐릭터 선택 위젯
-    UPROPERTY()
-    UKJH_CharacterSelectWidget* CharacterSelectWidget;
+////////// 전역 변수 구간 ============================================================================================================================
+    bool bIsPersonCharacterSelected; // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
+    bool bIsInGameWidgetVisible; // InGameWidget 가시성 상태 변수
 
-    // 위젯 팩토리 (블루프린트에서 설정 가능)
+////////// TSubclass & class 참조 구간 ================================================================================================================
+    // 1) 캐릭터 공통 입력 키 EnhancedInput 관련 --------------------------------------------
+    UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+    class UInputMappingContext* IMC_Common; // Mapping Context 참조
+
+    UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+    class UInputAction* IA_ToggleInGameWidget; // InputAction 참조
+
+    // 2) UI 관련 ---------------------------------------------------------------------------
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory;
+    TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) 공장
+    class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) 참조 선언
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character Classes") // Player와 Drone BP 클래스 참조
-	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // 수정된 부분
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) 공장
+    class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) 참조 선언
+
+    // 3) 캐릭터 블루프린트 관련 ------------------------------------------------------------
+	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
+	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP 참조
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
-	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // 수정된 부분
+	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP 참조
 
-
+    // 4) SpawnPoint 블루프린트 관련 ------------------------------------------------------------
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
+    TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP 참조 (현재 코드에선 태그로 찾으므로 필수는 아님)
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> PersonSpawnPointClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> DroneSpawnPointClass;
+    TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP 참조 (현재 코드에선 태그로 찾으므로 필수는 아님)
 
 };

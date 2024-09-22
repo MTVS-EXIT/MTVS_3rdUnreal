@@ -18,9 +18,12 @@
 #include "Engine/TimerHandle.h"
 #include "KJH/KJH_CharacterSelectWidget.h"
 #include "KJH/KJH_PlayerController.h"
+#include "KJH/KJH_LoginWidget.h"
+#include "KJH/KJH_LoadingWidget.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer) // 에디터 실행할 때 실행하는 생성자.
 {
@@ -29,10 +32,13 @@ UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer
 
 void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만 시켜준다.
 {
+	//// 월드 초기화 후 호출되는 델리게이트 바인딩
+	//FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UKJH_GameInstance::OnPostWorldInitialization);
+
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
+	
 	if (Subsystem) // 만약, Subsystem이 유효하다면,
 	{
-
 		SessionInterface = Subsystem->GetSessionInterface(); // 세션 인터페이스 가져오기
 		
 		// 만약, 세션 인터페이스가 유효하다면,
@@ -50,18 +56,32 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만
 ////////// 델리게이트 바인딩 함수 구간 시작 ------------------------------------------------------------------------------
 void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 {
+	// 세션 생성 실패 시,
 	if (!Success)
 	{
+		if (LoadingWidget)
+			LoadingWidget->Teardown();
 		return;
 	}
 
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
-	// 세션이 성공적으로 생성된 후에는 UI를 제거하는 Teardown 함수를 실행한다.
-	if (ServerWidget)
-	{
+	// 세션이 성공적으로 생성 시,
+	if (ServerWidget) // ServerWidget 제거
 		ServerWidget->Teardown();
-	}
+
+	if (LoadingWidget) // LoadingWidget 생성
+		LoadingWidget->Setup();
+
+	// 맵 전환 전, 비동기 로딩을 시작 -> 끝나면 OnMapPreloadComplete을 호출하여 ServerTravel 시작
+	StreamableManager.RequestAsyncLoad(FSoftObjectPath(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap")),
+		FStreamableDelegate::CreateUObject(this, &UKJH_GameInstance::OnMapPreloadComplete));
+}
+
+void UKJH_GameInstance::OnMapPreloadComplete()
+{
+	if (LoadingWidget)
+		LoadingWidget->Teardown();
 
 	// 내가 설정한 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
@@ -69,12 +89,8 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 	// 수혁이 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 
-	// 프로토 맵으로 listen 서버를 열고 이동한다.
-	GetWorld()->ServerTravel(TEXT("/Game/ProtoMap/ProtoPT?listen"));
-
-
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
 }
-
 
 // 세션 파괴 완료 시 호출되는 함수
 void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success)
@@ -83,8 +99,18 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 	{
 		CreateSession(); // 세션을 만들어버린다. (기존에 세션이 있으면 그것을 부수고 새로운 세션을 만든다는 것이다.)
 	}
+
+	if (nullptr != GEngine)
+	{
+		GEngine->OnNetworkFailure().AddUObject(this, &UKJH_GameInstance::OnNetworkFailure);
+	}
 }
 
+
+void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+{
+	LoadServerWidgetMap();
+}
 
 void UKJH_GameInstance::RefreshServerList()
 {
@@ -133,27 +159,27 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 
 	UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 
-	TArray<FString> ServerNames;
-	//ServerNames.Add("Test Servr1"); // 테스트 텍스트를 생성
-	//ServerNames.Add("Test Servr2");
-	//ServerNames.Add("Test Servr3");
-	if (SessionSearch->SearchResults.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete: No sessions found."));
-	}
+	TArray<FServerData> ServerNames;
 
 	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 	{
-		FString SessionName = SearchResult.GetSessionIdStr();
-		if (SessionName.IsEmpty())
+		FServerData Data;
+		Data.Name = SearchResult.GetSessionIdStr();
+		Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections; // 입장가능한 최대 플레이어 수
+		Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections; 
+							 // 최대 플레이어 수 - 비어있는 슬롯의 수 = 접속 중인 플레이어 수
+		Data.HostUserName = SearchResult.Session.OwningUserName;
+		FString ServerName;
+		if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found session with empty name."));
+			Data.Name = SearchResult.GetSessionIdStr();
 		}
 		else
 		{
-			ServerNames.Add(SessionName);
-			UE_LOG(LogTemp, Warning, TEXT("Found Session Name: %s"), *SessionName);
+			Data.Name = "Could not Find Name";
 		}
+
+		ServerNames.Add(Data);
 	}
 
 	// ServerWidget이 유효하고 SetServerList 호출이 안전한 경우에만 실행
@@ -170,7 +196,6 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 // 세션에 들어올 경우 호출되는 함수
 void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
-
 	FString Address;
 
 	if (SessionInterface.IsValid())
@@ -193,17 +218,27 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 	}
 }
 
+
 ////////// 델리게이트 바인딩 함수 구간 종료 ------------------------------------------------------------------------------
 
 
 ////////// 사용자 정의형 함수 구간 시작 ----------------------------------------------------------------------------------
 
 // 서버 열기 함수
-void UKJH_GameInstance::Host()
+void UKJH_GameInstance::Host(FString ServerName)
 {
+	 DesiredServerName = ServerName;
+
 	// 만약, 세션 인터페이스가 유효하다면,
 	if (SessionInterface.IsValid())
 	{
+		// LoadingWidget 초기화
+		if (LoadingWidgetFactory)
+			LoadingWidget = CreateWidget<UKJH_LoadingWidget>(this, LoadingWidgetFactory);
+
+		if (LoadingWidget)
+		LoadingWidget -> Setup();
+
 		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);  // 현재 세션 정보 얻기
 		if (ExistingSession) // 세션이 이미 존재한다면
 		{
@@ -252,7 +287,7 @@ void UKJH_GameInstance::CreateSession()
 		FOnlineSessionSettings SessionSettings; // CreateSession을 위해 임의로 세션세팅을 만들어준다.
 		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem 이 NULL 로 세팅되면 (NULL : 로컬 연결 설정)
 		{
-			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정) 
+			SessionSettings.bIsLANMatch = true; // true 시 : 같은 네트워크에 있는 사람을 찾음 (로컬 연결 설정)
 		}
 
 		else
@@ -264,6 +299,7 @@ void UKJH_GameInstance::CreateSession()
 		SessionSettings.bShouldAdvertise = true; // 온라인에서 세션을 볼 수 있도록함. '광고한다'
 		SessionSettings.bUseLobbiesIfAvailable = true; // 로비기능을 활성화한다. (Host 하려면 필요)
 		SessionSettings.bUsesPresence = true;
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // 세션을 생성한다. 
 																		   // 실행되면 'CreateSession'이 델리게이트에 정보를 제공한다. 즉, 바로 델리게이트가 호출된다.
@@ -271,8 +307,19 @@ void UKJH_GameInstance::CreateSession()
 	}
 }
 
-////////// UI 관련 함수 ----------------------------------------------------------------------------------------------------------------
-void UKJH_GameInstance::LoadServerWidget()
+
+// UI 생성 관련 함수 ----------------------------------------------------------------------------------------------------------------
+// 로그인 UI 생성 함수
+void UKJH_GameInstance::CreateLoginWidget()
+{
+	// LoginWidgetFactory를 통해 LogInUI 위젯 생성
+	LoginWidget = CreateWidget<UKJH_LoginWidget>(this, LoginWidgetFactory);
+	LoginWidget->SetMyInterface(this);
+	LoginWidget->Setup();
+}
+
+// 서버 메인메뉴 UI 생성 함수
+void UKJH_GameInstance::CreateServerWidget()
 {
 	// ServerUIFactory를 통해 ServerUI 위젯 생성
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
@@ -280,24 +327,30 @@ void UKJH_GameInstance::LoadServerWidget()
 	ServerWidget -> Setup();
 }
 
-void UKJH_GameInstance::LoadInGameWidget()
+// 인게임 UI 생성 함수
+void UKJH_GameInstance::CreateInGameWidget()
 {
-	// ServerUIFactory를 통해 ServerUI 위젯 생성
-	InGameWidget = CreateWidget<UKJH_WidgetSystem>(this, InGameWidgetFactory);
+	// InGameWidgetFactory를 통해 InGameUI 위젯 생성
+	InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
 }
 
-
-
 void UKJH_GameInstance::LoadServerWidgetMap()
 {
-	// 플레이어의 첫번째 컨트롤러를 가져온다.
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (PlayerController) // 컨트롤러가 있으면,
+	// AKJH_PlayerController를 가져온다,
+	AKJH_PlayerController* KJHPlayerController = Cast<AKJH_PlayerController>(GetFirstLocalPlayerController());
+	//// 플레이어의 첫번째 컨트롤러를 가져온다.
+	//APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // 컨트롤러가 있으면,
 	{
 		// ServerUI가 있는 맵으로 이동시킨다.
-		PlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap.ServerWidgetMap", ETravelType::TRAVEL_Absolute);
+		KJHPlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap", ETravelType::TRAVEL_Absolute);
+	}
+
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerController in LoadServerWidgetMap."));
 	}
 }
 
@@ -353,3 +406,25 @@ void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerCont
 	// 서버에서 캐릭터 선택을 처리
 	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
+
+
+////////// Temp ================================================================================================================================
+//void UKJH_GameInstance::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS)
+//{
+//	if (World)
+//	{
+//		// 로드된 월드의 맵 이름 확인
+//		FString MapName = World->GetMapName();
+//
+//		// 맵 이름에 "ServerWidgetMap"이 포함되어 있다면 위젯 생성
+//		if (MapName.Contains("ServerWidgetMap"))
+//		{
+//			UE_LOG(LogTemp, Log, TEXT("ServerWidgetMap detected, creating server widget..."));
+//			// 0.1초 타이머 설정. 실제 딜레이는 Tick마다 처리되므로 안전하게 처리됨.
+//
+//			// 위젯 생성용 타이머 핸들
+//			FTimerHandle WidgetCreationTimerHandle;
+//			GetWorld()->GetTimerManager().SetTimer(WidgetCreationTimerHandle, this, &UKJH_GameInstance::CreateServerWidget, 0.01f, false);
+//		}
+//	}
+//}
