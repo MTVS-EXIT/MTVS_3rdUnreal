@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,27 +16,36 @@ class MTVS_3RDUNREAL_API AKJH_GameModeBase : public AGameModeBase
 	
 public:
 
-///////// GameModeÀÇ »ı¼ºÀÚ ¼±¾ğ =================================================================================================
-	AKJH_GameModeBase(); // »ı¼ºÀÚ
+///////// GameModeì˜ ìƒì„±ì ì„ ì–¸ =================================================================================================
+	AKJH_GameModeBase(); // ìƒì„±ì
 
-///////// GameModeÀÇ BeginPlay ¼±¾ğ ==============================================================================================
+///////// GameModeì˜ BeginPlay ì„ ì–¸ ==============================================================================================
 	virtual void BeginPlay() override; // BeginPlay
 
-///////// Login °ü·Ã ÇÔ¼ö ¼±¾ğ ===================================================================================================
+///////// Login ê´€ë ¨ í•¨ìˆ˜ ì„ ì–¸ ===================================================================================================
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 
-////////// ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓ¿¡ Âü¿©ÇÒ ¶§ È£ÃâµÇ¾î Ä³¸¯ÅÍ¸¦ ½ºÆùÇÏ´Â ÇÔ¼ö ===========================================================
+////////// í”Œë ˆì´ì–´ê°€ ê²Œì„ì— ì°¸ì—¬í•  ë•Œ í˜¸ì¶œë˜ì–´ ìºë¦­í„°ë¥¼ ìŠ¤í°í•˜ëŠ” í•¨ìˆ˜ ===========================================================
 	virtual void RestartPlayer(AController* NewPlayer) override;
 
-////////// º¯¼ö ÂüÁ¶ ±¸°£ ========================================================================================================
-	uint32 NumberOfPlayers = 0; // Á¢¼ÓÇÑ ÇÃ·¹ÀÌ¾îÀÇ ¼ö
+////////// ë³€ìˆ˜ ì°¸ì¡° êµ¬ê°„ ========================================================================================================
+	uint32 NumberOfPlayers = 0; // ì ‘ì†í•œ í”Œë ˆì´ì–´ì˜ ìˆ˜
 
-////////// TSubclass & class ÂüÁ¶ ±¸°£ ===========================================================================================
+////////// TSubclass & class ì°¸ì¡° êµ¬ê°„ ===========================================================================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
-	TSubclassOf<class AActor> BP_RescueNPCClass; // ±¸Á¶ÀÚ(NPC) BP ÂüÁ¶
+	TSubclassOf<class AActor> BP_RescueNPCClass; // êµ¬ì¡°ì(NPC) BP ì°¸ì¡°
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ ===============================================================================================
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<class UKJH_WidgetSystem> ResultWidgetClass; // í”Œë ˆì´ ê²°ê³¼ UI í´ë˜ìŠ¤ ì°¸ì¡°
+
+////////// ë³€ìˆ˜ ì°¸ì¡° êµ¬ê°„ ===============================================================================================
+	bool bIsGameEnded; // í”Œë ˆì´ ì¢…ë£Œë˜ì—ˆëŠ”ì§€ ì—¬ë¶€ í™•ì¸
+
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ ===============================================================================================
 	void OnMySpawnRescueNPC();
+
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_TriggerGameEnd(); // í”Œë ˆì´ ì¢…ë£Œë¥¼ ì•Œë¦¬ëŠ” RPC í•¨ìˆ˜
 };

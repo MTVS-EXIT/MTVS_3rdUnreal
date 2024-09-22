@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_LoginWidget.h"
@@ -15,36 +15,36 @@
 #include "Delegates/Delegate.h"
 
 #include "Engine/TimerHandle.h"
-////////// »ı¼ºÀÚ & ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ===================================================================
+////////// ìƒì„±ì & ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ===================================================================
 bool UKJH_LoginWidget::Initialize()
 {
 	Super::Initialize();
 
 
-////////// ¹öÆ° Å¬¸¯ ÀÌº¥Æ® µ¨¸®°ÔÀÌÆ® ±¸°£ ====================================================================================================
-	// ·Î±×ÀÎ ¸Ş´º ¹öÆ° µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+////////// ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ ë¸ë¦¬ê²Œì´íŠ¸ êµ¬ê°„ ====================================================================================================
+	// ë¡œê·¸ì¸ ë©”ë‰´ ë²„íŠ¼ ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
 	if (LoginMenu_RegisterButton)
-	LoginMenu_RegisterButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenRegisterMenu); // CreateAccountButton ¹öÆ° ´­·¶À» ¶§ OpenRegisterMenu ÇÔ¼ö È£Ãâ
+	LoginMenu_RegisterButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenRegisterMenu); // CreateAccountButton ë²„íŠ¼ ëˆŒë €ì„ ë•Œ OpenRegisterMenu í•¨ìˆ˜ í˜¸ì¶œ
 	
 	if (LoginMenu_LoginButton)
-	LoginMenu_LoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyLogin); // LoginMenu_LoginButton ¹öÆ° ´­·¶À» ¶§ OnLoginToPlay ÇÔ¼ö È£Ãâ
+	LoginMenu_LoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyLogin); // LoginMenu_LoginButton ë²„íŠ¼ ëˆŒë €ì„ ë•Œ OnLoginToPlay í•¨ìˆ˜ í˜¸ì¶œ
 
 	if (LoginMenu_GuestLoginButton)
-	LoginMenu_GuestLoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyGuestLogin); // GuestLoginButton ¹öÆ° ´­·¶À» ¶§ OnMyGuestLogin ÇÔ¼ö È£Ãâ
+	LoginMenu_GuestLoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyGuestLogin); // GuestLoginButton ë²„íŠ¼ ëˆŒë €ì„ ë•Œ OnMyGuestLogin í•¨ìˆ˜ í˜¸ì¶œ
 
-	// °èÁ¤ »ı¼º ¸Ş´º ¹öÆ° µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+	// ê³„ì • ìƒì„± ë©”ë‰´ ë²„íŠ¼ ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
 	if (RegisterMenu_CreateButton)
-	RegisterMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton ¹öÆ° ´­·¶À» ¶§ OnRegisterMyInfo ÇÔ¼ö È£Ãâ
+	RegisterMenu_CreateButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyRegister); // CreateButton ë²„íŠ¼ ëˆŒë €ì„ ë•Œ OnRegisterMyInfo í•¨ìˆ˜ í˜¸ì¶œ
 	
 	if (RegisterMenu_CancelButton)
-	RegisterMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton ¹öÆ° ´­·¶À» ¶§ OpenLoginMenu ÇÔ¼ö È£Ãâ
+	RegisterMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OpenLoginMenu); // CancelButton ë²„íŠ¼ ëˆŒë €ì„ ë•Œ OpenLoginMenu í•¨ìˆ˜ í˜¸ì¶œ
 
 	
 	return true;
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - UI ÀüÈ¯ °ü·Ã ====================================================================================================
-// °èÁ¤»ı¼º ¸Ş´º ÀüÈ¯ ÇÔ¼ö
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - UI ì „í™˜ ê´€ë ¨ ====================================================================================================
+// ê³„ì •ìƒì„± ë©”ë‰´ ì „í™˜ í•¨ìˆ˜
 void UKJH_LoginWidget::OpenRegisterMenu()
 {
 	if (HideLoginMenuAnim)
@@ -62,7 +62,7 @@ void UKJH_LoginWidget::OpenRegisterMenu()
 }
 
 
-// ·Î±×ÀÎ ¸Ş´º ÀüÈ¯ ÇÔ¼ö
+// ë¡œê·¸ì¸ ë©”ë‰´ ì „í™˜ í•¨ìˆ˜
 void UKJH_LoginWidget::OpenLoginMenu()
 {
 
@@ -85,122 +85,122 @@ void UKJH_LoginWidget::OpenLoginMenu()
 
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - °èÁ¤»ı¼º °ü·Ã ====================================================================================================
-// °èÁ¤»ı¼º ¿äÃ» ÇÔ¼ö
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ê³„ì •ìƒì„± ê´€ë ¨ ====================================================================================================
+// ê³„ì •ìƒì„± ìš”ì²­ í•¨ìˆ˜
 void UKJH_LoginWidget::OnMyRegister()
 {
-	// ÀÔ·ÂµÈ ·Î±×ÀÎ Á¤º¸¸¦ °¡Á®¿È.
+	// ì…ë ¥ëœ ë¡œê·¸ì¸ ì •ë³´ë¥¼ ê°€ì ¸ì˜´.
 	FString RegisterUserID = RegisterMenu_UserIDText->GetText().ToString();
 	FString RegisterNickname = RegisterMenu_UserNicknameText->GetText().ToString();
 	FString RegisterPassword = RegisterMenu_UserPasswordText->GetText().ToString();
 
-	// °èÁ¤»ı¼º Á¤º¸¸¦ ¼­¹ö·Î Àü¼ÛÇÒ URL ¼³Á¤
-	FString URL = ""; // ¹é¿£µå ¼­¹ö URL
+	// ê³„ì •ìƒì„± ì •ë³´ë¥¼ ì„œë²„ë¡œ ì „ì†¡í•  URL ì„¤ì •
+	FString URL = ""; // ë°±ì—”ë“œ ì„œë²„ URL
 
-	// JSON °´Ã¼(Object) »ı¼º ÈÄ ÀÔ·ÂµÈ Á¤º¸ Ãß°¡
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject()); // »õ·Î¿î Json °´Ã¼ »ı¼º
+	// JSON ê°ì²´(Object) ìƒì„± í›„ ì…ë ¥ëœ ì •ë³´ ì¶”ê°€
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject()); // ìƒˆë¡œìš´ Json ê°ì²´ ìƒì„±
 
 	if (false == JsonObject.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to Create JsonObject"))
 	}
 
-	JsonObject->SetStringField("user_id", RegisterUserID); // UserID ÅØ½ºÆ®¸¦ ¹Ş¾Æ¼­ "user_id" Å°¿¡ ÀúÀå
-	JsonObject->SetStringField("nickname", RegisterNickname); // Nickname ÅØ½ºÆ®¸¦ ¹Ş¾Æ¼­ "nickname" Å°¿¡ ÀúÀå
-	JsonObject->SetStringField("password", RegisterPassword); // Password ÅØ½ºÆ®¸¦ ¹Ş¾Æ¼­ "password" Å°¿¡ ÀúÀå
+	JsonObject->SetStringField("user_id", RegisterUserID); // UserID í…ìŠ¤íŠ¸ë¥¼ ë°›ì•„ì„œ "user_id" í‚¤ì— ì €ì¥
+	JsonObject->SetStringField("nickname", RegisterNickname); // Nickname í…ìŠ¤íŠ¸ë¥¼ ë°›ì•„ì„œ "nickname" í‚¤ì— ì €ì¥
+	JsonObject->SetStringField("password", RegisterPassword); // Password í…ìŠ¤íŠ¸ë¥¼ ë°›ì•„ì„œ "password" í‚¤ì— ì €ì¥
 
-	// JSON µ¥ÀÌÅÍ¸¦ ¼­¹ö°¡ ÀÌÇØÇÒ ¼ö ÀÖ´Â ¹®ÀÚ¿­·Î º¯È¯
-	FString JsonPayload; // µ¥ÀÌÅÍ¸¦ ´ãÀ» JsonPayload ¶ó´Â ºó ¹®ÀÚ¿­ »ı¼º
+	// JSON ë°ì´í„°ë¥¼ ì„œë²„ê°€ ì´í•´í•  ìˆ˜ ìˆëŠ” ë¬¸ìì—´ë¡œ ë³€í™˜
+	FString JsonPayload; // ë°ì´í„°ë¥¼ ë‹´ì„ JsonPayload ë¼ëŠ” ë¹ˆ ë¬¸ìì—´ ìƒì„±
 
-	// JSON µ¥ÀÌÅÍ¸¦ ¹®ÀÚ¿­·Î ¹Ù²Ù´Â µµ±¸(Writer)¸¦ »ı¼º
+	// JSON ë°ì´í„°ë¥¼ ë¬¸ìì—´ë¡œ ë°”ê¾¸ëŠ” ë„êµ¬(Writer)ë¥¼ ìƒì„±
 	TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonPayload);
 	
-	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer); // JSON °´Ã¼¸¦ ¹®ÀÚ¿­·Î º¯È¯ÇÏ¿© JsonPayload¿¡ ÀúÀå
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer); // JSON ê°ì²´ë¥¼ ë¬¸ìì—´ë¡œ ë³€í™˜í•˜ì—¬ JsonPayloadì— ì €ì¥
 	if (false == FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to serialize JSON object"));
 		return;
 	}
 
-	// HTTP ¿äÃ»À» POST ¹æ½ÄÀ¸·Î ¼­¹ö·Î Àü¼Û
+	// HTTP ìš”ì²­ì„ POST ë°©ì‹ìœ¼ë¡œ ì„œë²„ë¡œ ì „ì†¡
 	SendRegisterRequest(URL, JsonPayload, "POST");
 }
 
-// °èÁ¤»ı¼º HTTP ¿äÃ»À» º¸³»´Â ÇÔ¼ö
+// ê³„ì •ìƒì„± HTTP ìš”ì²­ì„ ë³´ë‚´ëŠ” í•¨ìˆ˜
 void UKJH_LoginWidget::SendRegisterRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType)
 {
-	// 1. HTTP ¿äÃ» °´Ã¼¸¦ »ı¼º
+	// 1. HTTP ìš”ì²­ ê°ì²´ë¥¼ ìƒì„±
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 
-	// 2. ¿äÃ»ÀÌ ¿Ï·áµÇ¸é È£ÃâµÉ ÇÔ¼ö ÁöÁ¤ (ÀÀ´äÀ» Ã³¸®ÇÏ´Â ÇÔ¼ö ¹ÙÀÎµù)
+	// 2. ìš”ì²­ì´ ì™„ë£Œë˜ë©´ í˜¸ì¶œë  í•¨ìˆ˜ ì§€ì • (ì‘ë‹µì„ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜ ë°”ì¸ë”©)
 	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnRegisterResponseReceived);
 
-	// 3. ¿äÃ»ÇÒ URL ¼³Á¤
-	FString RequestURL = ""; // ¿äÃ»À» Ã³¸®ÇÒ URL ¼³Á¤
+	// 3. ìš”ì²­í•  URL ì„¤ì •
+	FString RequestURL = ""; // ìš”ì²­ì„ ì²˜ë¦¬í•  URL ì„¤ì •
 	Request->SetURL(RequestURL);
 
-	// 4. ¿äÃ» Å¸ÀÔ ¼³Á¤ (Post, Get µî)
+	// 4. ìš”ì²­ íƒ€ì… ì„¤ì • (Post, Get ë“±)
 	Request->SetVerb("POST");
 
-	// 5. ¿äÃ» Çì´õ¿¡ µ¥ÀÌÅÍ¸¦ ¾î¶² Çü½ÄÀ¸·Î Àü¼ÛÇÒÁö ¼³Á¤ (JSON µî)
+	// 5. ìš”ì²­ í—¤ë”ì— ë°ì´í„°ë¥¼ ì–´ë–¤ í˜•ì‹ìœ¼ë¡œ ì „ì†¡í• ì§€ ì„¤ì • (JSON ë“±)
 	Request->SetHeader("Content-Type", "application/json");
 
-	// 6. ¼­¹ö¿¡ º¸³¾ µ¥ÀÌÅÍ¸¦ ´ã¾Æ ¿äÃ»¿¡ ¼³Á¤
+	// 6. ì„œë²„ì— ë³´ë‚¼ ë°ì´í„°ë¥¼ ë‹´ì•„ ìš”ì²­ì— ì„¤ì •
 	Request->SetContentAsString(JsonPayload);
 
-	// 7. ¼³Á¤ÇÑ ¿äÃ»À» ¼­¹ö·Î Àü¼Û
+	// 7. ì„¤ì •í•œ ìš”ì²­ì„ ì„œë²„ë¡œ ì „ì†¡
 	Request->ProcessRequest();
 }
 
-// °èÁ¤»ı¼º HTTP ¿äÃ» °á°ú¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö
+// ê³„ì •ìƒì„± HTTP ìš”ì²­ ê²°ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
 void UKJH_LoginWidget::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	// 1. ¿äÃ» ¼º°ø°ú ÀÀ´ä¼º À¯È¿¿¡ ´ëÇØ È®ÀÎ
+	// 1. ìš”ì²­ ì„±ê³µê³¼ ì‘ë‹µì„± ìœ íš¨ì— ëŒ€í•´ í™•ì¸
 	if (false == bWasSuccessful || false == Response.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Register request failed")); // ¿äÃ» ½ÇÆĞ ·Î±×
+		UE_LOG(LogTemp, Warning, TEXT("Register request failed")); // ìš”ì²­ ì‹¤íŒ¨ ë¡œê·¸
 		return;
 	}
 
-	// 2. ¼­¹ö·ÎºÎÅÍ ¹ŞÀº ÀÀ´äÀ» ¹®ÀÚ¿­·Î °¡Á®¿È
+	// 2. ì„œë²„ë¡œë¶€í„° ë°›ì€ ì‘ë‹µì„ ë¬¸ìì—´ë¡œ ê°€ì ¸ì˜´
 	FString ResponseContent = Response->GetContentAsString();
-	UE_LOG(LogTemp, Log, TEXT("HTTP Response: %s"), *ResponseContent);  // ¹ŞÀº ÀÀ´äÀ» ·Î±×·Î Ãâ·Â
+	UE_LOG(LogTemp, Log, TEXT("HTTP Response: %s"), *ResponseContent);  // ë°›ì€ ì‘ë‹µì„ ë¡œê·¸ë¡œ ì¶œë ¥
 
-	// 3. JSON ÀÀ´äÀ» Ã³¸®ÇÏ±â À§ÇØ JSON °´Ã¼ »ı¼º
+	// 3. JSON ì‘ë‹µì„ ì²˜ë¦¬í•˜ê¸° ìœ„í•´ JSON ê°ì²´ ìƒì„±
 	TSharedPtr<FJsonObject> JsonObject;
 
-	// 4. ÀÀ´ä ³»¿ëÀ» Json Çü½ÄÀ¸·Î ÀĞ±â À§ÇÑ ¸®´õ °´Ã¼ »ı¼º
+	// 4. ì‘ë‹µ ë‚´ìš©ì„ Json í˜•ì‹ìœ¼ë¡œ ì½ê¸° ìœ„í•œ ë¦¬ë” ê°ì²´ ìƒì„±
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
 
-	// 5. JSON ÀÀ´äÀ» ÆÄ½Ì(±¸¹® ÇØ¼®), ¼º°øÀûÀ¸·Î ÆÄ½Ì ½Ã, JsonObject¿¡ µ¥ÀÌÅÍ »ğÀÔ
+	// 5. JSON ì‘ë‹µì„ íŒŒì‹±(êµ¬ë¬¸ í•´ì„), ì„±ê³µì ìœ¼ë¡œ íŒŒì‹± ì‹œ, JsonObjectì— ë°ì´í„° ì‚½ì…
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
-		// 6. ¼­¹ö ÀÀ´ä¿¡¼­ "success" ¶ó´Â ÇÊµå¸¦ Ã£¾Æ, ¼º°ø ¿©ºÎ¸¦ È®ÀÎ
+		// 6. ì„œë²„ ì‘ë‹µì—ì„œ "success" ë¼ëŠ” í•„ë“œë¥¼ ì°¾ì•„, ì„±ê³µ ì—¬ë¶€ë¥¼ í™•ì¸
 		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
 
-		if (bSuccess) // °èÁ¤»ı¼º¿¡ ¼º°ø ½Ã, °èÁ¤»ı¼ºÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù. UI ¼ÛÃâ
+		if (bSuccess) // ê³„ì •ìƒì„±ì— ì„±ê³µ ì‹œ, ê³„ì •ìƒì„±ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤. UI ì†¡ì¶œ
 		{
-			// UI ¼ÛÃâÇÏ´Â ·ÎÁ÷ (ÃßÈÄ Ãß°¡)
+			// UI ì†¡ì¶œí•˜ëŠ” ë¡œì§ (ì¶”í›„ ì¶”ê°€)
 		}
-		else // ½ÇÆĞ ½Ã ·Î±× Ãâ·Â
+		else // ì‹¤íŒ¨ ì‹œ ë¡œê·¸ ì¶œë ¥
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Register Failed!"));
 		}
 	}
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - ·Î±×ÀÎ °ü·Ã =======================================================================================================
-// ·Î±×ÀÎ ¿äÃ» ÇÔ¼ö
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ë¡œê·¸ì¸ ê´€ë ¨ =======================================================================================================
+// ë¡œê·¸ì¸ ìš”ì²­ í•¨ìˆ˜
 void UKJH_LoginWidget::OnMyLogin()
 {
-	// 1. ÀÔ·ÂµÈ Á¤º¸¸¦ °¡Á®¿È
+	// 1. ì…ë ¥ëœ ì •ë³´ë¥¼ ê°€ì ¸ì˜´
 	FString LoginUserID = LoginMenu_UserIDText->GetText().ToString();
 	FString LoginPassword = LoginMenu_UserPasswordText->GetText().ToString();
 
-	// 2. ·Î±×ÀÎ Á¤º¸¸¦ ¼­¹ö·Î Àü¼ÛÇÒ URL ¼³Á¤
-	FString URL = ""; // ¹é¿£µå ¼­¹ö URL
+	// 2. ë¡œê·¸ì¸ ì •ë³´ë¥¼ ì„œë²„ë¡œ ì „ì†¡í•  URL ì„¤ì •
+	FString URL = ""; // ë°±ì—”ë“œ ì„œë²„ URL
 
-	//// 3. JSON °´Ã¼ »ı¼º ÈÄ ÀÔ·ÂµÈ Á¤º¸ Ãß°¡
+	//// 3. JSON ê°ì²´ ìƒì„± í›„ ì…ë ¥ëœ ì •ë³´ ì¶”ê°€
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 	if (false == JsonObject.IsValid())
 	{
@@ -210,13 +210,13 @@ void UKJH_LoginWidget::OnMyLogin()
 	JsonObject->SetStringField("user_id", LoginUserID);
 	JsonObject->SetStringField("password", LoginPassword);
 
-	// 4. JSON µ¥ÀÌÅÍ¸¦ ¼­¹ö°¡ ÀÌÇØÇÒ ¼ö ÀÖ´Â ¹®ÀÚ¿­·Î º¯È¯
-	FString JsonPayload; // µ¥ÀÌÅÍ¸¦ ´ãÀ» JsonPayload ¶ó´Â ºó ¹®ÀÚ¿­ »ı¼º
+	// 4. JSON ë°ì´í„°ë¥¼ ì„œë²„ê°€ ì´í•´í•  ìˆ˜ ìˆëŠ” ë¬¸ìì—´ë¡œ ë³€í™˜
+	FString JsonPayload; // ë°ì´í„°ë¥¼ ë‹´ì„ JsonPayload ë¼ëŠ” ë¹ˆ ë¬¸ìì—´ ìƒì„±
 
-	// 5. JSON µ¥ÀÌÅÍ¸¦ ¹®ÀÚ¿­·Î ¹Ù²Ù´Â µµ±¸(Writer)¸¦ »ı¼º
+	// 5. JSON ë°ì´í„°ë¥¼ ë¬¸ìì—´ë¡œ ë°”ê¾¸ëŠ” ë„êµ¬(Writer)ë¥¼ ìƒì„±
 	TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&JsonPayload);
 
-	// 6. JSON °´Ã¼¸¦ ¹®ÀÚ¿­·Î º¯È¯ÇÏ¿© JsonPayload¿¡ ÀúÀå
+	// 6. JSON ê°ì²´ë¥¼ ë¬¸ìì—´ë¡œ ë³€í™˜í•˜ì—¬ JsonPayloadì— ì €ì¥
 	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 	if (false == FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
 	{
@@ -224,70 +224,70 @@ void UKJH_LoginWidget::OnMyLogin()
 		return;
 	}
 
-	// 7. HTTP ¿äÃ»À» POST ¹æ½ÄÀ¸·Î ¼­¹ö·Î Àü¼Û
+	// 7. HTTP ìš”ì²­ì„ POST ë°©ì‹ìœ¼ë¡œ ì„œë²„ë¡œ ì „ì†¡
 	SendLoginRequest(URL, JsonPayload, "POST");
 }
 
 
-// ·Î±×ÀÎ HTTP ¿äÃ»À» º¸³»´Â ÇÔ¼ö
+// ë¡œê·¸ì¸ HTTP ìš”ì²­ì„ ë³´ë‚´ëŠ” í•¨ìˆ˜
 void UKJH_LoginWidget::SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType)
 {
-	// 1. HTTP ¿äÃ» °´Ã¼¸¦ »ı¼º
+	// 1. HTTP ìš”ì²­ ê°ì²´ë¥¼ ìƒì„±
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 
-	// 2. ¿äÃ»ÀÌ ¿Ï·áµÇ¸é È£ÃâµÉ ÇÔ¼ö ÁöÁ¤ (ÀÀ´äÀ» Ã³¸®ÇÏ´Â ÇÔ¼ö ¹ÙÀÎµù)
+	// 2. ìš”ì²­ì´ ì™„ë£Œë˜ë©´ í˜¸ì¶œë  í•¨ìˆ˜ ì§€ì • (ì‘ë‹µì„ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜ ë°”ì¸ë”©)
 	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnLoginResponseReceived);
 
-	// 3. ¿äÃ»ÇÒ URL ¼³Á¤
-	FString RequestURL = ""; // ¿äÃ»À» Ã³¸®ÇÒ URL ¼³Á¤
+	// 3. ìš”ì²­í•  URL ì„¤ì •
+	FString RequestURL = ""; // ìš”ì²­ì„ ì²˜ë¦¬í•  URL ì„¤ì •
 	Request->SetURL(RequestURL);
 
-	// 4. ¿äÃ» Å¸ÀÔ ¼³Á¤ (Post, Get µî)
+	// 4. ìš”ì²­ íƒ€ì… ì„¤ì • (Post, Get ë“±)
 	Request->SetVerb("POST");
 
-	// 5. ¿äÃ» Çì´õ¿¡ µ¥ÀÌÅÍ¸¦ ¾î¶² Çü½ÄÀ¸·Î Àü¼ÛÇÒÁö ¼³Á¤ (JSON µî)
+	// 5. ìš”ì²­ í—¤ë”ì— ë°ì´í„°ë¥¼ ì–´ë–¤ í˜•ì‹ìœ¼ë¡œ ì „ì†¡í• ì§€ ì„¤ì • (JSON ë“±)
 	Request->SetHeader("Content-Type", "application/json");
 
-	// 6. ¼­¹ö¿¡ º¸³¾ µ¥ÀÌÅÍ¸¦ ´ã¾Æ ¿äÃ»¿¡ ¼³Á¤
+	// 6. ì„œë²„ì— ë³´ë‚¼ ë°ì´í„°ë¥¼ ë‹´ì•„ ìš”ì²­ì— ì„¤ì •
 	Request->SetContentAsString(JsonPayload);
 
-	// 7. ¼³Á¤ÇÑ ¿äÃ»À» ¼­¹ö·Î Àü¼Û
+	// 7. ì„¤ì •í•œ ìš”ì²­ì„ ì„œë²„ë¡œ ì „ì†¡
 	Request->ProcessRequest();
 }
 
-// ·Î±×ÀÎ HTTP ¿äÃ» °á°ú¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö
+// ë¡œê·¸ì¸ HTTP ìš”ì²­ ê²°ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
 void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	// 1. ¿äÃ» ¼º°ø°ú ÀÀ´ä¼º À¯È¿¿¡ ´ëÇØ È®ÀÎ
+	// 1. ìš”ì²­ ì„±ê³µê³¼ ì‘ë‹µì„± ìœ íš¨ì— ëŒ€í•´ í™•ì¸
 	if (false == bWasSuccessful || false == Response.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Login request failed")); // ¿äÃ» ½ÇÆĞ ·Î±×
+		UE_LOG(LogTemp, Warning, TEXT("Login request failed")); // ìš”ì²­ ì‹¤íŒ¨ ë¡œê·¸
 		return;
 	}
 
-	// 2. ¼­¹ö·ÎºÎÅÍ ¹ŞÀº ÀÀ´äÀ» ¹®ÀÚ¿­·Î °¡Á®¿È
+	// 2. ì„œë²„ë¡œë¶€í„° ë°›ì€ ì‘ë‹µì„ ë¬¸ìì—´ë¡œ ê°€ì ¸ì˜´
 	FString ResponseContent = Response->GetContentAsString();
-	UE_LOG(LogTemp, Log, TEXT("Login Response: %s"), *ResponseContent);  // ¹ŞÀº ÀÀ´äÀ» ·Î±×·Î Ãâ·Â
+	UE_LOG(LogTemp, Log, TEXT("Login Response: %s"), *ResponseContent);  // ë°›ì€ ì‘ë‹µì„ ë¡œê·¸ë¡œ ì¶œë ¥
 
-	// 3. JSON ÀÀ´äÀ» Ã³¸®ÇÏ±â À§ÇØ JSON °´Ã¼ »ı¼º
+	// 3. JSON ì‘ë‹µì„ ì²˜ë¦¬í•˜ê¸° ìœ„í•´ JSON ê°ì²´ ìƒì„±
 	TSharedPtr<FJsonObject> JsonObject;
 
-	// 4. ÀÀ´ä ³»¿ëÀ» Json Çü½ÄÀ¸·Î ÀĞ±â À§ÇÑ ¸®´õ °´Ã¼ »ı¼º
+	// 4. ì‘ë‹µ ë‚´ìš©ì„ Json í˜•ì‹ìœ¼ë¡œ ì½ê¸° ìœ„í•œ ë¦¬ë” ê°ì²´ ìƒì„±
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
 
-	// 5. JSON ÀÀ´äÀ» ÆÄ½Ì(±¸¹® ÇØ¼®), ¼º°øÀûÀ¸·Î ÆÄ½Ì ½Ã, JsonObject¿¡ µ¥ÀÌÅÍ »ğÀÔ
+	// 5. JSON ì‘ë‹µì„ íŒŒì‹±(êµ¬ë¬¸ í•´ì„), ì„±ê³µì ìœ¼ë¡œ íŒŒì‹± ì‹œ, JsonObjectì— ë°ì´í„° ì‚½ì…
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
-		// 6. ¼­¹ö ÀÀ´ä¿¡¼­ "success" ¶ó´Â ÇÊµå¸¦ Ã£¾Æ, ¼º°ø ¿©ºÎ¸¦ È®ÀÎ
+		// 6. ì„œë²„ ì‘ë‹µì—ì„œ "success" ë¼ëŠ” í•„ë“œë¥¼ ì°¾ì•„, ì„±ê³µ ì—¬ë¶€ë¥¼ í™•ì¸
 		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
 
-		if (bSuccess) // ·Î±×ÀÎ¿¡ ¼º°ø ½Ã, °ÔÀÓ ÀÎ½ºÅÏ½º¸¦ °¡Á®¿Í ServerWidgetMapÀ¸·Î ÀÌµ¿
+		if (bSuccess) // ë¡œê·¸ì¸ì— ì„±ê³µ ì‹œ, ê²Œì„ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ ServerWidgetMapìœ¼ë¡œ ì´ë™
 		{
 			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
 			if (GameInstance)
 				GameInstance->LoadServerWidgetMap();
 		}
-		else // ½ÇÆĞ ½Ã ·Î±× Ãâ·Â
+		else // ì‹¤íŒ¨ ì‹œ ë¡œê·¸ ì¶œë ¥
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Login Failed!"));
 		}
@@ -295,7 +295,7 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 	}
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - °Ô½ºÆ® ·Î±×ÀÎ °ü·Ã =======================================================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ê²ŒìŠ¤íŠ¸ ë¡œê·¸ì¸ ê´€ë ¨ =======================================================================================================
 void UKJH_LoginWidget::OnMyGuestLogin()
 {
 	UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
