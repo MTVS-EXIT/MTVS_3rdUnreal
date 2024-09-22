@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -31,14 +31,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// »õ·Î¿î ÇÃ·¹ÀÌ¾î ÄÁÆ®·Ñ·¯ ÇÒ´çµÇ¸é Enhanced InputÀ» ´Ù½Ã ¸ÅÇÎÇØÁÖ´Â Possessed ÇÔ¼ö
+	// ìƒˆë¡œìš´ í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ í• ë‹¹ë˜ë©´ Enhanced Inputì„ ë‹¤ì‹œ ë§¤í•‘í•´ì£¼ëŠ” Possessed í•¨ìˆ˜
 	virtual void PossessedBy(AController* NewController) override;
 
 	//==============================================
-	//ÀÎ½ºÅÏ½º
+	//ì¸ìŠ¤í„´ìŠ¤
 	//==============================================
 
-	//Ãæµ¹Ã¼, ¸Ş½Ã, Ä«¸Ş¶ó
+	//ì¶©ëŒì²´, ë©”ì‹œ, ì¹´ë©”ë¼
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USphereComponent* SphereComp;
 
@@ -48,33 +48,33 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCameraComponent* CameraComp;
 
-	// VOIP Talker ÄÄÆ÷³ÍÆ®
+	// VOIP Talker ì»´í¬ë„ŒíŠ¸
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voice Chat", meta = (AllowPrivateAccess = "true"))
 	class UVOIPTalker* VOIPTalkerComp;
 
 
 
-	//ÀÌµ¿¼Óµµ
+	//ì´ë™ì†ë„
 	UPROPERTY(EditDefaultsOnly)
 	FVector DroneCurrentSpeed;
 
-	//°¡¼Óµµ º¯¼ö
+	//ê°€ì†ë„ ë³€ìˆ˜
 	UPROPERTY(EditDefaultsOnly)
 	FVector DroneAcceleration;
 
-	//ÃÖ´ë¼Óµµ
+	//ìµœëŒ€ì†ë„
 	UPROPERTY(EditDefaultsOnly)
 	float DroneMaxSpeed;
 
-	//°¡¼Óµµ Áõ°¡À²
+	//ê°€ì†ë„ ì¦ê°€ìœ¨
 	UPROPERTY(EditDefaultsOnly)
 	float DroneAccelerateRate;
 
-	//°¨¼Óµµ
+	//ê°ì†ë„
 	UPROPERTY(EditDefaultsOnly)
 	float DroneDecelerateRate;
 
-	//ÀÌµ¿¹æÇâ
+	//ì´ë™ë°©í–¥
 	FVector DroneDirection;
 
 	//Input Action
@@ -102,164 +102,176 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* IA_Voice;
 
-	//MainUI ÀÎ½ºÅÏ½º
+	//MainUI ì¸ìŠ¤í„´ìŠ¤
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> DroneMainUIFactory;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UUserWidget* DroneMainUI;
 
-	//KHS JsonParseLib ÀÎ½ºÅÏ½º
+	//KHS JsonParseLib ì¸ìŠ¤í„´ìŠ¤
 	UPROPERTY(EditDefaultsOnly)
 	class UKHS_JsonParseLib* KHSJsonLib;
 
-	//AI HUD UI ¼³Á¤ º¯¼ö Set
+	//AI HUD UI ì„¤ì • ë³€ìˆ˜ Set
 
-	//Ä«¸Ş¶ó½¦ÀÌÅ© ÀÎ½ºÅÏ½º(¿òÁ÷ÀÓ)
+	//ì¹´ë©”ë¼ì‰ì´í¬ ì¸ìŠ¤í„´ìŠ¤(ì›€ì§ì„)
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
 	TSubclassOf<UCameraShakeBase> DroneCameraShake;
-	//½¦ÀÌÅ© ÁÖ±â
+	//ì‰ì´í¬ ì£¼ê¸°
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Shake")
 	float DroneShakeInterval;
-	//¸¶Áö¸· ½¦ÀÌÅ© ÈÄ °æ°ú½Ã°£
+	//ë§ˆì§€ë§‰ ì‰ì´í¬ í›„ ê²½ê³¼ì‹œê°„
 	float TimeSinceLastShake;
 
-	//Hovering ¸Ş½Ã Èçµé¸² º¯¼ö
+	//Hovering ë©”ì‹œ í”ë“¤ë¦¼ ë³€ìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
-	float HoverAmplitude; //»óÇÏÈçµé¸² ÁøÆø(¸Ş½Ã°¡ ¿òÁ÷ÀÌ´Â ¹üÀ§)
+	float HoverAmplitude; //ìƒí•˜í”ë“¤ë¦¼ ì§„í­(ë©”ì‹œê°€ ì›€ì§ì´ëŠ” ë²”ìœ„)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
-	float HoverFrequency; //»óÇÏÈçµé¸² ÁÖÆÄ¼ö(¿òÁ÷ÀÌ´Â ¼Óµµ)
+	float HoverFrequency; //ìƒí•˜í”ë“¤ë¦¼ ì£¼íŒŒìˆ˜(ì›€ì§ì´ëŠ” ì†ë„)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
-	float RollAmplitude; //ÁÂ¿ìÈ¸Àü ÁøÆø
+	float RollAmplitude; //ì¢Œìš°íšŒì „ ì§„í­
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hovering")
-	float RollFrequency; //ÁÂ¿ìÈ¸Àü ÁÖÆÄ¼ö
+	float RollFrequency; //ì¢Œìš°íšŒì „ ì£¼íŒŒìˆ˜
 
-	FVector OriginalMeshLocation; //¸Ş½Ã ±âÁ¸À§Ä¡ ÀúÀå
-	FRotator OriginalMeshRotation; //¸Ş½Ã ±âÁ¸È¸Àü ÀúÀå
+	FVector OriginalMeshLocation; //ë©”ì‹œ ê¸°ì¡´ìœ„ì¹˜ ì €ì¥
+	FRotator OriginalMeshRotation; //ë©”ì‹œ ê¸°ì¡´íšŒì „ ì €ì¥
 
-	//Post Process Radial Blur °­µµ °áÁ¤ º¯¼ö
+	//Post Process Radial Blur ê°•ë„ ê²°ì • ë³€ìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PoProcess")
 	class UMaterialParameterCollection* MPC_DroneBlur;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PoProcess")
 	class UMaterialInterface* RadialBlurMaterial;
 
-	//Post Process Depth Of Field(½Éµµ) °áÁ¤ º¯¼ö
-	// Æ÷½ºÆ® ÇÁ·Î¼¼½º ¼³Á¤
+	//Post Process Depth Of Field(ì‹¬ë„) ê²°ì • ë³€ìˆ˜
+	// í¬ìŠ¤íŠ¸ í”„ë¡œì„¸ìŠ¤ ì„¤ì •
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PoProcess")
     FPostProcessSettings PostProcessSettings;
 
-    // ÇöÀç ÃÊÁ¡ °Å¸®
+    // í˜„ì¬ ì´ˆì  ê±°ë¦¬
     float FocusDistance;
 
-	//Drone AI Objection ¼³Á¤ º¯¼ö Set
-	//°¨ÁöµÈ Actors¸¦ ÃßÀûÇÏ±â À§ÇÑ TSet
+	//Drone AI Objection ì„¤ì • ë³€ìˆ˜ Set
+	//ê°ì§€ëœ Actorsë¥¼ ì¶”ì í•˜ê¸° ìœ„í•œ TSet
 	TSet<class AKHS_AIVisionObject*> DetectedAIVisionObjects;
 
-	//ÅÂ±×°¡ ¼³Á¤µÇ¾ú´ÂÁö ¿©ºÎ
+	//íƒœê·¸ê°€ ì„¤ì •ë˜ì—ˆëŠ”ì§€ ì—¬ë¶€
 	bool bIsTagSet;
 
-	//ÅÂ±×¸¦ »ç¿ëÇÏ¿© °¨Áö ÁßÀÎÁö ¿©ºÎ
+	//íƒœê·¸ë¥¼ ì‚¬ìš©í•˜ì—¬ ê°ì§€ ì¤‘ì¸ì§€ ì—¬ë¶€
 	bool bIsCurrentlyDetecting;
 
 	//AI Image Sending URL
-	FString AIDetectionURL = "metaai.iptime.org:7722/detect";
+	//FString AIDetectionURL = "metaai.iptime.org:7722/detect/";
+	FString AIDetectionURL = "http://192.168.219.116:7722/detect/";
 
-	// SceneCapture2D ¾×ÅÍ ÂüÁ¶
+	// SceneCapture2D ì•¡í„° ì°¸ì¡°
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class ASceneCapture2D* SceneCaptureActor;
 
-	// Ä¸Ã³ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÒ ÅØ½ºÃ³ ·»´õ Å¸°Ù
+	// ìº¡ì²˜ ë°ì´í„°ë¥¼ ì €ì¥í•  í…ìŠ¤ì²˜ ë Œë” íƒ€ê²Ÿ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
 	class UTextureRenderTarget2D* RenderTarget;
 
 	//AIChatBot Sending URL
-	FString AIChatbotURL = "metaai.iptime.org:7722/chatbot";
+	//FString AIChatbotURL = "metaai.iptime.org:7722/chatbot/";
+	FString AIChatbotURL = "http://192.168.219.116:7722/chatbot/";
 
+	//AIChatBot STT ë³€ìˆ˜ë“¤
+	FString DisplayedText; //í˜„ì¬ê¹Œì§€ í‘œì‹œëœ í…ìŠ¤íŠ¸ë“¤
+	FString FullText; //íŒŒì‹±í•œ ì „ì²´ í…ìŠ¤íŠ¸
+	int32 CurrentCharIndex; //í‘œì‹œí…ìŠ¤íŠ¸ ì¸ë±ìŠ¤
+	FTimerHandle TextDisplayTimerHandle; //í…ìŠ¤íŠ¸ ì• ë‹ˆë©”ì´ì…˜ í•¸ë“¤
 
 	//==============================================
-	//ÇÔ¼ö
+	//í•¨ìˆ˜
 	//==============================================
 
-	//µå·Ğ ÀÌµ¿ÇÔ¼ö
+	//ë“œë¡  ì´ë™í•¨ìˆ˜
 	void DroneLook(const FInputActionValue& Value);
 	void DroneMoveFwd(const FInputActionValue& Value);
 	void DroneMoveRight(const FInputActionValue& Value);
 	void DroneMoveUp(const FInputActionValue& Value);
 	void DroneMoveDown(const FInputActionValue& Value);
 
-	//Ä«¸Ş¶ó½¦ÀÌÅ© Àç»ıÇÔ¼ö
+	//ì¹´ë©”ë¼ì‰ì´í¬ ì¬ìƒí•¨ìˆ˜
 	void PlayDroneCameraShake();
 
-	//°íµµ°è ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+	//ê³ ë„ê³„ ì—…ë°ì´íŠ¸ í•¨ìˆ˜
 	void DroneAltitudeUpdate();
 
-	//Post Process(Radial Blur, Depth of Field) ¼³Á¤ ÇÔ¼ö
+	//Post Process(Radial Blur, Depth of Field) ì„¤ì • í•¨ìˆ˜
 	void SetDronePostProcess();
 
-	//Drone Outline PostProcess È¿°ú ÇÔ¼ö
+	//Drone Outline PostProcess íš¨ê³¼ í•¨ìˆ˜
 	void DroneShowOutline();
 
-	// ¶óÀÎÆ®·¹ÀÌ½º ±â¹İ À±°û¼± Ç¥½Ã ÇÔ¼ö
+	// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ê¸°ë°˜ ìœ¤ê³½ì„  í‘œì‹œ í•¨ìˆ˜
 	void DroneEnableOutline(AActor* HitActor);
 
-	// ¶óÀÎÆ®·¹ÀÌ½º ±â¹İ ½Ã¾ß ¹ş¾î³µÀ»¶§ À±°û¼± ÇØÁ¦ ÇÔ¼ö
+	// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ê¸°ë°˜ ì‹œì•¼ ë²—ì–´ë‚¬ì„ë•Œ ìœ¤ê³½ì„  í•´ì œ í•¨ìˆ˜
 	void DroneDisableOutline(AActor* HitActor);
 
-	// VOIP °ü·Ã ÃÊ±âÈ­ ÀÛ¾÷À» ¼öÇà
+	// VOIP ê´€ë ¨ ì´ˆê¸°í™” ì‘ì—…ì„ ìˆ˜í–‰
 	void InitializeVOIP();
 
-	// ¸¶ÀÌÅ© ÀÓ°è°ªÀ» ¼³Á¤
+	// ë§ˆì´í¬ ì„ê³„ê°’ì„ ì„¤ì •
 	void SetMicThreshold(float Threshold);
 
-	// ÇÃ·¹ÀÌ¾î »óÅÂ¿¡ µî·Ï
+	// í”Œë ˆì´ì–´ ìƒíƒœì— ë“±ë¡
 	void RegisterWithPlayerState();
 
-	// ·ÎÄÃ ÇÃ·¹ÀÌ¾î°¡ Á¦¾î ÁßÀÎÁö Ã¼Å©
+	// ë¡œì»¬ í”Œë ˆì´ì–´ê°€ ì œì–´ ì¤‘ì¸ì§€ ì²´í¬
 	bool IsLocallyControlled() const;
 
-	//StartNetworkVoice ³×Æ®¿öÅ©·Î »ç¿îµå¸¦ º¸³¿
+	//StartNetworkVoice ë„¤íŠ¸ì›Œí¬ë¡œ ì‚¬ìš´ë“œë¥¼ ë³´ëƒ„
 	void SetUpNetworkVoice(); 
 
-	//StopNetworkVoice ³×Æ®¿öÅ©·Î »ç¿îµå º¸³»±â ÁßÁö
+	//StopNetworkVoice ë„¤íŠ¸ì›Œí¬ë¡œ ì‚¬ìš´ë“œ ë³´ë‚´ê¸° ì¤‘ì§€
 	void StopVoice(); 
 
-	//VOIP ´ë»óÀÚ µî·Ï
+	//VOIP ëŒ€ìƒì ë“±ë¡
 	void RegisterRemoteTalker();
 
-	// °¨ÁöµÈ ¾×ÅÍ¸¦ ÁÖ±âÀûÀ¸·Î È®ÀÎÇÏ´Â ÇÔ¼ö
+	// ê°ì§€ëœ ì•¡í„°ë¥¼ ì£¼ê¸°ì ìœ¼ë¡œ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
 	//void PeriodicallyCheckVision();
 
-	//ÅÂ±×¸¦ Àü´Ş¹Ş¾Æ Actor¸¦ °Ë»çÇÒ ÇÔ¼ö
+	//íƒœê·¸ë¥¼ ì „ë‹¬ë°›ì•„ Actorë¥¼ ê²€ì‚¬í•  í•¨ìˆ˜
 	void CheckVisionForTags(const TArray<FString>& TagsToCheck);
 
-	// ÅØ½ºÃ³¸¦ JPEG ÀÌ¹ÌÁö·Î ÀúÀåÇÏ´Â ÇÔ¼ö
+	// í…ìŠ¤ì²˜ë¥¼ JPEG ì´ë¯¸ì§€ë¡œ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
 	UFUNCTION(BlueprintCallable, Category="Capture")
 	void SaveCaptureToImage();
 
-	// ÀÌ¹ÌÁö ÀúÀå °æ·Î¸¦ ¼³Á¤ÇÏ´Â ÇÔ¼ö
+	// ì´ë¯¸ì§€ ì €ì¥ ê²½ë¡œë¥¼ ì„¤ì •í•˜ëŠ” í•¨ìˆ˜
 	FString GetImagePath(const FString& FileName) const;
 
-	// ÀÌ¹ÌÁö Àü¼Û ÇÔ¼ö (¼­¹ö Àü¼Û ±¸Çö)
+	// ì´ë¯¸ì§€ ì „ì†¡ í•¨ìˆ˜ (ì„œë²„ ì „ì†¡ êµ¬í˜„)
 	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);
 
-	// AI¿¡°Ô Ã³¸® ÀÌ¹ÌÁö¸¦ ¹İÈ¯¹ŞÀ»¶§ Ã³¸®¸¦ ÁøÇàÇÒ ÇÔ¼ö
+	// AIì—ê²Œ ì²˜ë¦¬ ì´ë¯¸ì§€ë¥¼ ë°˜í™˜ë°›ì„ë•Œ ì²˜ë¦¬ë¥¼ ì§„í–‰í•  í•¨ìˆ˜
 	void OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-	// SceneCaptureActor¸¦ µå·ĞÀÇ Ä«¸Ş¶ó¿Í °°Àº À§Ä¡ ¹× °¢µµ·Î µ¿±âÈ­ÇÏ´Â ÇÔ¼ö
+	// SceneCaptureActorë¥¼ ë“œë¡ ì˜ ì¹´ë©”ë¼ì™€ ê°™ì€ ìœ„ì¹˜ ë° ê°ë„ë¡œ ë™ê¸°í™”í•˜ëŠ” í•¨ìˆ˜
 	void SyncSceneCaptureWithCamera();
 
-	// ¼­¹ö·Î ¿Àµğ¿À ÆÄÀÏ Àü¼Û ÇÔ¼ö
+	// ì„œë²„ë¡œ ì˜¤ë””ì˜¤ íŒŒì¼ ì „ì†¡ í•¨ìˆ˜
 	UFUNCTION(BlueprintCallable)
 	void SendAudioToServer(const FString& FilePath);
 
-	// ¼­¹ö·Î ¿Àµğ¿À ÆÄÀÏ ¾÷·Îµå ¿Ï·á ½Ã È£ÃâµÇ´Â Äİ¹é ÇÔ¼ö
+	// ì„œë²„ë¡œ ì˜¤ë””ì˜¤ íŒŒì¼ ì—…ë¡œë“œ ì™„ë£Œ ì‹œ í˜¸ì¶œë˜ëŠ” ì½œë°± í•¨ìˆ˜
 	void OnAudioUploadComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-	// STT Äİ¹é ÇÔ¼ö
+	// STT ì½œë°± í•¨ìˆ˜
 	void CallParsingAIText(const FString& json);
+	// Text ì• ë‹ˆë©”ì´ì…˜ í•¨ìˆ˜
+	void UpdateDisplayedText();
 
-	// STS Äİ¹é ÇÔ¼ö
+	// STS ì½œë°± í•¨ìˆ˜
 	void CallParsingAISound(const FString& json);
+
+	UFUNCTION(BlueprintCallable)
+	void TestSound();
 
 };

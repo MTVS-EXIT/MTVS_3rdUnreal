@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KHS/KHS_DronePlayer.h"
@@ -47,7 +47,7 @@ AKHS_DronePlayer::AKHS_DronePlayer()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//Ãæµ¹Ã¼, ¸Ş½Ã, Ä«¸Ş¶ó
+	//ì¶©ëŒì²´, ë©”ì‹œ, ì¹´ë©”ë¼
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SetRootComponent(SphereComp);
 
@@ -66,26 +66,26 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 		MeshComp->SetRelativeScale3D(FVector(0.15f));
 	}
 
-	// VOIP Talker ÄÄÆ÷³ÍÆ®¸¦ »ı¼ºÇÏ°í, VOIPTalkerComponent Æ÷ÀÎÅÍ¿¡ ÇÒ´ç.
+	// VOIP Talker ì»´í¬ë„ŒíŠ¸ë¥¼ ìƒì„±í•˜ê³ , VOIPTalkerComponent í¬ì¸í„°ì— í• ë‹¹.
 	VOIPTalkerComp = CreateDefaultSubobject<UVOIPTalker>(TEXT("VOIPTalkerComp"));
 
 
-	// ÀÌ¹ÌÁö Ä¸ÃÄ ¿ëµµ ·»´õ Å¸°Ù »ı¼º ¹× ¼³Á¤
+	// ì´ë¯¸ì§€ ìº¡ì³ ìš©ë„ ë Œë” íƒ€ê²Ÿ ìƒì„± ë° ì„¤ì •
 	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
 	RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
-	RenderTarget->InitAutoFormat(1280, 720); // ¿øÇÏ´Â ÇØ»óµµ·Î ÃÊ±âÈ­
+	RenderTarget->InitAutoFormat(1280, 720); // ì›í•˜ëŠ” í•´ìƒë„ë¡œ ì´ˆê¸°í™”
 	
-	//Ä«¸Ş¶ó½¦ÀÌÅ© ½ºÅÈ
-	DroneShakeInterval = 0.5f;  //0.5ÃÊ¸¶´Ù Ä«¸Ş¶ó½¦ÀÌÅ©
+	//ì¹´ë©”ë¼ì‰ì´í¬ ìŠ¤íƒ¯
+	DroneShakeInterval = 0.5f;  //0.5ì´ˆë§ˆë‹¤ ì¹´ë©”ë¼ì‰ì´í¬
 	TimeSinceLastShake = 0.0f;
 
-	//Hovering ½ºÅÈ
+	//Hovering ìŠ¤íƒ¯
 	HoverAmplitude = 3.0f;
 	HoverFrequency = 1.0f;
 	RollAmplitude = 3.0f;
 	RollFrequency = 1.0f;
 
-	//Drone ½ºÅÈ ÃÊ±âÈ­
+	//Drone ìŠ¤íƒ¯ ì´ˆê¸°í™”
 	//DroneMaxSpeed = 3000.0f;
 	DroneMaxSpeed = 1500.0f;
 	//DroneAccelerateRate = 450.0f;
@@ -95,14 +95,14 @@ AKHS_DronePlayer::AKHS_DronePlayer()
 	DroneCurrentSpeed = FVector::ZeroVector;
 	DroneAcceleration = FVector::ZeroVector;
 
-	//RPC¼³Á¤ Ãß°¡
+	//RPCì„¤ì • ì¶”ê°€
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
 	//SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	//SphereComp->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 	//SphereComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	//SphereComp->SetSimulatePhysics(true);  // ¹°¸® ½Ã¹Ä·¹ÀÌ¼Ç È°¼ºÈ­
+	//SphereComp->SetSimulatePhysics(true);  // ë¬¼ë¦¬ ì‹œë®¬ë ˆì´ì…˜ í™œì„±í™”
 	//SphereComp->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 }
 
@@ -123,8 +123,8 @@ void AKHS_DronePlayer::BeginPlay()
 		}
 	}
 	
-	//µå·Ğ Main UIÃÊ±âÈ­
-	//·ÎÄÃ ÇÃ·¹ÀÌ¾îÀÎ °æ¿ì¿¡¸¸ UI»ı¼ºÇÏµµ·Ï ¼öÁ¤
+	//ë“œë¡  Main UIì´ˆê¸°í™”
+	//ë¡œì»¬ í”Œë ˆì´ì–´ì¸ ê²½ìš°ì—ë§Œ UIìƒì„±í•˜ë„ë¡ ìˆ˜ì •
 	if (IsLocallyControlled())
 	{
 		if (DroneMainUIFactory)
@@ -139,14 +139,14 @@ void AKHS_DronePlayer::BeginPlay()
 	}
 
 
-	//¸Ş½Ã À§Ä¡, È¸Àü ÀúÀå
+	//ë©”ì‹œ ìœ„ì¹˜, íšŒì „ ì €ì¥
 	OriginalMeshLocation = MeshComp->GetRelativeLocation();
 	OriginalMeshRotation = MeshComp->GetRelativeRotation();
 
-	// VOIP ÃÊ±âÈ­ ÀÛ¾÷ È£Ãâ
+	// VOIP ì´ˆê¸°í™” ì‘ì—… í˜¸ì¶œ
 	InitializeVOIP();
 
-	// ¿ùµå¿¡¼­ SceneCapture2D ¾×ÅÍ¸¦ °¡Á®¿È
+	// ì›”ë“œì—ì„œ SceneCapture2D ì•¡í„°ë¥¼ ê°€ì ¸ì˜´
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), FoundActors);
 
@@ -159,16 +159,17 @@ void AKHS_DronePlayer::BeginPlay()
 		USceneCaptureComponent2D* SceneCaptureComponent = SceneCaptureActor->GetCaptureComponent2D();
 		if (SceneCaptureComponent && CameraComp)
 		{
-			// CameraComp¿¡ SceneCaptureComponent¸¦ Attach
+			// CameraCompì— SceneCaptureComponentë¥¼ Attach
 			SceneCaptureComponent->AttachToComponent(CameraComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			SceneCaptureComponent->TextureTarget = RenderTarget;
 			SceneCaptureComponent->CaptureSource = SCS_FinalColorLDR;
-			SceneCaptureComponent->FOVAngle = CameraComp->FieldOfView; // µå·Ğ Ä«¸Ş¶ó¿Í °°Àº FOV
+			SceneCaptureComponent->FOVAngle = CameraComp->FieldOfView; // ë“œë¡  ì¹´ë©”ë¼ì™€ ê°™ì€ FOV
 		}
-		// ÃÊ±â SceneCaptureActorÀÇ ¼³Á¤À» µå·Ğ Ä«¸Ş¶ó¿Í µ¿±âÈ­
+		// ì´ˆê¸° SceneCaptureActorì˜ ì„¤ì •ì„ ë“œë¡  ì¹´ë©”ë¼ì™€ ë™ê¸°í™”
 		SyncSceneCaptureWithCamera();
 	}
 
+	//CallParsingAIText(""); //TESTìš©ë„
 }
 
 // Called every frame
@@ -176,88 +177,88 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//·ÎÄÃ ÇÃ·¹ÀÌ¾î°¡ ¾Æ´Ï¸é ÀÛµ¿ ¾ÈÇÔ
+	//ë¡œì»¬ í”Œë ˆì´ì–´ê°€ ì•„ë‹ˆë©´ ì‘ë™ ì•ˆí•¨
 	if (false == IsLocallyControlled())
 	{
 		return;
 	}
 
-	// Drone ÀÌµ¿ Ã³¸®
+	// Drone ì´ë™ ì²˜ë¦¬
 	FVector NewVelocity = DroneCurrentSpeed + (DroneAcceleration * DeltaTime);
 
 	for (int32 i = 0; i < 3; i++)
 	{
-		// ¹İ´ë ¹æÇâÀÇ °¡¼Óµµ°¡ µé¾î¿Ã ¶§ ¼­¼­È÷ °¨¼Ó
+		// ë°˜ëŒ€ ë°©í–¥ì˜ ê°€ì†ë„ê°€ ë“¤ì–´ì˜¬ ë•Œ ì„œì„œíˆ ê°ì†
 		if (FMath::Sign(DroneAcceleration[i]) != FMath::Sign(DroneCurrentSpeed[i]) && !FMath::IsNearlyZero(DroneCurrentSpeed[i]))
 		{
-			// ÇöÀç ¼Óµµ¸¦ ¼­¼­È÷ 0À¸·Î °¨¼Ò½ÃÅ´
+			// í˜„ì¬ ì†ë„ë¥¼ ì„œì„œíˆ 0ìœ¼ë¡œ ê°ì†Œì‹œí‚´
 			DroneCurrentSpeed[i] = FMath::FInterpTo(DroneCurrentSpeed[i], 0.0f, DeltaTime, DroneDecelerateRate);
 		}
 		else
 		{
-			// °¡¼Óµµ°¡ °°Àº ¹æÇâÀÌ¸é ÀÏ¹İ °¡¼Óµµ Àû¿ë
+			// ê°€ì†ë„ê°€ ê°™ì€ ë°©í–¥ì´ë©´ ì¼ë°˜ ê°€ì†ë„ ì ìš©
 			DroneCurrentSpeed[i] = NewVelocity[i];
 		}
 
-		// Å° ÀÔ·ÂÀÌ ¾øÀ» ¶§ ¼­¼­È÷ ¸ØÃßµµ·Ï Ã³¸®
+		// í‚¤ ì…ë ¥ì´ ì—†ì„ ë•Œ ì„œì„œíˆ ë©ˆì¶”ë„ë¡ ì²˜ë¦¬
 		if (DroneAcceleration.IsNearlyZero())
 		{
 			DroneCurrentSpeed[i] = FMath::FInterpTo(DroneCurrentSpeed[i], 0.0f, DeltaTime, DroneDecelerateRate);
 		}
 	}
 
-	// ÃÖ´ë ¼Óµµ Á¦ÇÑ
+	// ìµœëŒ€ ì†ë„ ì œí•œ
 	DroneCurrentSpeed = DroneCurrentSpeed.GetClampedToMaxSize(DroneMaxSpeed);
 
-	// À§Ä¡ ¾÷µ¥ÀÌÆ®
+	// ìœ„ì¹˜ ì—…ë°ì´íŠ¸
 	if (!DroneCurrentSpeed.IsNearlyZero())
 	{
 		FVector NewLocation = GetActorLocation() + (DroneCurrentSpeed * DeltaTime);
 		SetActorLocation(NewLocation);
 	}
 
-	// ÇÁ·¹ÀÓÀÌ ³¡³¯ ¶§ °¡¼Óµµ ÃÊ±âÈ­
+	// í”„ë ˆì„ì´ ëë‚  ë•Œ ê°€ì†ë„ ì´ˆê¸°í™”
 	DroneAcceleration = FVector::ZeroVector;
 
-	//°íµµ°è ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+	//ê³ ë„ê³„ ì—…ë°ì´íŠ¸ í•¨ìˆ˜
 	DroneAltitudeUpdate();
 
-	//»ç¹° À±°û¼± Ç¥½Ã ÇÔ¼ö
+	//ì‚¬ë¬¼ ìœ¤ê³½ì„  í‘œì‹œ í•¨ìˆ˜
 	DroneShowOutline();
 	
-	//Ä«¸Ş¶ó½¦ÀÌÅ© Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
+	//ì¹´ë©”ë¼ì‰ì´í¬ íƒ€ì´ë¨¸ ì—…ë°ì´íŠ¸
 	TimeSinceLastShake += DeltaTime;
 	if (TimeSinceLastShake >= DroneShakeInterval)
 	{
 		PlayDroneCameraShake();
-		TimeSinceLastShake = 0.0f; //Å¸ÀÌ¸Ó ÃÊ±âÈ­
+		TimeSinceLastShake = 0.0f; //íƒ€ì´ë¨¸ ì´ˆê¸°í™”
 	}
 
-	// »óÇÏ Hovering È¿°ú Àû¿ë
+	// ìƒí•˜ Hovering íš¨ê³¼ ì ìš©
 	float HoverOffset = HoverAmplitude * FMath::Sin(GetWorld()->TimeSeconds * HoverFrequency);
 	FVector NewLocation = OriginalMeshLocation + FVector(0, 0, HoverOffset);
 	MeshComp->SetRelativeLocation(NewLocation);
 
-	// ÁÂ¿ì ÆÄµµ È¿°ú Àû¿ë
+	// ì¢Œìš° íŒŒë„ íš¨ê³¼ ì ìš©
 	float RollOffset = RollAmplitude * FMath::Sin(GetWorld()->TimeSeconds * RollFrequency);
 	float PitchOffset = RollAmplitude * FMath::Cos(GetWorld()->TimeSeconds * RollFrequency);
 	FRotator NewRotation = OriginalMeshRotation + FRotator(PitchOffset, 0, RollOffset);
 	MeshComp->SetRelativeRotation(NewRotation);
 
-	// ½Ã¾ß¿¡ ÀÖ´Â ¸ğµç ÅÂ±×¸¦ °¡Áø Actor¸¦ °¨ÁöÇÏ°í À§Á¬ ÄÄÆ÷³ÍÆ®¸¦ È°¼ºÈ­/ºñÈ°¼ºÈ­
+	// ì‹œì•¼ì— ìˆëŠ” ëª¨ë“  íƒœê·¸ë¥¼ ê°€ì§„ Actorë¥¼ ê°ì§€í•˜ê³  ìœ„ì ¯ ì»´í¬ë„ŒíŠ¸ë¥¼ í™œì„±í™”/ë¹„í™œì„±í™”
 	TArray<FString> TagsToCheck = { TEXT("Safe"), TEXT("Caution"), TEXT("Danger") };
 	CheckVisionForTags(TagsToCheck);
 
-	//// ¸Å ÇÁ·¹ÀÓ¸¶´Ù °¨ÁöµÈ ¾×ÅÍ¸¦ Ã¼Å©
+	//// ë§¤ í”„ë ˆì„ë§ˆë‹¤ ê°ì§€ëœ ì•¡í„°ë¥¼ ì²´í¬
 	//if (bIsCurrentlyDetecting)
 	//{
 	//	PeriodicallyCheckVision();
 	//}
 
-	//Post Process(Radial Blur, Depth of Field) ¼³Á¤ ÇÔ¼ö
+	//Post Process(Radial Blur, Depth of Field) ì„¤ì • í•¨ìˆ˜
 	SetDronePostProcess();
 
-	// ¸Å ÇÁ·¹ÀÓ¸¶´Ù SceneCaptureActor¸¦ µå·Ğ Ä«¸Ş¶ó¿Í µ¿±âÈ­
+	// ë§¤ í”„ë ˆì„ë§ˆë‹¤ SceneCaptureActorë¥¼ ë“œë¡  ì¹´ë©”ë¼ì™€ ë™ê¸°í™”
 	SyncSceneCaptureWithCamera();
 
 }
@@ -267,7 +268,7 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// DronePlayer¿¡ ´ëÇØ subsys ¸¸µé±â(ClientÀÎ °æ¿ì ÇÊ¼öÇÊ¿ä)
+	// DronePlayerì— ëŒ€í•´ subsys ë§Œë“¤ê¸°(Clientì¸ ê²½ìš° í•„ìˆ˜í•„ìš”)
 	APlayerController* pc = Cast<APlayerController>(GetController());
 	if (pc)
 	{
@@ -302,37 +303,37 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
 	}
 }
-//Àç½ÃÀÛ½Ã Drone Player Possess¸¦ ´Ù½Ã Àâ¾ÆÁÜ
+//ì¬ì‹œì‘ì‹œ Drone Player Possessë¥¼ ë‹¤ì‹œ ì¡ì•„ì¤Œ
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
-	Super::PossessedBy(NewController); // ±âº» Å¬·¡½ºÀÇ Possess ·ÎÁ÷À» ´Ù½Ã ½ÇÇàÇÏ¿© Pawn°ú Controller °£ÀÇ ¿¬°áÀ» ¼³Á¤
+	Super::PossessedBy(NewController); // ê¸°ë³¸ í´ë˜ìŠ¤ì˜ Possess ë¡œì§ì„ ë‹¤ì‹œ ì‹¤í–‰í•˜ì—¬ Pawnê³¼ Controller ê°„ì˜ ì—°ê²°ì„ ì„¤ì •
 
-	// ÀÔ·Â ÄÄÆ÷³ÍÆ® ÃÊ±âÈ­
-	// Possess ÀÌÈÄ¿¡ ÀÔ·Â ÄÄÆ÷³ÍÆ®¸¦ ´Ù½Ã ¼³Á¤ÇÏ¿© µå·ĞÀÇ ÀÔ·Â ¹ÙÀÎµùÀÌ ¿Ã¹Ù¸£°Ô ÀÌ·ç¾îÁöµµ·Ï ÇÔ.
+	// ì…ë ¥ ì»´í¬ë„ŒíŠ¸ ì´ˆê¸°í™”
+	// Possess ì´í›„ì— ì…ë ¥ ì»´í¬ë„ŒíŠ¸ë¥¼ ë‹¤ì‹œ ì„¤ì •í•˜ì—¬ ë“œë¡ ì˜ ì…ë ¥ ë°”ì¸ë”©ì´ ì˜¬ë°”ë¥´ê²Œ ì´ë£¨ì–´ì§€ë„ë¡ í•¨.
 	SetupPlayerInputComponent(NewController->InputComponent);
 
-	// VOIP °ü·Ã ÃÊ±âÈ­ ÀÛ¾÷
-	// µå·ĞÀÌ »õ·Î ¼ÒÀ¯µÇ¾úÀ» ¶§ ÇÊ¿äÇÑ VOIP ¼³Á¤ µîÀ» ¿©±â¼­ ¼öÇà (º¸ÀÌ½ºÃ¤ÆÃ °ü·Ã)
-	InitializeVOIP();  // VOIP TalkerÀÇ ÃÊ±âÈ­ ¹× µî·Ï ÀÛ¾÷À» Ã³¸®
+	// VOIP ê´€ë ¨ ì´ˆê¸°í™” ì‘ì—…
+	// ë“œë¡ ì´ ìƒˆë¡œ ì†Œìœ ë˜ì—ˆì„ ë•Œ í•„ìš”í•œ VOIP ì„¤ì • ë“±ì„ ì—¬ê¸°ì„œ ìˆ˜í–‰ (ë³´ì´ìŠ¤ì±„íŒ… ê´€ë ¨)
+	InitializeVOIP();  // VOIP Talkerì˜ ì´ˆê¸°í™” ë° ë“±ë¡ ì‘ì—…ì„ ì²˜ë¦¬
 
-	// ÇÊ¿ä ½Ã ´Ù¸¥ ÃÊ±âÈ­ ÀÛ¾÷ Ãß°¡
-	// ¿¹: µå·Ğ Ä«¸Ş¶ó ¼¼ÆÃ, UI ÃÊ±âÈ­, ±âÅ¸ ³×Æ®¿öÅ© ¼³Á¤ µî
+	// í•„ìš” ì‹œ ë‹¤ë¥¸ ì´ˆê¸°í™” ì‘ì—… ì¶”ê°€
+	// ì˜ˆ: ë“œë¡  ì¹´ë©”ë¼ ì„¸íŒ…, UI ì´ˆê¸°í™”, ê¸°íƒ€ ë„¤íŠ¸ì›Œí¬ ì„¤ì • ë“±
 
-	// Enhanced Input ½Ã½ºÅÛ¿¡ µå·ĞÀÇ ÀÔ·Â ¸ÅÇÎ Ãß°¡
+	// Enhanced Input ì‹œìŠ¤í…œì— ë“œë¡ ì˜ ì…ë ¥ ë§¤í•‘ ì¶”ê°€
 	APlayerController* pc = Cast<APlayerController>(NewController);
 	if (pc)
 	{
 		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 		if (subsys)
 		{
-			subsys->AddMappingContext(IMC_Drone, 0); // ÀÔ·Â ¸ÅÇÎ Ãß°¡
+			subsys->AddMappingContext(IMC_Drone, 0); // ì…ë ¥ ë§¤í•‘ ì¶”ê°€
 		}
 	}
 
 }
 
 #pragma region Drone Camera Effect
-//Ä«¸Ş¶ó½¦ÀÌÅ© Àç»ıÇÔ¼ö
+//ì¹´ë©”ë¼ì‰ì´í¬ ì¬ìƒí•¨ìˆ˜
 void AKHS_DronePlayer::PlayDroneCameraShake()
 {
 	APlayerController* pc = Cast<APlayerController>(GetController());
@@ -341,12 +342,12 @@ void AKHS_DronePlayer::PlayDroneCameraShake()
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(DroneCameraShake);
 	}
 }
-//°íµµ°è ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+//ê³ ë„ê³„ ì—…ë°ì´íŠ¸ í•¨ìˆ˜
 void AKHS_DronePlayer::DroneAltitudeUpdate()
 {
-	// °íµµ°è, »ç¹° À±°û¼± Ç¥½Ã ¶óÀÎÆ®·¹ÀÌ½º
+	// ê³ ë„ê³„, ì‚¬ë¬¼ ìœ¤ê³½ì„  í‘œì‹œ ë¼ì¸íŠ¸ë ˆì´ìŠ¤
 	FVector s = GetActorLocation();
-	FVector e = s - FVector(0, 0, 10000); //¾Æ·¡·Î N¸¸Å­ ¶óÀÎÆ®·¹ÀÌ½º ¹ß»ç
+	FVector e = s - FVector(0, 0, 10000); //ì•„ë˜ë¡œ Në§Œí¼ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë°œì‚¬
 	FHitResult HitResult;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
@@ -354,7 +355,7 @@ void AKHS_DronePlayer::DroneAltitudeUpdate()
 
 	if (bHit)
 	{
-		//Drone °íµµ°è ¾÷µ¥ÀÌÆ®
+		//Drone ê³ ë„ê³„ ì—…ë°ì´íŠ¸
 		float Altitude = s.Z - HitResult.Location.Z;
 
 		if (DroneMainUI)
@@ -367,10 +368,10 @@ void AKHS_DronePlayer::DroneAltitudeUpdate()
 		}
 	}
 }
-//Post Process(Radial Blur, Depth of Field) ¼³Á¤ ÇÔ¼ö
+//Post Process(Radial Blur, Depth of Field) ì„¤ì • í•¨ìˆ˜
 void AKHS_DronePlayer::SetDronePostProcess()
 {
-	// ¶óÀÎÆ®·¹ÀÌ½º ¹× ÃÊÁ¡ °Å¸® °è»ê
+	// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë° ì´ˆì  ê±°ë¦¬ ê³„ì‚°
 	FVector StartLocation = CameraComp->GetComponentLocation();
 	FVector ForwardVector = CameraComp->GetForwardVector();
 	FVector EndLocation = StartLocation + (ForwardVector * 10000.0f);
@@ -392,76 +393,76 @@ void AKHS_DronePlayer::SetDronePostProcess()
 
 	CameraComp->PostProcessSettings.WeightedBlendables.Array.Empty();
 
-	// Radial Blur MaterialÀÌ Ä«¸Ş¶ó¿¡ Àû¿ëµÈ »óÅÂÀÎÁö È®ÀÎ
+	// Radial Blur Materialì´ ì¹´ë©”ë¼ì— ì ìš©ëœ ìƒíƒœì¸ì§€ í™•ì¸
 	if (RadialBlurMaterial && MPC_DroneBlur)
 	{
-		// µå·ĞÀÇ ¼Óµµ¿¡ µû¶ó Radial Blur ¼³Á¤
+		// ë“œë¡ ì˜ ì†ë„ì— ë”°ë¼ Radial Blur ì„¤ì •
 		float CurrentSpeed = DroneCurrentSpeed.Size();
 		float SpeedBlurAmount = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, DroneMaxSpeed), FVector2D(0.12f, 0.25f), CurrentSpeed);
 
-		// Material Parameter Collection¿¡ ¼Óµµ °ªÀ» Àü´Ş
+		// Material Parameter Collectionì— ì†ë„ ê°’ì„ ì „ë‹¬
 		UMaterialParameterCollectionInstance* MaterialParamInstance = GetWorld()->GetParameterCollectionInstance(MPC_DroneBlur);
 		if (MaterialParamInstance)
 		{
 			MaterialParamInstance->SetScalarParameterValue(FName("BlurAmount"), SpeedBlurAmount);
 		}
 
-		// Radial BlurÀ» Æ÷½ºÆ® ÇÁ·Î¼¼½º ¼³Á¤¿¡ ¹İ¿µ 
+		// Radial Blurì„ í¬ìŠ¤íŠ¸ í”„ë¡œì„¸ìŠ¤ ì„¤ì •ì— ë°˜ì˜ 
 		PostProcessSettings.bOverride_BloomIntensity = true;
 		PostProcessSettings.BloomIntensity = 1;//SpeedBlurAmount;
 
-		// Æ÷½ºÆ® ÇÁ·Î¼¼½º ¼³Á¤ ¾÷µ¥ÀÌÆ®(Depth of Field)
+		// í¬ìŠ¤íŠ¸ í”„ë¡œì„¸ìŠ¤ ì„¤ì • ì—…ë°ì´íŠ¸(Depth of Field)
 		PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
 		PostProcessSettings.DepthOfFieldFocalDistance = FocusDistance;
 
-		// Aperture (F-Stop) °ªÀ» ¼³Á¤
+		// Aperture (F-Stop) ê°’ì„ ì„¤ì •
 		PostProcessSettings.bOverride_DepthOfFieldFstop = true;
-		PostProcessSettings.DepthOfFieldFstop = 1.0f;  // F-Stop °ª ¼³Á¤
+		PostProcessSettings.DepthOfFieldFstop = 1.0f;  // F-Stop ê°’ ì„¤ì •
 
-		// Maximum Aperture (Min F-Stop) °ªÀ» ¼³Á¤
+		// Maximum Aperture (Min F-Stop) ê°’ì„ ì„¤ì •
 		PostProcessSettings.bOverride_DepthOfFieldMinFstop = true;
-		PostProcessSettings.DepthOfFieldMinFstop = 11.0f;  // Min Aperture °ª ¼³Á¤
+		PostProcessSettings.DepthOfFieldMinFstop = 11.0f;  // Min Aperture ê°’ ì„¤ì •
 
-		// µå·ĞÀÇ Ä«¸Ş¶ó¿¡ Æ÷½ºÆ® ÇÁ·Î¼¼½º ¼³Á¤ Àû¿ë
+		// ë“œë¡ ì˜ ì¹´ë©”ë¼ì— í¬ìŠ¤íŠ¸ í”„ë¡œì„¸ìŠ¤ ì„¤ì • ì ìš©
 		CameraComp->PostProcessSettings = PostProcessSettings;
 
 		FWeightedBlendable Blendable;
 		Blendable.Object = RadialBlurMaterial;
-		Blendable.Weight = 1.0f; // ÇÊ¿ä¿¡ µû¶ó Á¶Á¤ °¡´É
+		Blendable.Weight = 1.0f; // í•„ìš”ì— ë”°ë¼ ì¡°ì • ê°€ëŠ¥
 		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
 
-		//¼Óµµ°ª Ãâ·Â
+		//ì†ë„ê°’ ì¶œë ¥
 		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
 	}
 }
-//Drone Outline PostProcess È¿°ú ÇÔ¼ö
+//Drone Outline PostProcess íš¨ê³¼ í•¨ìˆ˜
 void AKHS_DronePlayer::DroneShowOutline()
 {
-	// ¶óÀÎÆ®·¹ÀÌ½º ¹üÀ§ ³»¿¡¼­ °¨ÁöµÈ »õ·Î¿î ¾×ÅÍ¸¦ ÃßÀûÇÒ ÀÓ½Ã º¯¼ö
+	// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë²”ìœ„ ë‚´ì—ì„œ ê°ì§€ëœ ìƒˆë¡œìš´ ì•¡í„°ë¥¼ ì¶”ì í•  ì„ì‹œ ë³€ìˆ˜
 	TSet<AKHS_AIVisionObject*> DetectedOutlineObjects;
 
-	// Ä«¸Ş¶ó À§Ä¡¿Í ¹æÇâ
+	// ì¹´ë©”ë¼ ìœ„ì¹˜ì™€ ë°©í–¥
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector ForwardVector = CameraComp->GetForwardVector();
 
-	// Ä«¸Ş¶óÀÇ ½Ã¾ß°¢(FOV)À» ±âÁØÀ¸·Î ¿©·¯ ¹æÇâÀ¸·Î ¶óÀÎÆ®·¹ÀÌ½º ¹ß»ç
-	float FOV = CameraComp->FieldOfView; // Ä«¸Ş¶óÀÇ ½Ã¾ß°¢
-	int32 NumRays = 30; // ¹ß»çÇÒ ¶óÀÎÆ®·¹ÀÌ½ºÀÇ °³¼ö
-	float MaxDistance = 10000.0f; // ¶óÀÎÆ®·¹ÀÌ½ºÀÇ ÃÖ´ë °Å¸®
+	// ì¹´ë©”ë¼ì˜ ì‹œì•¼ê°(FOV)ì„ ê¸°ì¤€ìœ¼ë¡œ ì—¬ëŸ¬ ë°©í–¥ìœ¼ë¡œ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë°œì‚¬
+	float FOV = CameraComp->FieldOfView; // ì¹´ë©”ë¼ì˜ ì‹œì•¼ê°
+	int32 NumRays = 30; // ë°œì‚¬í•  ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì˜ ê°œìˆ˜
+	float MaxDistance = 10000.0f; // ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì˜ ìµœëŒ€ ê±°ë¦¬
 
 
 	for (int32 i = 0; i < NumRays; i++)
 	{
-		// ½Ã¾ß°¢ ¹üÀ§ ³»¿¡¼­ ¶óÀÎÆ®·¹ÀÌ½º ¹æÇâ °è»ê
+		// ì‹œì•¼ê° ë²”ìœ„ ë‚´ì—ì„œ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë°©í–¥ ê³„ì‚°
 		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
 		FRotator Rotator = FRotator(0, Angle, 0);
 		FVector Direction = Rotator.RotateVector(ForwardVector);
 		FVector End = Start + (Direction * MaxDistance);
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(this);  // ÀÚ½ÅÀ» ¹«½Ã
+		CollisionParams.AddIgnoredActor(this);  // ìì‹ ì„ ë¬´ì‹œ
 
-		// ¶óÀÎÆ®·¹ÀÌ½º ½ÇÇà
+		// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ì‹¤í–‰
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 		{
 			AActor* HitActor = HitResult.GetActor();
@@ -470,56 +471,56 @@ void AKHS_DronePlayer::DroneShowOutline()
 			{
 				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
 
-				// ÇöÀç °¨ÁöµÈ ¾×ÅÍ¸¦ ÀÓ½Ã º¯¼ö¿¡ Ãß°¡
+				// í˜„ì¬ ê°ì§€ëœ ì•¡í„°ë¥¼ ì„ì‹œ ë³€ìˆ˜ì— ì¶”ê°€
 				DetectedOutlineObjects.Add(HitAIVisionObject);
 
-				// ¸ÂÀº ¾×ÅÍ°¡ KHS_AIVisionObjectÀÏ °æ¿ì À±°û¼± Àû¿ë
+				// ë§ì€ ì•¡í„°ê°€ KHS_AIVisionObjectì¼ ê²½ìš° ìœ¤ê³½ì„  ì ìš©
 				DroneEnableOutline(HitActor);
 			}
 			else
 			{
-				// À±°û¼± È¿°ú ÇØÁ¦
+				// ìœ¤ê³½ì„  íš¨ê³¼ í•´ì œ
 				DroneDisableOutline(HitActor);
 			}
 
 		}
 	}
 
-	// ÀÌÀü¿¡ °¨ÁöµÈ ¾×ÅÍ Áß¿¡¼­ ÀÌ¹ø ¶óÀÎÆ®·¹ÀÌ½º¿¡¼­ °¨ÁöµÇÁö ¾ÊÀº ¾×ÅÍ¸¦ Ã£¾Æ À±°û¼± ÇØÁ¦
+	// ì´ì „ì— ê°ì§€ëœ ì•¡í„° ì¤‘ì—ì„œ ì´ë²ˆ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì—ì„œ ê°ì§€ë˜ì§€ ì•Šì€ ì•¡í„°ë¥¼ ì°¾ì•„ ìœ¤ê³½ì„  í•´ì œ
 	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
 	{
 		if (!DetectedOutlineObjects.Contains(DetectedObject))
 		{
-			// À±°û¼± È¿°ú ÇØÁ¦
+			// ìœ¤ê³½ì„  íš¨ê³¼ í•´ì œ
 			DroneDisableOutline(DetectedObject);
 		}
 	}
 
-	// ÇöÀç °¨ÁöµÈ ¾×ÅÍµé·Î ÃßÀû ¼¼Æ® ¾÷µ¥ÀÌÆ®
+	// í˜„ì¬ ê°ì§€ëœ ì•¡í„°ë“¤ë¡œ ì¶”ì  ì„¸íŠ¸ ì—…ë°ì´íŠ¸
 	//DetectedAIVisionObjects = DetectedOutlineObjects;
 }
-// ¶óÀÎÆ®·¹ÀÌ½º ±â¹İ À±°û¼± Ç¥½Ã ÇÔ¼ö
+// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ê¸°ë°˜ ìœ¤ê³½ì„  í‘œì‹œ í•¨ìˆ˜
 void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
 {
-	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass())) // Actor°¡ KHS_AIVisionObject Å¸ÀÔÀÎÁö È®ÀÎ
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass())) // Actorê°€ KHS_AIVisionObject íƒ€ì…ì¸ì§€ í™•ì¸
 	{
 		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		if (HitMeshComp)
 		{
 			HitMeshComp->SetRenderCustomDepth(true);
-			HitMeshComp->CustomDepthStencilValue = 1; // ½ºÅÙ½Ç °ªÀ» 1·Î ¼³Á¤
+			HitMeshComp->CustomDepthStencilValue = 1; // ìŠ¤í…ì‹¤ ê°’ì„ 1ë¡œ ì„¤ì •
 		}
 	}
 }
-// ¶óÀÎÆ®·¹ÀÌ½º ±â¹İ ½Ã¾ß ¹ş¾î³µÀ»¶§ À±°û¼± ÇØÁ¦ ÇÔ¼ö
+// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ê¸°ë°˜ ì‹œì•¼ ë²—ì–´ë‚¬ì„ë•Œ ìœ¤ê³½ì„  í•´ì œ í•¨ìˆ˜
 void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)
 {
-	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))  // Actor°¡ KHS_AIVisionObject Å¸ÀÔÀÎÁö È®ÀÎ
+	if (HitActor && HitActor->IsA(AKHS_AIVisionObject::StaticClass()))  // Actorê°€ KHS_AIVisionObject íƒ€ì…ì¸ì§€ í™•ì¸
 	{
 		UStaticMeshComponent* HitMeshComp = Cast<UStaticMeshComponent>(HitActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		if (HitMeshComp)
 		{
-			// CustomDepth¸¦ ºñÈ°¼ºÈ­ÇÏ¿© À±°û¼± È¿°ú ÇØÁ¦
+			// CustomDepthë¥¼ ë¹„í™œì„±í™”í•˜ì—¬ ìœ¤ê³½ì„  íš¨ê³¼ í•´ì œ
 			HitMeshComp->SetRenderCustomDepth(false);
 		}
 	}
@@ -530,11 +531,11 @@ void AKHS_DronePlayer::DroneDisableOutline(AActor* HitActor)
 
 void AKHS_DronePlayer::DroneLook(const FInputActionValue& Value)
 {
-	// ÀÔ·ÂµÈ 2D º¤ÅÍ °ªÀ» °¡Á®¿Í Ä«¸Ş¶óÀÇ Yaw(X) ¿Í Pitch(Y) ¸¦ Á¶Á¤
+	// ì…ë ¥ëœ 2D ë²¡í„° ê°’ì„ ê°€ì ¸ì™€ ì¹´ë©”ë¼ì˜ Yaw(X) ì™€ Pitch(Y) ë¥¼ ì¡°ì •
 	FVector2D v = Value.Get<FVector2D>();
-	// Yaw(ÁÂ¿ì È¸Àü) ÀÔ·Â Ã³¸®
+	// Yaw(ì¢Œìš° íšŒì „) ì…ë ¥ ì²˜ë¦¬
 	AddControllerYawInput(v.X);
-	// Pitch(»óÇÏ È¸Àü) ÀÔ·Â Ã³¸®
+	// Pitch(ìƒí•˜ íšŒì „) ì…ë ¥ ì²˜ë¦¬
 	AddControllerPitchInput(-v.Y);
 }
 
@@ -542,12 +543,12 @@ void AKHS_DronePlayer::DroneMoveFwd(const FInputActionValue& Value)
 {
 	float ForwardValue = Value.Get<float>();
 
-	// Ä«¸Ş¶óÀÇ ¹æÇâÀ» ±â¹İÀ¸·Î ÀÌµ¿ º¤ÅÍ¸¦ °è»ê
+	// ì¹´ë©”ë¼ì˜ ë°©í–¥ì„ ê¸°ë°˜ìœ¼ë¡œ ì´ë™ ë²¡í„°ë¥¼ ê³„ì‚°
 	FRotator ControlRotation = GetControlRotation();
-	FRotator YawRotation(0, ControlRotation.Yaw, 0); // Pitch Á¦°ÅÇÏ¿© Yaw¸¸ »ç¿ë
+	FRotator YawRotation(0, ControlRotation.Yaw, 0); // Pitch ì œê±°í•˜ì—¬ Yawë§Œ ì‚¬ìš©
 	FVector ForwardDirection = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::X);
 
-	// µå·Ğ °¡¼Óµµ¿¡ Ä«¸Ş¶óÀÇ ¾Õ ¹æÇâÀ» ±âÁØÀ¸·Î Àû¿ë
+	// ë“œë¡  ê°€ì†ë„ì— ì¹´ë©”ë¼ì˜ ì• ë°©í–¥ì„ ê¸°ì¤€ìœ¼ë¡œ ì ìš©
 	DroneAcceleration += ForwardDirection * ForwardValue * DroneAccelerateRate;
 }
 
@@ -555,12 +556,12 @@ void AKHS_DronePlayer::DroneMoveRight(const FInputActionValue& Value)
 {
 	float RightValue = Value.Get<float>();
 
-	// Ä«¸Ş¶óÀÇ ¹æÇâÀ» ±â¹İÀ¸·Î ÀÌµ¿ º¤ÅÍ¸¦ °è»ê
+	// ì¹´ë©”ë¼ì˜ ë°©í–¥ì„ ê¸°ë°˜ìœ¼ë¡œ ì´ë™ ë²¡í„°ë¥¼ ê³„ì‚°
 	FRotator ControlRotation = GetControlRotation();
-	FRotator YawRotation(0, ControlRotation.Yaw, 0); // Pitch Á¦°ÅÇÏ¿© Yaw¸¸ »ç¿ë
+	FRotator YawRotation(0, ControlRotation.Yaw, 0); // Pitch ì œê±°í•˜ì—¬ Yawë§Œ ì‚¬ìš©
 	FVector RightDirection = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::Y);
 
-	// µå·Ğ °¡¼Óµµ¿¡ Ä«¸Ş¶óÀÇ ¿À¸¥ÂÊ ¹æÇâÀ» ±âÁØÀ¸·Î Àû¿ë
+	// ë“œë¡  ê°€ì†ë„ì— ì¹´ë©”ë¼ì˜ ì˜¤ë¥¸ìª½ ë°©í–¥ì„ ê¸°ì¤€ìœ¼ë¡œ ì ìš©
 	DroneAcceleration += RightDirection * RightValue * DroneAccelerateRate;
 }
 
@@ -580,7 +581,7 @@ void AKHS_DronePlayer::DroneMoveDown(const FInputActionValue& Value)
 
 #pragma region VOIP Talker Setting
 
-//¸¶ÀÌÅ© ÀÓ°è°ª ¼³Á¤
+//ë§ˆì´í¬ ì„ê³„ê°’ ì„¤ì •
 void AKHS_DronePlayer::SetMicThreshold(float Threshold)
 {
 	if (VOIPTalkerComp)
@@ -588,7 +589,7 @@ void AKHS_DronePlayer::SetMicThreshold(float Threshold)
 		UVOIPStatics::SetMicThreshold(Threshold);
 	}
 }
-//ÇÃ·¹ÀÌ¾î State µî·Ï
+//í”Œë ˆì´ì–´ State ë“±ë¡
 void AKHS_DronePlayer::RegisterWithPlayerState()
 {
 	if (VOIPTalkerComp && GetPlayerState())
@@ -596,12 +597,12 @@ void AKHS_DronePlayer::RegisterWithPlayerState()
 		VOIPTalkerComp->RegisterWithPlayerState(GetPlayerState());
 	}
 }
-//·ÎÄÃ ÇÃ·¹ÀÌ¾î°¡ Á¦¾îÁßÀÎÁö Ã¼Å©
+//ë¡œì»¬ í”Œë ˆì´ì–´ê°€ ì œì–´ì¤‘ì¸ì§€ ì²´í¬
 bool AKHS_DronePlayer::IsLocallyControlled() const
 {
 	return IsPlayerControlled();
 }
-//StartNetworkVoice ³×Æ®¿öÅ©·Î »ç¿îµå¸¦ º¸³¿
+//StartNetworkVoice ë„¤íŠ¸ì›Œí¬ë¡œ ì‚¬ìš´ë“œë¥¼ ë³´ëƒ„
 void AKHS_DronePlayer::SetUpNetworkVoice()
 {
 	if (IsLocallyControlled())
@@ -615,14 +616,14 @@ void AKHS_DronePlayer::SetUpNetworkVoice()
 				IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
 				if (VoiceInterface.IsValid())
 				{
-					// ÇÃ·¹ÀÌ¾î¿¡ Voice Channel ÇÒ´ç
+					// í”Œë ˆì´ì–´ì— Voice Channel í• ë‹¹
 					VoiceInterface->StartNetworkedVoice(PlayerController->GetLocalPlayer()->GetControllerId());
 				}
 			}
 		}
 	}
 }
-//StopNetworkVoice ³×Æ®¿öÅ©·Î »ç¿îµå º¸³»±â ÁßÁö
+//StopNetworkVoice ë„¤íŠ¸ì›Œí¬ë¡œ ì‚¬ìš´ë“œ ë³´ë‚´ê¸° ì¤‘ì§€
 void AKHS_DronePlayer::StopVoice()
 {
 	if (IsLocallyControlled())
@@ -642,7 +643,7 @@ void AKHS_DronePlayer::StopVoice()
 		}
 	}
 }
-//VOIP ´ë»óÀÚ µî·Ï
+//VOIP ëŒ€ìƒì ë“±ë¡
 void AKHS_DronePlayer::RegisterRemoteTalker()
 {
 	APlayerController* PlayerController = GetController<APlayerController>();
@@ -654,43 +655,43 @@ void AKHS_DronePlayer::RegisterRemoteTalker()
 			IOnlineVoicePtr VoiceInterface = OnlineSub->GetVoiceInterface();
 			if (VoiceInterface.IsValid())
 			{
-				// ÇÃ·¹ÀÌ¾îÀÇ °íÀ¯ ³×Æ®¿öÅ© ID¸¦ °¡Á®¿É´Ï´Ù.
+				// í”Œë ˆì´ì–´ì˜ ê³ ìœ  ë„¤íŠ¸ì›Œí¬ IDë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
 				TSharedPtr<const FUniqueNetId> UniqueNetId = PlayerController->PlayerState->UniqueId.GetUniqueNetId();
 
 				if (UniqueNetId.IsValid())
 				{
-					// °íÀ¯ ³×Æ®¿öÅ© ID¸¦ »ç¿ëÇÏ¿© ¿ø°İ Talker¸¦ µî·ÏÇÕ´Ï´Ù.
+					// ê³ ìœ  ë„¤íŠ¸ì›Œí¬ IDë¥¼ ì‚¬ìš©í•˜ì—¬ ì›ê²© Talkerë¥¼ ë“±ë¡í•©ë‹ˆë‹¤.
 					VoiceInterface->RegisterRemoteTalker(*UniqueNetId);
 				}
 			}
 		}
 	}
 }
-//VOIP°ü·Ã ÃÊ±âÈ­ ÀÛ¾÷
+//VOIPê´€ë ¨ ì´ˆê¸°í™” ì‘ì—…
 void AKHS_DronePlayer::InitializeVOIP()
 {
 	if (VOIPTalkerComp)
 	{
-		// VOIPTalkerComponent°¡ À¯È¿ÇÑÁö È®ÀÎ
+		// VOIPTalkerComponentê°€ ìœ íš¨í•œì§€ í™•ì¸
 		if (IsValid(VOIPTalkerComp))
 		{
-			// ÇÃ·¹ÀÌ¾î »óÅÂ¿¡ VOIPTalker¸¦ µî·Ï
+			// í”Œë ˆì´ì–´ ìƒíƒœì— VOIPTalkerë¥¼ ë“±ë¡
 			RegisterWithPlayerState();
 
-			// ¸¶ÀÌÅ© ÀÓ°è°ªÀ» ¼³Á¤
+			// ë§ˆì´í¬ ì„ê³„ê°’ì„ ì„¤ì •
 			SetMicThreshold(-1.0f);
 
-			// ·ÎÄÃ ÇÃ·¹ÀÌ¾î°¡ Á¦¾î ÁßÀÏ ¶§¸¸ VOIP °ü·Ã ¼³Á¤À» ÁøÇà
+			// ë¡œì»¬ í”Œë ˆì´ì–´ê°€ ì œì–´ ì¤‘ì¼ ë•Œë§Œ VOIP ê´€ë ¨ ì„¤ì •ì„ ì§„í–‰
 			if (IsLocallyControlled())
 			{
-				// ÄÜ¼Ö ¸í·ÉÀ» ½ÇÇàÇÏ¿© VOIP¸¦ È°¼ºÈ­
+				// ì½˜ì†” ëª…ë ¹ì„ ì‹¤í–‰í•˜ì—¬ VOIPë¥¼ í™œì„±í™”
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
 				if (PlayerController)
 				{
 					PlayerController->ConsoleCommand("OSS.VoiceLoopback 1");
 				}
 			}
-			// ¿ø°İ Talker µî·Ï
+			// ì›ê²© Talker ë“±ë¡
 			//RegisterRemoteTalker();
 
 		}
@@ -701,73 +702,73 @@ void AKHS_DronePlayer::InitializeVOIP()
 
 #pragma region Image AI Object Detection
 
-//ÅÂ±×¸¦ Àü´Ş¹Ş¾Æ Actor¸¦ °Ë»çÇÒ ÇÔ¼ö
+//íƒœê·¸ë¥¼ ì „ë‹¬ë°›ì•„ Actorë¥¼ ê²€ì‚¬í•  í•¨ìˆ˜
 void AKHS_DronePlayer::CheckVisionForTags(const TArray<FString>& TagsToCheck)
 {
-	//»õ·Î¿î ÅÂ±×°¡ Àü´ŞµÇ¾úÀ» ¶§¸¸ ÅÂ±×¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°í °¨Áö ½ÃÀÛ
+	//ìƒˆë¡œìš´ íƒœê·¸ê°€ ì „ë‹¬ë˜ì—ˆì„ ë•Œë§Œ íƒœê·¸ë¥¼ ì—…ë°ì´íŠ¸í•˜ê³  ê°ì§€ ì‹œì‘
 	if (false == TagsToCheck.IsEmpty())
 	{
 		bIsTagSet = true;
-		bIsCurrentlyDetecting = true;  // °¨Áö ±â´É È°¼ºÈ­
+		bIsCurrentlyDetecting = true;  // ê°ì§€ ê¸°ëŠ¥ í™œì„±í™”
 	}
 
-	//ÅÂ±×°¡ ¼³Á¤µÇÁö ¾Ê¾Ò°Å³ª ÀÌ¹Ì °¨Áö ±â´ÉÀÌ ÁßÁöµÈ °æ¿ì ÇÔ¼ö Á¾·á
+	//íƒœê·¸ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ê±°ë‚˜ ì´ë¯¸ ê°ì§€ ê¸°ëŠ¥ì´ ì¤‘ì§€ëœ ê²½ìš° í•¨ìˆ˜ ì¢…ë£Œ
 	if (false == bIsTagSet || false == bIsCurrentlyDetecting)
 	{
 		return;
 	}
 
-	// ¶óÀÎÆ®·¹ÀÌ½º ¹üÀ§ ³»¿¡¼­ °¨ÁöµÈ »õ·Î¿î ¾×ÅÍ¸¦ ÃßÀûÇÒ ÀÓ½Ã º¯¼ö
+	// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë²”ìœ„ ë‚´ì—ì„œ ê°ì§€ëœ ìƒˆë¡œìš´ ì•¡í„°ë¥¼ ì¶”ì í•  ì„ì‹œ ë³€ìˆ˜
 	TSet<AKHS_AIVisionObject*> CurrentlyDetectedAIVisionObjects;
 
-	// Ä«¸Ş¶ó À§Ä¡¿Í ¹æÇâ
+	// ì¹´ë©”ë¼ ìœ„ì¹˜ì™€ ë°©í–¥
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector ForwardVector = CameraComp->GetForwardVector();
 
-	// Ä«¸Ş¶óÀÇ ½Ã¾ß°¢(FOV)À» ±âÁØÀ¸·Î ¿©·¯ ¹æÇâÀ¸·Î ¶óÀÎÆ®·¹ÀÌ½º ¹ß»ç
-	float FOV = CameraComp->FieldOfView; // Ä«¸Ş¶óÀÇ ½Ã¾ß°¢
-	int32 NumRays = 30; // ¹ß»çÇÒ ¶óÀÎÆ®·¹ÀÌ½ºÀÇ °³¼ö
-	float MaxDistance = 5000.0f; // ¶óÀÎÆ®·¹ÀÌ½ºÀÇ ÃÖ´ë °Å¸®
+	// ì¹´ë©”ë¼ì˜ ì‹œì•¼ê°(FOV)ì„ ê¸°ì¤€ìœ¼ë¡œ ì—¬ëŸ¬ ë°©í–¥ìœ¼ë¡œ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë°œì‚¬
+	float FOV = CameraComp->FieldOfView; // ì¹´ë©”ë¼ì˜ ì‹œì•¼ê°
+	int32 NumRays = 30; // ë°œì‚¬í•  ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì˜ ê°œìˆ˜
+	float MaxDistance = 5000.0f; // ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì˜ ìµœëŒ€ ê±°ë¦¬
 
 	bool bAnyActorDetected = false;
 
 	for (int32 i = 0; i < NumRays; i++)
 	{
-		// ½Ã¾ß°¢ ¹üÀ§ ³»¿¡¼­ ¶óÀÎÆ®·¹ÀÌ½º ¹æÇâ °è»ê
+		// ì‹œì•¼ê° ë²”ìœ„ ë‚´ì—ì„œ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ë°©í–¥ ê³„ì‚°
 		float Angle = FMath::Lerp(-FOV / 2, FOV / 2, (float)i / (float)(NumRays - 1));
 		FRotator Rotator = FRotator(0, Angle, 0);
 		FVector Direction = Rotator.RotateVector(ForwardVector);
 		FVector End = Start + (Direction * MaxDistance);
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(this);  // ÀÚ½ÅÀ» ¹«½Ã
+		CollisionParams.AddIgnoredActor(this);  // ìì‹ ì„ ë¬´ì‹œ
 
-		// ¶óÀÎÆ®·¹ÀÌ½º ½ÇÇà
+		// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ ì‹¤í–‰
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 		{
 			AActor* HitActor = HitResult.GetActor();
 
-			// ¶óÀÎÆ®·¹ÀÌ½º¿¡ ¸ÂÀº ¾×ÅÍ°¡ ÀÖ´ÂÁö È®ÀÎ
+			// ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì— ë§ì€ ì•¡í„°ê°€ ìˆëŠ”ì§€ í™•ì¸
 			if (HitActor->IsA(AKHS_AIVisionObject::StaticClass()))
 			{
 				AKHS_AIVisionObject* HitAIVisionObject = Cast<AKHS_AIVisionObject>(HitActor);
 				if (HitAIVisionObject)
 				{
-					// Àü´ŞµÈ ¸ğµç ÅÂ±×¿¡ ´ëÇØ Ã¼Å©
+					// ì „ë‹¬ëœ ëª¨ë“  íƒœê·¸ì— ëŒ€í•´ ì²´í¬
 					for (const FString& Tag : TagsToCheck)
 					{
 						if (HitAIVisionObject->ActorHasTag(FName(*Tag)))
 						{
-							// ÇöÀç °¨ÁöµÈ ¾×ÅÍ¸¦ ÀÓ½Ã º¯¼ö¿¡ Ãß°¡
+							// í˜„ì¬ ê°ì§€ëœ ì•¡í„°ë¥¼ ì„ì‹œ ë³€ìˆ˜ì— ì¶”ê°€
 							CurrentlyDetectedAIVisionObjects.Add(HitAIVisionObject);
-							// À§Á¬ ÄÄÆ÷³ÍÆ®¸¦ Visible·Î ¼³Á¤
+							// ìœ„ì ¯ ì»´í¬ë„ŒíŠ¸ë¥¼ Visibleë¡œ ì„¤ì •
 							if (HitAIVisionObject->WidgetComp)
 							{
 								HitAIVisionObject->WidgetComp->SetVisibility(true);
 							}
-							break; // ÅÂ±×°¡ ÇÏ³ª¶óµµ ÀÏÄ¡ÇÏ¸é ³ª¸ÓÁö ÅÂ±×´Â °Ë»çÇÒ ÇÊ¿ä ¾øÀ½
+							break; // íƒœê·¸ê°€ í•˜ë‚˜ë¼ë„ ì¼ì¹˜í•˜ë©´ ë‚˜ë¨¸ì§€ íƒœê·¸ëŠ” ê²€ì‚¬í•  í•„ìš” ì—†ìŒ
 						}
-						// ÃÖ¼Ò ÇÏ³ªÀÇ ¾×ÅÍ°¡ °¨ÁöµÊ
+						// ìµœì†Œ í•˜ë‚˜ì˜ ì•¡í„°ê°€ ê°ì§€ë¨
 						bAnyActorDetected = true;
 					}
 				}
@@ -775,13 +776,13 @@ void AKHS_DronePlayer::CheckVisionForTags(const TArray<FString>& TagsToCheck)
 		}
 	}
 
-	// ÇöÀç ÅÂ±×¿Í ÀÏÄ¡ÇÏ´Â ¾×ÅÍ°¡ °¨ÁöµÇÁö ¾ÊÀº °æ¿ì °¨Áö ÁßÁö
+	// í˜„ì¬ íƒœê·¸ì™€ ì¼ì¹˜í•˜ëŠ” ì•¡í„°ê°€ ê°ì§€ë˜ì§€ ì•Šì€ ê²½ìš° ê°ì§€ ì¤‘ì§€
 	if (!bAnyActorDetected)
 	{
-		bIsCurrentlyDetecting = false;  // °¨Áö ±â´É ºñÈ°¼ºÈ­
+		bIsCurrentlyDetecting = false;  // ê°ì§€ ê¸°ëŠ¥ ë¹„í™œì„±í™”
 	}
 
-	// ÀÌÀü¿¡ °¨ÁöµÈ ¾×ÅÍ Áß¿¡¼­ ÀÌ¹ø ¶óÀÎÆ®·¹ÀÌ½º¿¡¼­ °¨ÁöµÇÁö ¾ÊÀº ¾×ÅÍ¸¦ Ã£¾Æ UI¸¦ ¼û±è
+	// ì´ì „ì— ê°ì§€ëœ ì•¡í„° ì¤‘ì—ì„œ ì´ë²ˆ ë¼ì¸íŠ¸ë ˆì´ìŠ¤ì—ì„œ ê°ì§€ë˜ì§€ ì•Šì€ ì•¡í„°ë¥¼ ì°¾ì•„ UIë¥¼ ìˆ¨ê¹€
 	for (AKHS_AIVisionObject* DetectedObject : DetectedAIVisionObjects)
 	{
 		if (!CurrentlyDetectedAIVisionObjects.Contains(DetectedObject))
@@ -793,11 +794,11 @@ void AKHS_DronePlayer::CheckVisionForTags(const TArray<FString>& TagsToCheck)
 		}
 	}
 
-	// ÇöÀç °¨ÁöµÈ ¾×ÅÍµé·Î ÃßÀû ¼¼Æ® ¾÷µ¥ÀÌÆ®
+	// í˜„ì¬ ê°ì§€ëœ ì•¡í„°ë“¤ë¡œ ì¶”ì  ì„¸íŠ¸ ì—…ë°ì´íŠ¸
 	DetectedAIVisionObjects = CurrentlyDetectedAIVisionObjects;
 }
 
-// ÅØ½ºÃ³¸¦ JPEG ÀÌ¹ÌÁö·Î ÀúÀåÇÏ´Â ÇÔ¼ö
+// í…ìŠ¤ì²˜ë¥¼ JPEG ì´ë¯¸ì§€ë¡œ ì €ì¥í•˜ëŠ” í•¨ìˆ˜
 void AKHS_DronePlayer::SaveCaptureToImage()
 {
 	if (!RenderTarget)
@@ -814,30 +815,30 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		return;
 	}
 
-	// Alpha °ªÀ» 255·Î ¼³Á¤ÇÏ¿© ºÒÅõ¸íÇÏ°Ô ¸¸µì´Ï´Ù.
+	// Alpha ê°’ì„ 255ë¡œ ì„¤ì •í•˜ì—¬ ë¶ˆíˆ¬ëª…í•˜ê²Œ ë§Œë“­ë‹ˆë‹¤.
 	for (FColor& Pixel : Bitmap)
 	{
 		Pixel.A = 255;
 	}
 
-	// ÀÌ¹ÌÁö Å©±â ¼³Á¤
+	// ì´ë¯¸ì§€ í¬ê¸° ì„¤ì •
 	int32 Width = RenderTarget->SizeX;
 	int32 Height = RenderTarget->SizeY;
 
-	// TArray64<FColor>·Î Bitmap ¹è¿­ º¯È¯
+	// TArray64<FColor>ë¡œ Bitmap ë°°ì—´ ë³€í™˜
 	TArray64<FColor> Bitmap64;
 	Bitmap64.Append(Bitmap);
 
-	// ¾ĞÃàµÈ ÀÌ¹ÌÁö µ¥ÀÌÅÍ
+	// ì••ì¶•ëœ ì´ë¯¸ì§€ ë°ì´í„°
 	TArray64<uint8> CompressedData;
 	FImageUtils::PNGCompressImageArray(Width, Height, Bitmap64, CompressedData);
 
-	// ÆÄÀÏ ÀúÀå °æ·Î ¼³Á¤
+	// íŒŒì¼ ì €ì¥ ê²½ë¡œ ì„¤ì •
 	FString MainFileName = "CaptureImage";
 	FString FileName = FString::Printf(TEXT("%s_%s.png"), *MainFileName, *FDateTime::Now().ToString());
 	FString ImagePath = GetImagePath(FileName);
 
-	// TArray64 µ¥ÀÌÅÍ¸¦ Á÷Á¢ ÆÄÀÏ·Î ÀúÀå
+	// TArray64 ë°ì´í„°ë¥¼ ì§ì ‘ íŒŒì¼ë¡œ ì €ì¥
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 	IFileHandle* FileHandle = PlatformFile.OpenWrite(*ImagePath);
 	if (FileHandle)
@@ -851,147 +852,147 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UE_LOG(LogTemp, Error, TEXT("Failed to save image to %s"), *ImagePath);
 	}
 
-	// ¼­¹ö·Î Àü¼Û (³×Æ®¿öÅ© ·ÎÁ÷ Ãß°¡ ÇÊ¿ä)
+	// ì„œë²„ë¡œ ì „ì†¡ (ë„¤íŠ¸ì›Œí¬ ë¡œì§ ì¶”ê°€ í•„ìš”)
 	SendImageToServer(ImagePath, CompressedData);
 }
 
-// ÀÌ¹ÌÁö ÀúÀå °æ·Î¸¦ ¼³Á¤ÇÏ´Â ÇÔ¼ö
+// ì´ë¯¸ì§€ ì €ì¥ ê²½ë¡œë¥¼ ì„¤ì •í•˜ëŠ” í•¨ìˆ˜
 FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 {
-	// Captured Æú´õ °æ·Î ¼³Á¤
+	// Captured í´ë” ê²½ë¡œ ì„¤ì •
 	FString CapturedFolderPath = FPaths::ProjectSavedDir() / TEXT("Captured");
 
-	// Captured Æú´õ°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é »ı¼º
+	// Captured í´ë”ê°€ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ìƒì„±
 	if (!FPaths::DirectoryExists(CapturedFolderPath))
 	{
 		IFileManager::Get().MakeDirectory(*CapturedFolderPath, true);
 	}
 
-	// ÆÄÀÏ °æ·Î ¹İÈ¯
+	// íŒŒì¼ ê²½ë¡œ ë°˜í™˜
 	return CapturedFolderPath / FileName;
 }
 
-// ÀÌ¹ÌÁö Àü¼Û ÇÔ¼ö (¼­¹ö Àü¼Û ±¸Çö)
+// ì´ë¯¸ì§€ ì „ì†¡ í•¨ìˆ˜ (ì„œë²„ ì „ì†¡ êµ¬í˜„)
 void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData)
 {
 	UE_LOG(LogTemp, Log, TEXT("Sending image %s to server"), *ImagePath);
 
-	// 1. HTTP ¸ğµâ °¡Á®¿À±â
+	// 1. HTTP ëª¨ë“ˆ ê°€ì ¸ì˜¤ê¸°
 	FHttpModule* Http = &FHttpModule::Get();
 
-	// 2. HTTP ¿äÃ» »ı¼º
+	// 2. HTTP ìš”ì²­ ìƒì„±
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 
-	// 3. URL ¼³Á¤ (¿©±â¼­´Â ¼­¹ö ÁÖ¼Ò¸¦ ¼³Á¤ÇÕ´Ï´Ù)
+	// 3. URL ì„¤ì • (ì—¬ê¸°ì„œëŠ” ì„œë²„ ì£¼ì†Œë¥¼ ì„¤ì •í•©ë‹ˆë‹¤)
 	//Request->SetURL(TEXT("localhost:3000/upload"));
 	Request->SetURL(AIDetectionURL);
 
-	// 4. HTTP ¸Ş¼Òµå ¼³Á¤ (POST ¹æ½Ä)
+	// 4. HTTP ë©”ì†Œë“œ ì„¤ì • (POST ë°©ì‹)
 	Request->SetVerb(TEXT("POST"));
 
-	// 5. Multipart/FormData Çì´õ ¼³Á¤
+	// 5. Multipart/FormData í—¤ë” ì„¤ì •
 	FString Boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
 	Request->SetHeader(TEXT("Content-Type"), TEXT("multipart/form-data; boundary=") + Boundary);
 
-	// 6. ÆÄÀÏÀÇ ÄÁÅÙÃ÷¸¦ multipart/form-data Çü½ÄÀ¸·Î º¯È¯
+	// 6. íŒŒì¼ì˜ ì»¨í…ì¸ ë¥¼ multipart/form-data í˜•ì‹ìœ¼ë¡œ ë³€í™˜
 	FString BeginBoundary = FString("--") + Boundary + TEXT("\r\n");
 	FString EndBoundary = FString("--") + Boundary + TEXT("--\r\n");
 
-	// ÆÄÀÏ Á¤º¸ ±¸¼º
+	// íŒŒì¼ ì •ë³´ êµ¬ì„±
 	FString FileHeader = "Content-Disposition: form-data; name=\"file\"; filename=\"" + FPaths::GetCleanFilename(ImagePath) + "\"\r\n";
 	FileHeader.Append("Content-Type: image/jpeg\r\n\r\n");
 
-	// ÀüÃ¼ ÆäÀÌ·Îµå ±¸¼º (¹®ÀÚ¿­ ºÎºĞ°ú ¹ÙÀÌ³Ê¸® µ¥ÀÌÅÍ ºÎºĞÀ» °áÇÕ)
+	// ì „ì²´ í˜ì´ë¡œë“œ êµ¬ì„± (ë¬¸ìì—´ ë¶€ë¶„ê³¼ ë°”ì´ë„ˆë¦¬ ë°ì´í„° ë¶€ë¶„ì„ ê²°í•©)
 	FString PayloadString = BeginBoundary + FileHeader;
 	TArray<uint8> Payload;
 	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*PayloadString)), PayloadString.Len());
-	Payload.Append(ImageData); // ÀÌ¹ÌÁö µ¥ÀÌÅÍ¸¦ Ãß°¡
+	Payload.Append(ImageData); // ì´ë¯¸ì§€ ë°ì´í„°ë¥¼ ì¶”ê°€
 	FString EndPayloadString = TEXT("\r\n") + EndBoundary;
 	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*EndPayloadString)), EndPayloadString.Len());
 
-	// 7. HTTP ¿äÃ»¿¡ ³»¿ë Ãß°¡
+	// 7. HTTP ìš”ì²­ì— ë‚´ìš© ì¶”ê°€
 	Request->SetContent(Payload);
 
-	// 8. ¿äÃ» ¿Ï·á ½Ã Äİ¹é ÇÔ¼ö µî·Ï (¼º°ø ¿©ºÎ È®ÀÎ)
+	// 8. ìš”ì²­ ì™„ë£Œ ì‹œ ì½œë°± í•¨ìˆ˜ ë“±ë¡ (ì„±ê³µ ì—¬ë¶€ í™•ì¸)
 	Request->OnProcessRequestComplete().BindUObject(this, &AKHS_DronePlayer::OnResGetAIImage);
 
-	// 9. HTTP ¿äÃ» º¸³»±â
+	// 9. HTTP ìš”ì²­ ë³´ë‚´ê¸°
 	Request->ProcessRequest();
 }
 
-// AI¿¡°Ô Ã³¸® ÀÌ¹ÌÁö¸¦ ¹İÈ¯¹ŞÀ»¶§ Ã³¸®¸¦ ÁøÇàÇÒ ÇÔ¼ö
+// AIì—ê²Œ ì²˜ë¦¬ ì´ë¯¸ì§€ë¥¼ ë°˜í™˜ë°›ì„ë•Œ ì²˜ë¦¬ë¥¼ ì§„í–‰í•  í•¨ìˆ˜
 void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
 		
-		//Åë½ÅÀÌ ¼º°øÇßÀ»¶§ Response¸¦ JsonLib¸¦ ÅëÇØ parsingÇÑ °á°ú¸¦ ¹è¿­¿¡ ´ã±â.
+		//í†µì‹ ì´ ì„±ê³µí–ˆì„ë•Œ Responseë¥¼ JsonLibë¥¼ í†µí•´ parsingí•œ ê²°ê³¼ë¥¼ ë°°ì—´ì— ë‹´ê¸°.
 		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
-		//µ¥ÀÌÅÍ°¡ ÀÖÀ»¶§
+		//ë°ì´í„°ê°€ ìˆì„ë•Œ
 		if (data.Num() > 0)
 		{
-			//(¼±ÅÃ) ÆÄÀÏ ÀÌ¸§À» ÁöÁ¤ÇÏ¿©
+			//(ì„ íƒ) íŒŒì¼ ì´ë¦„ì„ ì§€ì •í•˜ì—¬
 			FString FileName = FString::Printf(TEXT("/Returned_%s.jpg"), *FDateTime::Now().ToString());
-			//(¼±ÅÃ) ÆÄÀÏ °æ·Î ÁöÁ¤ ÈÄ
+			//(ì„ íƒ) íŒŒì¼ ê²½ë¡œ ì§€ì • í›„
 			FString imagePath = FPaths::ProjectPersistentDownloadDir() + FileName;
-			//(¼±ÅÃ) ³» ÂÊ¿¡ ÀÌ¹ÌÁö°¡ Àß Àü´ŞµÆ´ÂÁö È®ÀÎ ¸ñÀûÀ¸·Î ÀúÀå
+			//(ì„ íƒ) ë‚´ ìª½ì— ì´ë¯¸ì§€ê°€ ì˜ ì „ë‹¬ëëŠ”ì§€ í™•ì¸ ëª©ì ìœ¼ë¡œ ì €ì¥
 			FFileHelper::SaveArrayToFile(data, *imagePath);
-			//(¼±ÅÃ) Àß ÀúÀåµÆ´ÂÁö ·Î±×
+			//(ì„ íƒ) ì˜ ì €ì¥ëëŠ”ì§€ ë¡œê·¸
 			if (FFileHelper::SaveArrayToFile(data, *imagePath))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Returned Image saved to %s"), *imagePath);
 			}
-			//(¼±ÅÃ) ÀúÀå ½ÇÆĞ½Ã ·Î±×
+			//(ì„ íƒ) ì €ì¥ ì‹¤íŒ¨ì‹œ ë¡œê·¸
 			else
 			{
 				UE_LOG(LogTemp, Error, TEXT("Image Saved Failed"));
 				return;
 			}
-			// ¹ŞÀº µ¥ÀÌÅÍ¸¦ UI Image·Î Àü´ŞÇÏ¿© È­¸é¿¡ Ãâ·Â
-			// µ¥ÀÌÅÍ¸¦ Texture2DÇüÅÂ·Î ÀüÈ¯
+			// ë°›ì€ ë°ì´í„°ë¥¼ UI Imageë¡œ ì „ë‹¬í•˜ì—¬ í™”ë©´ì— ì¶œë ¥
+			// ë°ì´í„°ë¥¼ Texture2Dí˜•íƒœë¡œ ì „í™˜
 			UTexture2D* realTexture = FImageUtils::ImportBufferAsTexture2D(data);
 			if (realTexture)
 			{
-				// UIÀÎ½ºÅÏ½º¸¦ ¸¸µé¾î UI Image¿¡ Á¢±Ù
+				// UIì¸ìŠ¤í„´ìŠ¤ë¥¼ ë§Œë“¤ì–´ UI Imageì— ì ‘ê·¼
 				UImage* AIImage = Cast<UImage>(DroneMainUI->GetWidgetFromName(TEXT("AIImage")));
 				if (AIImage)
 				{
-					//UI ÀÌ¹ÌÁö¿¡ ÅØ½ºÃÄ Ãâ·Â
+					//UI ì´ë¯¸ì§€ì— í…ìŠ¤ì³ ì¶œë ¥
 					AIImage->SetBrushFromTexture(realTexture);
 				}
 				else
 				{
-					//ÅØ½ºÃÄ Ãâ·Â ½ÇÆĞ½Ã
+					//í…ìŠ¤ì³ ì¶œë ¥ ì‹¤íŒ¨ì‹œ
 					UE_LOG(LogTemp, Error, TEXT("Can not find AIImage Widget"));
 				}
 			}
 			else
 			{
-				//Texture2DÀüÈ¯ ½ÇÆĞ½Ã
+				//Texture2Dì „í™˜ ì‹¤íŒ¨ì‹œ
 				UE_LOG(LogTemp, Error, TEXT("UTexture2D Incoding Failed"));
 			}
 		}
 		else
 		{
-			//Data Parsing½ÇÆĞ½Ã
+			//Data Parsingì‹¤íŒ¨ì‹œ
 			UE_LOG(LogTemp, Error, TEXT("No Parsing Image Data"));
 		}
 	}
 	else
 	{
-		//Image Àü´Ş ½ÇÆĞ½Ã
+		//Image ì „ë‹¬ ì‹¤íŒ¨ì‹œ
 		UE_LOG(LogTemp, Error, TEXT("Image upload failed"));
 	}
 }
 
-// SceneCaptureActor¸¦ µå·ĞÀÇ Ä«¸Ş¶ó¿Í °°Àº À§Ä¡ ¹× °¢µµ·Î µ¿±âÈ­ÇÏ´Â ÇÔ¼ö
+// SceneCaptureActorë¥¼ ë“œë¡ ì˜ ì¹´ë©”ë¼ì™€ ê°™ì€ ìœ„ì¹˜ ë° ê°ë„ë¡œ ë™ê¸°í™”í•˜ëŠ” í•¨ìˆ˜
 void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 {
 	if (SceneCaptureActor && CameraComp)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Syncing SceneCaptureActor with Camera."));
-		// Ä«¸Ş¶óÀÇ À§Ä¡¿Í È¸ÀüÀ» SceneCaptureActor¿¡ º¹»ç
+		// ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ì™€ íšŒì „ì„ SceneCaptureActorì— ë³µì‚¬
 		SceneCaptureActor->SetActorLocationAndRotation(CameraComp->GetComponentLocation(), CameraComp->GetComponentRotation());
 	}
 	else
@@ -1004,55 +1005,55 @@ void AKHS_DronePlayer::SyncSceneCaptureWithCamera()
 
 #pragma region STT AI ChatBot Function
 
-// ¼­¹ö·Î ¿Àµğ¿À ÆÄÀÏ Àü¼Û ÇÔ¼ö
+// ì„œë²„ë¡œ ì˜¤ë””ì˜¤ íŒŒì¼ ì „ì†¡ í•¨ìˆ˜
 void AKHS_DronePlayer::SendAudioToServer(const FString& FilePath)
 {
-	// ÇÁ·ÎÁ§Æ®ÀÇ Saved/Recorded Æú´õ¿¡ ÀÖ´Â "RecordedSound.wav" ÆÄÀÏ °æ·Î ¼³Á¤
+	// í”„ë¡œì íŠ¸ì˜ Saved/Recorded í´ë”ì— ìˆëŠ” "RecordedSound.wav" íŒŒì¼ ê²½ë¡œ ì„¤ì •
 	FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
 	FString RecordedFilePath = FPaths::Combine(SavedDirectory, TEXT("RecordedSound.wav"));
 
-	// ÆÄÀÏ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿Ã ¹è¿­
+	// íŒŒì¼ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¬ ë°°ì—´
 	TArray<uint8> FileData;
 
-	// ÆÄÀÏ µ¥ÀÌÅÍ ·Îµå ½ÇÆĞ ½Ã ·Î±× Ãâ·Â ¹× ÇÔ¼ö Á¾·á
+	// íŒŒì¼ ë°ì´í„° ë¡œë“œ ì‹¤íŒ¨ ì‹œ ë¡œê·¸ ì¶œë ¥ ë° í•¨ìˆ˜ ì¢…ë£Œ
 	if (!FFileHelper::LoadFileToArray(FileData, *RecordedFilePath))
 	{
 		UE_LOG(LogTemp, Error, TEXT("File Data loading is failed: %s"), *RecordedFilePath);
 		return;
 	}
 
-	// Boundary¿Í multipart/form-data ÁØºñ
+	// Boundaryì™€ multipart/form-data ì¤€ë¹„
 	FString Boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
 	FString BeginBoundary = FString("--") + Boundary + TEXT("\r\n");
 	FString EndBoundary = FString("\r\n--") + Boundary + TEXT("--\r\n");
 
-	// ÆÄÀÏ Çì´õ ¼³Á¤ (Content-Disposition, Content-Type µî)
+	// íŒŒì¼ í—¤ë” ì„¤ì • (Content-Disposition, Content-Type ë“±)
 	FString FileHeader = "Content-Disposition: form-data; name=\"audio\"; filename=\"" + FPaths::GetCleanFilename(RecordedFilePath) + "\"\r\n";
 	FileHeader.Append("Content-Type: audio/wav\r\n\r\n");
 
-	// multipart/form-dataÀÇ °¢ ÆÄÆ®¸¦ ¹ÙÀÌÆ® ¹è¿­·Î º¯È¯
+	// multipart/form-dataì˜ ê° íŒŒíŠ¸ë¥¼ ë°”ì´íŠ¸ ë°°ì—´ë¡œ ë³€í™˜
 	TArray<uint8> Payload;
 	FString PayloadString = BeginBoundary + FileHeader;
 	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*PayloadString)), PayloadString.Len());
 
-	// ¿Àµğ¿À ÆÄÀÏ µ¥ÀÌÅÍ Ãß°¡
+	// ì˜¤ë””ì˜¤ íŒŒì¼ ë°ì´í„° ì¶”ê°€
 	Payload.Append(FileData);
 
-	// ³¡³ª´Â °æ°è¸¦ Ãß°¡
+	// ëë‚˜ëŠ” ê²½ê³„ë¥¼ ì¶”ê°€
 	FString EndPayloadString = EndBoundary;
 	Payload.Append(reinterpret_cast<const uint8*>(TCHAR_TO_UTF8(*EndPayloadString)), EndPayloadString.Len());
 
-	// HTTP ¿äÃ» »ı¼º ¹× ¼³Á¤
+	// HTTP ìš”ì²­ ìƒì„± ë° ì„¤ì •
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
-	Request->SetURL(AIChatbotURL);  // ¼­¹ö URLÀ» ¼³Á¤
+	Request->SetURL(AIChatbotURL);  // ì„œë²„ URLì„ ì„¤ì •
 	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("Content-Type"), TEXT("multipart/form-data; boundary=") + Boundary);
 	Request->SetContent(Payload);
 
-	// ¿äÃ» ¿Ï·á ½Ã Äİ¹é ÇÔ¼ö ¹ÙÀÎµù
+	// ìš”ì²­ ì™„ë£Œ ì‹œ ì½œë°± í•¨ìˆ˜ ë°”ì¸ë”©
 	Request->OnProcessRequestComplete().BindUObject(this, &AKHS_DronePlayer::OnAudioUploadComplete);
 
-	// ¿äÃ» Àü¼Û
+	// ìš”ì²­ ì „ì†¡
 	if (Request->ProcessRequest())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Audio Wav File Uploading Request Success"));
@@ -1063,16 +1064,16 @@ void AKHS_DronePlayer::SendAudioToServer(const FString& FilePath)
 	}
 }
 
-// ¼­¹ö·Î ¿Àµğ¿À ÆÄÀÏ ¾÷·Îµå ¿Ï·á ½Ã È£ÃâµÇ´Â Äİ¹é ÇÔ¼ö
+// ì„œë²„ë¡œ ì˜¤ë””ì˜¤ íŒŒì¼ ì—…ë¡œë“œ ì™„ë£Œ ì‹œ í˜¸ì¶œë˜ëŠ” ì½œë°± í•¨ìˆ˜
 void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
 
-		// STT Äİ¹é ÇÔ¼ö È£Ãâ
+		// STT ì½œë°± í•¨ìˆ˜ í˜¸ì¶œ
 		CallParsingAIText(Response->GetContentAsString());
-		// STS Äİ¹é ÇÔ¼ö È£Ãâ
+		// STS ì½œë°± í•¨ìˆ˜ í˜¸ì¶œ
 		CallParsingAISound(Response->GetContentAsString());
 	}
 	else
@@ -1081,50 +1082,86 @@ void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpRespo
 	}
 }
 
-// STT Äİ¹é ÇÔ¼ö
+// STT ì½œë°± í•¨ìˆ˜
 void AKHS_DronePlayer::CallParsingAIText(const FString& json)
 {
-	// Json ÆÄ½Ì ÈÄ ÅØ½ºÆ® Ã³¸®
-	FString ParsedText = KHSJsonLib->JsonParseGetAIText(json); // Json¿¡¼­ output_text ÇÊµå¸¦ ÆÄ½Ì
+	// Json íŒŒì‹± í›„ í…ìŠ¤íŠ¸ ì²˜ë¦¬
+	FString ParsedText = KHSJsonLib->JsonParseGetAIText(json); // Jsonì—ì„œ output_text í•„ë“œë¥¼ íŒŒì‹±
+	//FString ParsedText = FString::Printf(TEXT("ì´ê²ƒì€ í…ìŠ¤íŠ¸ìš© ë¬¸ì¥ì…ë‹ˆë‹¤. AIì±—ë´‡ ìµœê³ ëë‹ˆë‹¤. ì—¬ëŸ¬ë¶„ ëª¨ë‘ AIíŒŒíŠ¸ ì •ì² ì´ë¥¼ ì¹­ì°¬í•´ì£¼ì„¸ìš” ì§„ì§œ ì´ë²ˆ í”„ë¡œì íŠ¸ ë‚´ë‚´ í˜‘ì—…ëŠ¥ë ¥ ìµœê³ ë‹¤ ìµœê³ "));
 
-	
-	// UI¿¡ ÅØ½ºÆ® ¼³Á¤
+
+	// UIì— í…ìŠ¤íŠ¸ ì„¤ì •
 	UTextBlock* AIChatText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("Text_AIChatResult")));
 	if (AIChatText)
 	{
-		AIChatText->SetText(FText::FromString(ParsedText));
-		UE_LOG(LogTemp, Warning, TEXT("Update TEXT_AIChatResult Widget"));
+		DisplayedText = FString::Printf(TEXT(""));  // í˜„ì¬ê¹Œì§€ í‘œì‹œëœ í…ìŠ¤íŠ¸ë¥¼ ë¹ˆ ë¬¸ìì—´ë¡œ ì´ˆê¸°í™”
+		FullText = ParsedText;  // ì „ì²´ í…ìŠ¤íŠ¸ ì €ì¥
+		CurrentCharIndex = 0;  // í˜„ì¬ ë¬¸ì ì¸ë±ìŠ¤ ì´ˆê¸°í™”
+
+		// íƒ€ì´ë¨¸ ì„¤ì • (0.1ì´ˆ ê°„ê²©ìœ¼ë¡œ UpdateDisplayedText í•¨ìˆ˜ í˜¸ì¶œ)
+		GetWorld()->GetTimerManager().SetTimer(TextDisplayTimerHandle, this, &AKHS_DronePlayer::UpdateDisplayedText, 0.1f, true);
+		UE_LOG(LogTemp, Warning, TEXT("Starting text display animation..."));
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Can not find Text_AIChatResult Widget in Drone Main UI"));
 	}
+	//// UIì— í…ìŠ¤íŠ¸ ì„¤ì •
+	//UTextBlock* AIChatText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("Text_AIChatResult")));
+	//if (AIChatText)
+	//{
+	//	AIChatText->SetText(FText::FromString(ParsedText));
+	//	UE_LOG(LogTemp, Warning, TEXT("Update TEXT_AIChatResult Widget"));
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Can not find Text_AIChatResult Widget in Drone Main UI"));
+	//}
 }
 
-// STS Äİ¹é ÇÔ¼ö
+void AKHS_DronePlayer::UpdateDisplayedText()
+{
+	if (CurrentCharIndex < FullText.Len())
+	{
+		// í•œ ê¸€ìì”© ì¶”ê°€í•˜ì—¬ DisplayedTextì— ì €ì¥
+		DisplayedText.AppendChar(FullText[CurrentCharIndex]);
+		CurrentCharIndex++;
+
+		// í…ìŠ¤íŠ¸ ë¸”ëŸ­ì— ì—…ë°ì´íŠ¸
+		UTextBlock* AIChatText = Cast<UTextBlock>(DroneMainUI->GetWidgetFromName(TEXT("Text_AIChatResult")));
+		if (AIChatText)
+		{
+			AIChatText->SetText(FText::FromString(DisplayedText));
+		}
+	}
+	else
+	{
+		// ëª¨ë“  í…ìŠ¤íŠ¸ê°€ ì¶œë ¥ë˜ì—ˆìœ¼ë©´ íƒ€ì´ë¨¸ ì¤‘ì§€
+		GetWorld()->GetTimerManager().ClearTimer(TextDisplayTimerHandle);
+		UE_LOG(LogTemp, Warning, TEXT("Finished text display animation."));
+	}
+}
+
+// STS ì½œë°± í•¨ìˆ˜
 void AKHS_DronePlayer::CallParsingAISound(const FString& json)
 {
-	// Json¿¡¼­ output_audio ÇÊµå¸¦ ÆÄ½Ì
+	// Jsonì—ì„œ output_audio í•„ë“œë¥¼ íŒŒì‹±
 	TArray<uint8> AudioData = KHSJsonLib->JsonParseGetAIAudio(json);
 
-	// µğÄÚµùÇÑ µ¥ÀÌÅÍ°¡ ÀÖÀ» ¶§¸¸ Ã³¸®
+	// ë””ì½”ë”©í•œ ë°ì´í„°ê°€ ìˆì„ ë•Œë§Œ ì²˜ë¦¬
 	if (AudioData.Num() > 0)
 	{
-		// ÆÄÀÏÀ» ÀúÀåÇÒ °æ·Î ¼³Á¤
+		// íŒŒì¼ì„ ì €ì¥í•  ê²½ë¡œ ì„¤ì •
 		FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
 		FString FilePath = FPaths::Combine(SavedDirectory, TEXT("AIAudioResponse.wav"));
 
-		// µğ·ºÅä¸®°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é »ı¼º
+		// ë””ë ‰í† ë¦¬ê°€ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ìƒì„±
 		if (!FPaths::DirectoryExists(SavedDirectory))
 		{
 			FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*SavedDirectory);
 		}
-		// ÆÄÀÏÀ» ÀúÀåÇÒ °æ·Î ¼³Á¤
-		//FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
-		//FString FilePath = FPaths::Combine(SavedDirectory, TEXT("AIAudioResponse.wav"));
-		//FString FilePath = FPaths::ProjectSavedDir() + TEXT("AIAudioResponse.wav");
 
-		// ÆÄÀÏ ÀúÀå
+		// íŒŒì¼ ì €ì¥
 		if (!FFileHelper::SaveArrayToFile(AudioData, *FilePath))
 		{
 			UE_LOG(LogTemp, Error, TEXT("AI Response Audio File Save Failed : %s"), *FilePath);
@@ -1132,57 +1169,78 @@ void AKHS_DronePlayer::CallParsingAISound(const FString& json)
 		}
 		UE_LOG(LogTemp, Log, TEXT("AI Response Audio File Save Success: %s"), *FilePath);
 
-		// ÀúÀåµÈ WAV ÆÄÀÏ¿¡¼­ µ¥ÀÌÅÍ¸¦ ´Ù½Ã ÀĞ¾î¿À±â
+		// ì €ì¥ëœ WAV íŒŒì¼ì—ì„œ ë°ì´í„°ë¥¼ ë‹¤ì‹œ ì½ì–´ì˜¤ê¸°
 		TArray<uint8> SoundData;
 		if (!FFileHelper::LoadFileToArray(SoundData, *FilePath))
 		{
 			UE_LOG(LogTemp, Error, TEXT("File Data Loading Failed!: %s"), *FilePath);
 			return;
 		}
+		if (SoundData.Num() < 44)
+		{
+			UE_LOG(LogTemp, Error, TEXT("WAV file is too small to contain a valid header."));
+			return;
+		}
+		// WAV íŒŒì¼ì˜ í¬ê¸° ì¶œë ¥
+		UE_LOG(LogTemp, Log, TEXT("WAV File Size: %d bytes"), SoundData.Num());
 
-		// WAV Çì´õ¿¡¼­ »ùÇÃ ¼Óµµ ¹× Ã¤³Î ¼ö Á¤º¸ ÃßÃâ
-		int32 SampleRate = *(int32*)&SoundData[24];  // WAV ÆÄÀÏ¿¡¼­ »ùÇÃ ¼Óµµ ÃßÃâ
-		int16 NumChannels = *(int16*)&SoundData[22]; // WAV ÆÄÀÏ¿¡¼­ Ã¤³Î ¼ö ÃßÃâ
-		int32 DataSize = *(int32*)&SoundData[40];    // WAV ÆÄÀÏ¿¡¼­ µ¥ÀÌÅÍ Å©±â ÃßÃâ
+		// ì²« 44ë°”ì´íŠ¸ì˜ ë°ì´í„°ë¥¼ ë¡œê·¸ë¡œ ì¶œë ¥ (WAV í—¤ë”)
+		for (int i = 0; i < 44; i++)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Byte %d: %02x"), i, SoundData[i]);
+		}
 		
+		// WAV í—¤ë”ì—ì„œ ìƒ˜í”Œ ì†ë„ ë° ì±„ë„ ìˆ˜ ì •ë³´ ì¶”ì¶œ
+		int32 SampleRate=0;
+		int16 NumChannels=0;
+		int32 DataSize=0;
 
+		// ë°”ì´íŠ¸ ë°°ì—´ì—ì„œ ì•ˆì „í•˜ê²Œ ê°’ì„ ì½ì–´ì˜¤ê¸° (ë¦¬í‹€ ì—”ë””ì–¸ì„ ê³ ë ¤)
+		FMemory::Memcpy(&NumChannels, &SoundData[22], sizeof(int16));   // ì±„ë„ ìˆ˜
+		FMemory::Memcpy(&SampleRate, &SoundData[24], sizeof(int32));    // ìƒ˜í”Œ ì†ë„
+		FMemory::Memcpy(&DataSize, &SoundData[40], sizeof(int32));      // ë°ì´í„° í¬ê¸°
+		// ë¡œê·¸ë¡œ ê°’ ì¶œë ¥
+		UE_LOG(LogTemp, Log, TEXT("SampleRate: %d, NumChannels: %d, DataSize: %d"), SampleRate, NumChannels, DataSize);
+		// ê°’ì´ ì œëŒ€ë¡œ ì½í˜€ì§€ì§€ ì•Šìœ¼ë©´ ì˜¤ë¥˜ ë¡œê·¸ ì¶œë ¥
+		if (NumChannels == 0 || SampleRate == 0 || DataSize == 0)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to parse WAV header information. Please check the file format."));
+			return;
+		}
 
-		// USoundWaveProcedural·Î µ¿Àû »ç¿îµå ¿şÀÌºê »ı¼º
+		// USoundWaveProceduralë¡œ ë™ì  ì‚¬ìš´ë“œ ì›¨ì´ë¸Œ ìƒì„±
 		USoundWaveProcedural* SoundWave = NewObject<USoundWaveProcedural>();
 		if (SoundWave)
 		{
-			// SoundWave ¼³Á¤
-			SoundWave->SetSampleRate(SampleRate);   // »ùÇÃ ¼Óµµ ¼³Á¤
-			SoundWave->NumChannels = NumChannels;   // Ã¤³Î ¼ö ¼³Á¤
-			SoundWave->Duration = static_cast<float>(DataSize) / (SampleRate * NumChannels * sizeof(int16)); // ¿Àµğ¿À Áö¼Ó½Ã°£ ¼³Á¤
-			SoundWave->bLooping = false; //(¼±ÅÃ) ¹İº¹ ¿©ºÎ ¼³Á¤
+			// SoundWave ì„¤ì •
+			SoundWave->SetSampleRate(SampleRate);   // ìƒ˜í”Œ ì†ë„ ì„¤ì •
+			SoundWave->NumChannels = NumChannels;   // ì±„ë„ ìˆ˜ ì„¤ì •
+			SoundWave->Duration = static_cast<float>(DataSize) / (SampleRate * NumChannels * sizeof(int16)); // ì˜¤ë””ì˜¤ ì§€ì†ì‹œê°„ ì„¤ì •
+			SoundWave->bLooping = false; //(ì„ íƒ) ë°˜ë³µ ì—¬ë¶€ ì„¤ì •
 
 
-			// WAV ÆÄÀÏÀÇ 44¹ÙÀÌÆ® ÀÌÈÄºÎÅÍ°¡ ¿Àµğ¿À µ¥ÀÌÅÍÀÌ¹Ç·Î ±× ÀÌÈÄÀÇ µ¥ÀÌÅÍ¸¦ ÃßÃâ
-			DataSize = SoundData.Num() - 44;  // ÀüÃ¼ µ¥ÀÌÅÍ Å©±â¿¡¼­ Çì´õ Å©±â(44)¸¦ »« °ªÀÌ ½ÇÁ¦ PCM µ¥ÀÌÅÍ Å©±âÀÔ´Ï´Ù.
-			TArray<uint8> PCMData(SoundData.GetData() + 44, DataSize);  // 44¹ÙÀÌÆ® ÀÌÈÄÀÇ µ¥ÀÌÅÍ¸¦ ÃßÃâ
+			// WAV íŒŒì¼ì˜ 44ë°”ì´íŠ¸ ì´í›„ë¶€í„°ê°€ ì˜¤ë””ì˜¤ ë°ì´í„°ì´ë¯€ë¡œ ê·¸ ì´í›„ì˜ ë°ì´í„°ë¥¼ ì¶”ì¶œ
+			DataSize = SoundData.Num() - 44;  // ì „ì²´ ë°ì´í„° í¬ê¸°ì—ì„œ í—¤ë” í¬ê¸°(44)ë¥¼ ëº€ ê°’ì´ ì‹¤ì œ PCM ë°ì´í„° í¬ê¸°ì…ë‹ˆë‹¤.
+			TArray<uint8> PCMData(SoundData.GetData() + 44, DataSize);  // 44ë°”ì´íŠ¸ ì´í›„ì˜ ë°ì´í„°ë¥¼ ì¶”ì¶œ
 
 			if (PCMData.Num() > 0)
 			{
-				SoundWave->QueueAudio(PCMData.GetData(), PCMData.Num()); // ¿Àµğ¿À µ¥ÀÌÅÍ¸¦ SoundWave¿¡ Å¥À×
+				SoundWave->QueueAudio(PCMData.GetData(), PCMData.Num()); // ì˜¤ë””ì˜¤ ë°ì´í„°ë¥¼ SoundWaveì— íì‰
 
 				UE_LOG(LogTemp, Log, TEXT("SampleRate: %d, NumChannels: %d, DataSize: %d"), SampleRate, NumChannels, DataSize);
-				// ¿Àµğ¿À Àç»ıÀ» À§ÇÑ UAudioComponent »ı¼º
+				
+				// ì˜¤ë””ì˜¤ ì¬ìƒì„ ìœ„í•œ UAudioComponent ìƒì„±
 				UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
 				if (AudioComponent)
 				{
-					AudioComponent->SetSound(SoundWave);  // »ı¼ºµÈ SoundWave ¼³Á¤
-					AudioComponent->Play();  // ¿Àµğ¿À Àç»ı
+					AudioComponent->SetSound(SoundWave);  // ìƒì„±ëœ SoundWave ì„¤ì •
+					AudioComponent->Play();  // ì˜¤ë””ì˜¤ ì¬ìƒ
 					UE_LOG(LogTemp, Warning, TEXT("Playing AI Response Audio ..."));
 				}
 				else
 				{
 					UE_LOG(LogTemp, Error, TEXT("AudioComponent Create Failed"));
 				}
-
-				//// ¿Àµğ¿À Àç»ı
-				//UGameplayStatics::PlaySound2D(this, SoundWave);
-				//UE_LOG(LogTemp, Warning, TEXT("Playing AI Response Audio ..."));
 			}
 			else
 			{
@@ -1197,6 +1255,102 @@ void AKHS_DronePlayer::CallParsingAISound(const FString& json)
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("No AI Response Audio Data Exist...."));
+	}
+}
+
+
+void AKHS_DronePlayer::TestSound()
+{
+	// íŒŒì¼ì„ ì €ì¥í•  ê²½ë¡œ ì„¤ì •
+	FString SavedDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Recorded"));
+	FString FilePath = FPaths::Combine(SavedDirectory, TEXT("AIAudioResponse.wav"));
+
+	// ë””ë ‰í† ë¦¬ê°€ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ìƒì„±
+	if (!FPaths::DirectoryExists(SavedDirectory))
+	{
+		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*SavedDirectory);
+	}
+
+	// ì €ì¥ëœ WAV íŒŒì¼ì—ì„œ ë°ì´í„°ë¥¼ ë‹¤ì‹œ ì½ì–´ì˜¤ê¸°
+	TArray<uint8> SoundData;
+	if (!FFileHelper::LoadFileToArray(SoundData, *FilePath))
+	{
+		UE_LOG(LogTemp, Error, TEXT("File Data Loading Failed!: %s"), *FilePath);
+		return;
+	}
+	if (SoundData.Num() < 44)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WAV file is too small to contain a valid header."));
+		return;
+	}
+	// WAV íŒŒì¼ì˜ í¬ê¸° ì¶œë ¥
+	UE_LOG(LogTemp, Log, TEXT("WAV File Size: %d bytes"), SoundData.Num());
+
+	// ì²« 44ë°”ì´íŠ¸ì˜ ë°ì´í„°ë¥¼ ë¡œê·¸ë¡œ ì¶œë ¥ (WAV í—¤ë”)
+	for (int i = 0; i < 44; i++)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Byte %d: %02x"), i, SoundData[i]);
+	}
+	// WAV í—¤ë”ì—ì„œ ìƒ˜í”Œ ì†ë„ ë° ì±„ë„ ìˆ˜ ì •ë³´ ì¶”ì¶œ
+	int32 SampleRate = 0;
+	int16 NumChannels = 0;
+	int32 DataSize = 0;
+
+	// ë°”ì´íŠ¸ ë°°ì—´ì—ì„œ ì•ˆì „í•˜ê²Œ ê°’ì„ ì½ì–´ì˜¤ê¸° (ë¦¬í‹€ ì—”ë””ì–¸ì„ ê³ ë ¤)
+	FMemory::Memcpy(&NumChannels, &SoundData[22], sizeof(int16));   // ì±„ë„ ìˆ˜
+	FMemory::Memcpy(&SampleRate, &SoundData[24], sizeof(int32));    // ìƒ˜í”Œ ì†ë„
+	FMemory::Memcpy(&DataSize, &SoundData[40], sizeof(int32));      // ë°ì´í„° í¬ê¸°
+	// ë¡œê·¸ë¡œ ê°’ ì¶œë ¥
+	UE_LOG(LogTemp, Log, TEXT("SampleRate: %d, NumChannels: %d, DataSize: %d"), SampleRate, NumChannels, DataSize);
+	// ê°’ì´ ì œëŒ€ë¡œ ì½í˜€ì§€ì§€ ì•Šìœ¼ë©´ ì˜¤ë¥˜ ë¡œê·¸ ì¶œë ¥
+	if (NumChannels == 0 || SampleRate == 0 || DataSize == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to parse WAV header information. Please check the file format."));
+		return;
+	}
+
+	// USoundWaveProceduralë¡œ ë™ì  ì‚¬ìš´ë“œ ì›¨ì´ë¸Œ ìƒì„±
+	USoundWaveProcedural* SoundWave = NewObject<USoundWaveProcedural>();
+	if (SoundWave)
+	{
+		// SoundWave ì„¤ì •
+		SoundWave->SetSampleRate(SampleRate);   // ìƒ˜í”Œ ì†ë„ ì„¤ì •
+		SoundWave->NumChannels = NumChannels;   // ì±„ë„ ìˆ˜ ì„¤ì •
+		SoundWave->Duration = static_cast<float>(DataSize) / (SampleRate * NumChannels * sizeof(int16)); // ì˜¤ë””ì˜¤ ì§€ì†ì‹œê°„ ì„¤ì •
+		SoundWave->bLooping = false; //(ì„ íƒ) ë°˜ë³µ ì—¬ë¶€ ì„¤ì •
+
+
+		// WAV íŒŒì¼ì˜ 44ë°”ì´íŠ¸ ì´í›„ë¶€í„°ê°€ ì˜¤ë””ì˜¤ ë°ì´í„°ì´ë¯€ë¡œ ê·¸ ì´í›„ì˜ ë°ì´í„°ë¥¼ ì¶”ì¶œ
+		DataSize = SoundData.Num() - 44;  // ì „ì²´ ë°ì´í„° í¬ê¸°ì—ì„œ í—¤ë” í¬ê¸°(44)ë¥¼ ëº€ ê°’ì´ ì‹¤ì œ PCM ë°ì´í„° í¬ê¸°ì…ë‹ˆë‹¤.
+		TArray<uint8> PCMData(SoundData.GetData() + 44, DataSize);  // 44ë°”ì´íŠ¸ ì´í›„ì˜ ë°ì´í„°ë¥¼ ì¶”ì¶œ
+
+		if (PCMData.Num() > 0)
+		{
+			SoundWave->QueueAudio(PCMData.GetData(), PCMData.Num()); // ì˜¤ë””ì˜¤ ë°ì´í„°ë¥¼ SoundWaveì— íì‰
+
+			UE_LOG(LogTemp, Log, TEXT("SampleRate: %d, NumChannels: %d, DataSize: %d"), SampleRate, NumChannels, DataSize);
+
+			// ì˜¤ë””ì˜¤ ì¬ìƒì„ ìœ„í•œ UAudioComponent ìƒì„±
+			UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+			if (AudioComponent)
+			{
+				AudioComponent->SetSound(SoundWave);  // ìƒì„±ëœ SoundWave ì„¤ì •
+				AudioComponent->Play();  // ì˜¤ë””ì˜¤ ì¬ìƒ
+				UE_LOG(LogTemp, Warning, TEXT("Playing AI Response Audio ..."));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("AudioComponent Create Failed"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("PCM data doesn't exist"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("SoundWave Create Failed"));
 	}
 }
 
