@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,22 +17,23 @@ class MTVS_3RDUNREAL_API UKJH_LoadingWidget : public UKJH_WidgetSystem
 
 public:
 
-////////// ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ===================================================================
-virtual bool Initialize(); // UserWidget ÃÊ±âÈ­ ÇÔ¼ö
+////////// ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ===================================================================
+virtual bool Initialize(); // UserWidget ì´ˆê¸°í™” í•¨ìˆ˜
 virtual void Setup() override;
 virtual void Teardown() override;
 
-////////// UI ¹ÙÀÎµù ±¸°£ ==============================================================================
-	// 1) ¸Ş´º Ã¼ÀÎÁö °ü·Ã ---------------------------------------------------------------------------
+////////// UI ë°”ì¸ë”© êµ¬ê°„ ==============================================================================
+	// 1) ë©”ë‰´ ì²´ì¸ì§€ ê´€ë ¨ ---------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher; // °¢ ¸Ş´º·Î ÀüÈ¯½ÃÅ³ ¼ö ÀÖ´Â Menu Switcher
+	class UWidgetSwitcher* MenuSwitcher; // ê° ë©”ë‰´ë¡œ ì „í™˜ì‹œí‚¬ ìˆ˜ ìˆëŠ” Menu Switcher
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UWidget* CommonLoadingMenu; // °øÅë ·Îµù ¸Ş´º À§Á¬
+	class UWidget* CommonLoadingMenu; // ê³µí†µ ë¡œë”© ë©”ë‰´ ìœ„ì ¯
+
+	// 2) ìœ„ì ¯ ì• ë‹ˆë©”ì´ì…˜ ê´€ë ¨ -----------------------------------------------------------------------
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowCommonLoadingAnim; // ê³µí†µ ë¡œë”© ë©”ë‰´ Show ì• ë‹ˆë©”ì´ì…˜
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* ShowCommonLoadingAnim; // °øÅë ·Îµù ¸Ş´º Show ¾Ö´Ï¸ŞÀÌ¼Ç
-
-	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* HideCommonLoadingAnim; // °øÅë ·Îµù ¸Ş´º Hide ¾Ö´Ï¸ŞÀÌ¼Ç
+	class UWidgetAnimation* HideCommonLoadingAnim; // ê³µí†µ ë¡œë”© ë©”ë‰´ Hide ì• ë‹ˆë©”ì´ì…˜
 };

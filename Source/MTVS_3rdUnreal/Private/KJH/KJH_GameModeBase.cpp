@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_GameModeBase.h"
@@ -12,23 +12,27 @@
 #include "KJH/KJH_GameInstance.h"
 #include "KJH/KJH_CharacterSelectWidget.h"
 #include "KJH/KJH_PlayerController.h"
+#include "KJH/KJH_ResultWidget.h"
 
-// GameMode »ı¼ºÀÚ¿¡¼­ ÃÊ±â ¼³Á¤
+// GameMode ìƒì„±ìì—ì„œ ì´ˆê¸° ì„¤ì •
 AKJH_GameModeBase::AKJH_GameModeBase()
 {
-	// ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓ ½ÃÀÛ ½Ã ÀÚµ¿À¸·Î ½ÃÀÛµÇÁö ¾Ê°í °üÀüÀÚ·Î ½ÃÀÛµÇ°Ô ¼³Á¤
+	// í”Œë ˆì´ì–´ê°€ ê²Œì„ ì‹œì‘ ì‹œ ìë™ìœ¼ë¡œ ì‹œì‘ë˜ì§€ ì•Šê³  ê´€ì „ìë¡œ ì‹œì‘ë˜ê²Œ ì„¤ì •
 	bStartPlayersAsSpectators = true;
+
+	// ì²˜ìŒì—” ê²Œì„ì´ ì¢…ë£Œë˜ì§€ ì•Šì€ ìƒíƒœë¡œ ì„¤ì •
+	bIsGameEnded = false;
 }
 
 void AKJH_GameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// °ÔÀÓ½ÃÀÛ ½Ã ÇÇ±¸Á¶ÀÚ NPC ½ºÆù
+	// ê²Œì„ì‹œì‘ ì‹œ í”¼êµ¬ì¡°ì NPC ìŠ¤í°
 	OnMySpawnRescueNPC();
 }
 
-////////// Login °ü·Ã ÇÔ¼ö ¼±¾ğ (PreLogin -> Login -> PostLogin ¼ø¼­·Î È£Ãâ) ============================================================
+////////// Login ê´€ë ¨ í•¨ìˆ˜ ì„ ì–¸ (PreLogin -> Login -> PostLogin ìˆœì„œë¡œ í˜¸ì¶œ) ============================================================
 void AKJH_GameModeBase::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
 	FString Value;
@@ -43,10 +47,10 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 
 	UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
-	// ÇÊ¿äÇÑ °æ¿ì Ãß°¡ÀûÀÎ ÃÊ±âÈ­ ÀÛ¾÷À» ¿©±â¿¡ »ğÀÔ
-	// ¿¹: ÇÃ·¹ÀÌ¾î »óÅÂ ÃÊ±âÈ­, °ÔÀÓ »óÅÂ ¾÷µ¥ÀÌÆ® µî
+	// í•„ìš”í•œ ê²½ìš° ì¶”ê°€ì ì¸ ì´ˆê¸°í™” ì‘ì—…ì„ ì—¬ê¸°ì— ì‚½ì…
+	// ì˜ˆ: í”Œë ˆì´ì–´ ìƒíƒœ ì´ˆê¸°í™”, ê²Œì„ ìƒíƒœ ì—…ë°ì´íŠ¸ ë“±
 
-	++NumberOfPlayers; // ÇÃ·¹ÀÌ¾î°¡ ÀÔÀåÇÏ¿´À¸¹Ç·Î Áõ°¡
+	++NumberOfPlayers; // í”Œë ˆì´ì–´ê°€ ì…ì¥í•˜ì˜€ìœ¼ë¯€ë¡œ ì¦ê°€
 
 	// if (NumberOfPlayers >= 2)
 	// {
@@ -62,50 +66,70 @@ void AKJH_GameModeBase::PostLogin(APlayerController* NewPlayer)
 void AKJH_GameModeBase::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	--NumberOfPlayers; // ÇÃ·¹ÀÌ¾î°¡ ÅğÀåÇÏ¿´À¸¹Ç·Î °¨¼Ò
+	--NumberOfPlayers; // í”Œë ˆì´ì–´ê°€ í‡´ì¥í•˜ì˜€ìœ¼ë¯€ë¡œ ê°ì†Œ
 }
 
-////////// ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓ¿¡ Âü¿©ÇÒ ¶§ È£ÃâµÇ¾î Ä³¸¯ÅÍ¸¦ ½ºÆùÇÏ´Â ÇÔ¼ö ========================================================
+////////// í”Œë ˆì´ì–´ê°€ ê²Œì„ì— ì°¸ì—¬í•  ë•Œ í˜¸ì¶œë˜ì–´ ìºë¦­í„°ë¥¼ ìŠ¤í°í•˜ëŠ” í•¨ìˆ˜ ========================================================
 void AKJH_GameModeBase::RestartPlayer(AController* NewPlayer)
 {
 	Super::RestartPlayer(NewPlayer);
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ ============================================================================================
-// ÇÇ±¸Á¶ÀÚ NPC¸¦ ·£´ı ½ºÆùÇÏ´Â ÇÔ¼ö
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ ============================================================================================
+// í”¼êµ¬ì¡°ì NPCë¥¼ ëœë¤ ìŠ¤í°í•˜ëŠ” í•¨ìˆ˜
 void AKJH_GameModeBase::OnMySpawnRescueNPC()
 {
-	// ½ºÆùÇÒ NPC ºí·çÇÁ¸°Æ® Å¬·¡½º°¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+	// ìŠ¤í°í•  NPC ë¸”ë£¨í”„ë¦°íŠ¸ í´ë˜ìŠ¤ê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 	if (BP_RescueNPCClass)
 	{
-		// ±¸Á¶ÀÚ NPC¸¦ ½ºÆùÇÒ ½ºÆù Æ÷ÀÎÆ®¸¦ ÅÂ±×·Î Ã£±â
+		// êµ¬ì¡°ì NPCë¥¼ ìŠ¤í°í•  ìŠ¤í° í¬ì¸íŠ¸ë¥¼ íƒœê·¸ë¡œ ì°¾ê¸°
 		TArray<AActor*> FoundNPCSpawnPoints;
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("RescueNPCSpawnPoint"), FoundNPCSpawnPoints);
 
 		if (FoundNPCSpawnPoints.Num() > 0)
 		{
-			// ·£´ıÀ¸·Î ½ºÆù Æ÷ÀÎÆ® ¼±ÅÃ
+			// ëœë¤ìœ¼ë¡œ ìŠ¤í° í¬ì¸íŠ¸ ì„ íƒ
 			int32 RandomIndex = FMath::RandRange(0, FoundNPCSpawnPoints.Num() - 1);
 			AActor* SelectedSpawnPoint = FoundNPCSpawnPoints[RandomIndex];
-			// AActor* SelectedSpawnPoint = FoundNPCSpawnPoints[0]; Ã¹¹øÂ°·Î Ã£Àº Æ÷ÀÎÆ®¸¦ ½ºÆùÆ÷ÀÎÆ®·Î ÁöÁ¤ÇÑ´Ù. ½Ã¿¬¶§ È°¼ºÈ­ÇÒ °Í.
+			// AActor* SelectedSpawnPoint = FoundNPCSpawnPoints[0]; ì²«ë²ˆì§¸ë¡œ ì°¾ì€ í¬ì¸íŠ¸ë¥¼ ìŠ¤í°í¬ì¸íŠ¸ë¡œ ì§€ì •í•œë‹¤. ì‹œì—°ë•Œ í™œì„±í™”í•  ê²ƒ.
 			FVector SpawnLocation = SelectedSpawnPoint->GetActorLocation();
 			FRotator SpawnRotation = SelectedSpawnPoint->GetActorRotation();
 
-			// ½ºÆù ÆÄ¶ó¹ÌÅÍ(±ÔÄ¢) ¼³Á¤
+			// ìŠ¤í° íŒŒë¼ë¯¸í„°(ê·œì¹™) ì„¤ì •
 			FActorSpawnParameters SpawnParams;
 
-			// ÀÌ ¾×ÅÍ¸¦ ½ºÆùÇÏ°Ô ÇÏ´Â ÁÖÃ¼(¿À³Ê)´Â ´©±¸ÀÎ°¡?
-			// NPC ¾×ÅÍÀÇ ¿À³Ê¸¦ °ÔÀÓ¸ğµå·Î ¼³Á¤
+			// ì´ ì•¡í„°ë¥¼ ìŠ¤í°í•˜ê²Œ í•˜ëŠ” ì£¼ì²´(ì˜¤ë„ˆ)ëŠ” ëˆ„êµ¬ì¸ê°€?
+			// NPC ì•¡í„°ì˜ ì˜¤ë„ˆë¥¼ ê²Œì„ëª¨ë“œë¡œ ì„¤ì •
 			SpawnParams.Owner = this;
 
-			// ¾×ÅÍ°¡ ½ºÆùµÉ ¶§ Ãæµ¹ÀÌ ÀÏ¾î³ª¸é ¾î¶»°Ô ÇÒ °ÍÀÎ°¡?
-			// Ãæµ¹ÀÌ ¹ß»ıÇÏ¸é À§Ä¡¸¦ Á¶±İ Á¶Á¤ÇÏ¿© ½ºÆùÇÏ°í, Á¶Á¤ÀÌ ºÒ°¡´ÉÇÏ´õ¶óµµ °­Á¦·Î ½ºÆù
+			// ì•¡í„°ê°€ ìŠ¤í°ë  ë•Œ ì¶©ëŒì´ ì¼ì–´ë‚˜ë©´ ì–´ë–»ê²Œ í•  ê²ƒì¸ê°€?
+			// ì¶©ëŒì´ ë°œìƒí•˜ë©´ ìœ„ì¹˜ë¥¼ ì¡°ê¸ˆ ì¡°ì •í•˜ì—¬ ìŠ¤í°í•˜ê³ , ì¡°ì •ì´ ë¶ˆê°€ëŠ¥í•˜ë”ë¼ë„ ê°•ì œë¡œ ìŠ¤í°
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-			// NPC »ı¼º
+			// NPC ìƒì„±
 			AActor* SpawnedNPC = GetWorld()->SpawnActor<AActor>(BP_RescueNPCClass, SpawnLocation, SpawnRotation, SpawnParams);
 		}
 	}
 }
 
+// í”Œë ˆì´ ì¢…ë£Œë¥¼ ì•Œë¦¬ëŠ” í•¨ìˆ˜
+void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
+{
+	if (bIsGameEnded)
+	return;
+
+	bIsGameEnded = true;
+
+	// ë¡œì»¬ í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ì— ëŒ€í•´ì„œë§Œ ìœ„ì ¯ ìƒì„±
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC && PC->IsLocalController() && ResultWidgetClass)
+	{
+		UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
+		if (ResultWidget)
+		{
+			ResultWidget->Setup();
+			ResultWidget->PlayResultAnimations(); // ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘
+		}
+	}
+}
 
