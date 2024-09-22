@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-AdvancedSteamSessions-0024.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Projects\Unreal\MTVS_3rdUnreal\Intermediate\Build\Win64\x64\MTVS_3rdUnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.obj"
+"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\Module.AdvancedSteamSessions.cpp.obj"
+"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\Default.rc2.res"
+/OUT:"C:\Projects\Unreal\MTVS_3rdUnreal\Plugins\AdvancedSessions\AdvancedSteamSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\AdvancedSteamSessions\UnrealEditor-AdvancedSteamSessions-0024.lib"

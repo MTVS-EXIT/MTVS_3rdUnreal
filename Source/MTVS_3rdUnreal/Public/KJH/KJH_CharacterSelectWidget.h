@@ -9,50 +9,57 @@
 #include "KJH_CharacterSelectWidget.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MTVS_3RDUNREAL_API UKJH_CharacterSelectWidget : public UKJH_WidgetSystem
 {
 	GENERATED_BODY()
-	
-public :
 
-	// 생성자 선언
-	UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize);
+public:
 
-	// Initialization 선언
-	virtual bool Initialize() override;
+////////// 생성자 & 초기화 함수 구간 ===========================================================================================
+	UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize); // 생성자 선언
+	virtual bool Initialize() override; // Initialization 선언
 
-////////// UI 바인딩 구간 ------------------------------------------------------------------------------------------------------
-
-	// 메뉴 체인지 관련 //
+////////// UI 바인딩 구간 =======================================================================================================
+	// 1) 메뉴 체인지 관련 ------------------------------------------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher; // UI를 체인지 시킬 수 있는 Switcher
-
-	// 캐릭터 선택 UI 관련
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterSelectMenu;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* PersonSelectButton;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* DroneSelectButton;
+	// 2) 캐릭터 선택 UI 관련 ---------------------------------------------------------------------------------------------------
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* CharacterSelectMenu; // 캐릭터 선택 Widget UI
 
-////////// 변수 참조 구간 -----------------------------------------------------------------------------------------------------
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UButton* PersonSelectButton; // 사람 선택 버튼
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UButton* DroneSelectButton; // 드론 선택 버튼
+
+	// 3) 스폰 UI 관련 ----------------------------------------------------------------------------------------------------------
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* CharacterSpawnWidget; // 캐릭터 스폰 시 Glitch Widget UI
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* ShowSpawnTransitionAnim; // 캐릭터 스폰 시 화면 밝아지는 Widget UI
+
+////////// TSubclass & class 참조 구간 ============================================================================================
 	class UKJH_GameInstance* GameInstance; // GameInstance 참조 선언
 
 
-////////// 사용자 정의형 함수 구간 --------------------------------------------------------------------------------------------
+////////// 사용자 정의형 함수 구간 - 캐릭터 선택 관련 =============================================================================
 	UFUNCTION()
-    void ShowCharacterSelect();  // 캐릭터 선택 UI를 표시하는 함수
+	void ShowCharacterSelect();  // 캐릭터 선택 UI를 표시하는 함수
 
 	UFUNCTION()
-    void SelectPersonCharacter(); // 사람 캐릭터 선택 처리 함수
+	void SelectPersonCharacter(); // 사람 캐릭터 선택 처리 함수
 
 	UFUNCTION()
-    void SelectDroneCharacter(); // 사람 캐릭터 선택 처리 함수
+	void SelectDroneCharacter(); // 드론 캐릭터 선택 처리 함수
 
 	void UpdateSelectButtonStates(); // 선택된 버튼 상태를 확인하고 그 여부에 따라 업데이트하는 함수
+
+////////// 사용자 정의형 함수 구간 - 캐릭터 스폰 애니메이션 관련 =============================================================================
+	void ShowSpawnWidget();
 };

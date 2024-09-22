@@ -20,10 +20,10 @@ public:
 	void SetMyInterface(IKJH_Interface* Interface);
 
 	UFUNCTION(BlueprintCallable)
-	void Setup(); // ServerUI를 Setup 하는 함수
+	virtual void Setup(); // ServerUI를 Setup 하는 함수
 
 	UFUNCTION(BlueprintCallable)
-	void Teardown(); // ServerUI를 다 사용했을 경우, 제거하는 함수
+	virtual void Teardown(); // ServerUI를 다 사용했을 경우, 제거하는 함수
 
 ////////// 클래스 참조 구간 ------------------------------------------------------------
 	class IKJH_Interface* MenuInterface;
