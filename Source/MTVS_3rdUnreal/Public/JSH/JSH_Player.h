@@ -69,6 +69,9 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PushAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SlideAction;
 	
 public:
 	AJSH_Player();
@@ -89,6 +92,8 @@ protected:
 	void R(const FInputActionValue& Value);
 
 	void E(const FInputActionValue& Value);
+
+	void Slide(const FInputActionValue& Value);
 
 protected:
 	virtual void BeginPlay() override;
@@ -317,4 +322,17 @@ public:
 
 	// 모든 인터렉션 끄기
 	void AllOff();
+
+	// Slide
+	// UFUNCTION(Server, Reliable)
+	// void Server_E();
+	//
+	// UFUNCTION(NetMulticast, Reliable)
+	// void NetMulti_E();
+	//
+	// // Timer Handle for controlling the timer
+	// FTimerHandle TimerHandle;
+	//
+	// // Function to be called after the timer expires
+	// void TimerFinished();
 };

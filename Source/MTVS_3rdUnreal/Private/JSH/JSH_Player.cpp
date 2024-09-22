@@ -135,7 +135,7 @@ AJSH_Player::AJSH_Player()
 	FireHandComp->SetupAttachment(TwinSkeletal , TEXT("Bio_FirePosition"));
 
 	
-
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
 
 	// FireEXSpray = CreateDefaultSubobject<UArrowComponent>(TEXT("FireEXSpray"));
@@ -160,8 +160,8 @@ AJSH_Player::AJSH_Player()
 	FireEXNiagara->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
 	FireEXNiagara->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 	FireEXNiagara->SetAutoActivate(false);
-
-
+	
+	
 	PushCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("PushCapsule"));
 	PushCapsule->SetupAttachment(TwinSkeletal);
 	PushCapsule->SetRelativeLocation(FVector(0.0f, 93.333336f, 131.111115f));
@@ -243,6 +243,8 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Started, this, &AJSH_Player::E);
+		
+		EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Started, this, &AJSH_Player::Slide);
 	}
 	else
 	{
@@ -376,6 +378,8 @@ void AJSH_Player::E(const FInputActionValue& Value)
 {
 	Server_E();
 }
+
+
 
 void AJSH_Player::NetMulti_E_Implementation()
 {
@@ -784,12 +788,12 @@ void AJSH_Player::FireEXSprayTrace(float DeltaTime)
 	        ObjectTypes,
 	        false,
 	        ActorsToIgnore,
-	        EDrawDebugTrace::ForDuration, 
+	        EDrawDebugTrace::None, 
 	        OutHits,
 	        true
 	    );
 	    
-
+		
 	    if (bHit)
 	    {
 	        for (auto& Hit : OutHits)
@@ -838,3 +842,10 @@ void AJSH_Player::AllOff()
 
 
 // ------------------------------------------------------------------------
+
+
+
+// void AJSH_Player::Slide(const FInputActionValue& Value)
+// {
+// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AJSH_Player::MyReleaseAX, 2.0f, false);
+// }
