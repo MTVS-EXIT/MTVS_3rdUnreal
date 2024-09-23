@@ -13,7 +13,9 @@
 #include "InputActionValue.h"
 #include "Components/ArrowComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "JSH_PlayerMainUI.h"
 #include "kismet/GameplayStatics.h"
+ 
 #include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -188,6 +190,20 @@ void AJSH_Player::BeginPlay()
 	// 태어날 때 모든 FireEX 목록 기억
 	FName Firetag = TEXT("FireEX");
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , Firetag , FireList);
+
+
+	if (IsLocallyControlled())
+	{
+		if (PlayerMainUIFactory)
+		{
+			PlayerMainUI = CreateWidget<UUserWidget>(GetWorld(), PlayerMainUIFactory);
+			if(PlayerMainUI)
+			{
+				PlayerMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
 }
 
 

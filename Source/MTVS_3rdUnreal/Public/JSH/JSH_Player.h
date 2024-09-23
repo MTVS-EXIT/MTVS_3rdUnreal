@@ -9,6 +9,7 @@
 #include "Logging/LogMacros.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "JSH_PlayerMainUI.h"
 #include "JSH_Player.generated.h"
 
 class USpringArmComponent;
@@ -335,4 +336,13 @@ public:
 	//
 	// // Function to be called after the timer expires
 	// void TimerFinished();
+
+
+	// UI
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> PlayerMainUIFactory;
+	
+
+	UPROPERTY(EditDefaultsOnly)
+	class UUserWidget* PlayerMainUI;
 };

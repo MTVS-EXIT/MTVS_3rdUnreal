@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KHS/KHS_JsonParseLib.h"
@@ -7,20 +7,20 @@ TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIImage(const FString& json)
 {
 
 	TArray<uint8> arrayData;
-	//Json Reader »ı¼º
+	//Json Reader ìƒì„±
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
-	//Parsing°á°ú¸¦ ´ãÀ» º¯¼ö »ı¼º
+	//Parsingê²°ê³¼ë¥¼ ë‹´ì„ ë³€ìˆ˜ ìƒì„±
 	TSharedPtr<FJsonObject> JsonResult;
-	//Àü´Ş¹ŞÀº json ÇØ¼®
+	//ì „ë‹¬ë°›ì€ json í•´ì„
 	if (FJsonSerializer::Deserialize(JsonReader, JsonResult) && JsonResult.IsValid())
 	{
-		// "detected_image" ÇÊµå°¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+		// "detected_image" í•„ë“œê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 		if (JsonResult->HasTypedField<EJson::String>(TEXT("detected_image")))
 		{
 			FString Base64String = JsonResult->GetStringField(TEXT("detected_image"));
 
 			FBase64::Decode(Base64String, arrayData);
-			// Base64 µğÄÚµù
+			// Base64 ë””ì½”ë”©
 			if (false == FBase64::Decode(Base64String, arrayData))
 			{
 				UE_LOG(LogTemp, Error, TEXT("Base64 Decoding Failed"));
@@ -35,25 +35,25 @@ TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIImage(const FString& json)
 	{
 		UE_LOG(LogTemp, Error, TEXT("JSON PARSING FAILED"));
 	}
-	//È£ÃâÇÑ ÂÊ¿¡ Àû¿ëµÈ Value°ª ¹İÈ¯
+	//í˜¸ì¶œí•œ ìª½ì— ì ìš©ëœ Valueê°’ ë°˜í™˜
 	return arrayData;
 }
 
-//AI STT Ã³¸® ¹İÈ¯ ÀÌº¥Æ® Json Reader ÇÔ¼ö
+//AI STT ì²˜ë¦¬ ë°˜í™˜ ì´ë²¤íŠ¸ Json Reader í•¨ìˆ˜
 FString UKHS_JsonParseLib::JsonParseGetAIText(const FString& json)
 {
 	FString OutputText;
-	//Json Reader »ı¼º
+	//Json Reader ìƒì„±
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
-	//Parsing°á°ú¸¦ ´ãÀ» º¯¼ö »ı¼º
+	//Parsingê²°ê³¼ë¥¼ ë‹´ì„ ë³€ìˆ˜ ìƒì„±
 	TSharedPtr<FJsonObject> JsonObject;
-	//Àü´Ş¹ŞÀº json ÇØ¼®
+	//ì „ë‹¬ë°›ì€ json í•´ì„
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 	{
-		// "output_text" ÇÊµå°¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+		// "output_text" í•„ë“œê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 		if (JsonObject->HasField(TEXT("output_text")))
 		{
-			//ÇØ´ç ÇÊµåÀÇ °ªÀ» OutputText¿¡ ´ã±â
+			//í•´ë‹¹ í•„ë“œì˜ ê°’ì„ OutputTextì— ë‹´ê¸°
 			OutputText = JsonObject->GetStringField(TEXT("output_text"));
 		}
 		else
@@ -69,23 +69,23 @@ FString UKHS_JsonParseLib::JsonParseGetAIText(const FString& json)
 	return OutputText;
 }
 
-//AI STS Ã³¸® ¹İÈ¯ ÀÌº¥Æ® Json Reader ÇÔ¼ö
+//AI STS ì²˜ë¦¬ ë°˜í™˜ ì´ë²¤íŠ¸ Json Reader í•¨ìˆ˜
 TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIAudio(const FString& json)
 {
 	TArray<uint8> AudioData;
-	//Json Reader »ı¼º
+	//Json Reader ìƒì„±
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
-	// Parsing°á°ú¸¦ ´ãÀ» º¯¼ö »ı¼º
+	// Parsingê²°ê³¼ë¥¼ ë‹´ì„ ë³€ìˆ˜ ìƒì„±
 	TSharedPtr<FJsonObject> JsonObject;
-	//Àü´Ş¹ŞÀº json ÇØ¼®
+	//ì „ë‹¬ë°›ì€ json í•´ì„
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 	{
-		// "output_audio" ÇÊµå°¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ
+		// "output_audio" í•„ë“œê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
 		if (JsonObject->HasField(TEXT("output_audio")))
 		{
-			//ÇØ´ç String ÇÊµåÀÇ °ªÀ» Audio Data·Î º¯È¯
+			//í•´ë‹¹ String í•„ë“œì˜ ê°’ì„ Audio Dataë¡œ ë³€í™˜
 			FString Base64String = JsonObject->GetStringField(TEXT("output_audio"));
-			// Base64 µğÄÚµù
+			// Base64 ë””ì½”ë”©
 			FBase64::Decode(Base64String, AudioData);
 		}
 		else
@@ -101,22 +101,64 @@ TArray<uint8> UKHS_JsonParseLib::JsonParseGetAIAudio(const FString& json)
 	return AudioData;
 }
 
+// AIë´‡ì— ê°ì§€ëœ íƒœê·¸ë“¤ ì¶”ì¶œ ì´ë²¤íŠ¸ Json Reader í•¨ìˆ˜
+TArray<FString> UKHS_JsonParseLib::JsonParseGetDetectedTags(const FString& json)
+{
+	TArray<FString> DetectedTags;
+
+	// Json Reader ìƒì„±
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
+	TSharedPtr<FJsonObject> JsonResult;
+
+	if (FJsonSerializer::Deserialize(JsonReader, JsonResult) && JsonResult.IsValid())
+	{
+		// "categories" í•„ë“œê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸
+		if (JsonResult->HasField(TEXT("categories")))
+		{
+			TSharedPtr<FJsonObject> CategoriesObject = JsonResult->GetObjectField(TEXT("categories"));
+
+			// "caution", "danger", "safe" í•„ë“œ í™•ì¸
+			for (const auto& Category : { TEXT("caution"), TEXT("danger"), TEXT("safe") })
+			{
+				if (CategoriesObject->HasTypedField<EJson::Object>(Category))
+				{
+					TSharedPtr<FJsonObject> CategoryObject = CategoriesObject->GetObjectField(Category);
+					int32 DetectedValue = CategoryObject->GetIntegerField(TEXT("detected"));
+
+					// "detected"ê°€ 1ì¸ ê²½ìš° í•´ë‹¹ íƒœê·¸ë¥¼ ì¶”ê°€
+					if (DetectedValue == 1)
+					{
+						DetectedTags.Add(Category);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON for detected tags"));
+	}
+
+	return DetectedTags;
+}
+
+//Json Writer í•¨ìˆ˜
 FString UKHS_JsonParseLib::MakeJson(const TMap<FString, FString> source)
 {
-	//source¸¦ JsonObjectÇü½ÄÀ¸·Î ¸¸µé°í
+	//sourceë¥¼ JsonObjectí˜•ì‹ìœ¼ë¡œ ë§Œë“¤ê³ 
 	TSharedPtr<FJsonObject> jsonObject = MakeShareable(new FJsonObject());
 	for (TPair<FString, FString> pair : source)
 	{
 		jsonObject->SetStringField(pair.Key, pair.Value);
 	}
 
-	//writer¸¦ ¸¸µé¾î¼­
+	//writerë¥¼ ë§Œë“¤ì–´ì„œ
 	FString json;
 	TSharedRef<TJsonWriter<TCHAR>> writer = TJsonWriterFactory<TCHAR>::Create(&json);
 
-	//JsonObject¸¦ ÀÎÄÚµùÇÏ°í
+	//JsonObjectë¥¼ ì¸ì½”ë”©í•˜ê³ 
 	FJsonSerializer::Serialize(jsonObject.ToSharedRef(), writer);
 
-	//ÀÎÄÚµù°á°ú¸¦ ¹İÈ¯ÇÑ´Ù.
+	//ì¸ì½”ë”©ê²°ê³¼ë¥¼ ë°˜í™˜í•œë‹¤.
 	return json;
 }

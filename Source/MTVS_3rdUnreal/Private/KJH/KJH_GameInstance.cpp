@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_GameInstance.h"
@@ -21,30 +21,30 @@
 #include "KJH/KJH_LoginWidget.h"
 #include "KJH/KJH_LoadingWidget.h"
 
-// ¼¼¼Ç »ı¼º¿¡ »ç¿ëÇÒ ¼ö ÀÖ´Â ¼¼¼Ç ÀÌ¸§À» Àü¿ª »ó¼ö·Î Á¤ÀÇ
+// ì„¸ì…˜ ìƒì„±ì— ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” ì„¸ì…˜ ì´ë¦„ì„ ì „ì—­ ìƒìˆ˜ë¡œ ì •ì˜
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
 const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
-UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer) // ¿¡µğÅÍ ½ÇÇàÇÒ ¶§ ½ÇÇàÇÏ´Â »ı¼ºÀÚ.
+UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer) // ì—ë””í„° ì‹¤í–‰í•  ë•Œ ì‹¤í–‰í•˜ëŠ” ìƒì„±ì.
 {
 	UE_LOG(LogTemp, Warning, TEXT("GameInstance Constructor"));
 }
 
-void UKJH_GameInstance::Init() // ÇÃ·¹ÀÌ¸¦ ´­·¶À» ¶§¸¸ ½ÇÇàÇÏ´Â »ı¼ºÀÚ. ÃÊ±âÈ­¸¸ ½ÃÄÑÁØ´Ù.
+void UKJH_GameInstance::Init() // í”Œë ˆì´ë¥¼ ëˆŒë €ì„ ë•Œë§Œ ì‹¤í–‰í•˜ëŠ” ìƒì„±ì. ì´ˆê¸°í™”ë§Œ ì‹œì¼œì¤€ë‹¤.
 {
-	//// ¿ùµå ÃÊ±âÈ­ ÈÄ È£ÃâµÇ´Â µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+	//// ì›”ë“œ ì´ˆê¸°í™” í›„ í˜¸ì¶œë˜ëŠ” ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
 	//FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UKJH_GameInstance::OnPostWorldInitialization);
 
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem °¡Á®¿À±â
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem ê°€ì ¸ì˜¤ê¸°
 	
-	if (Subsystem) // ¸¸¾à, SubsystemÀÌ À¯È¿ÇÏ´Ù¸é,
+	if (Subsystem) // ë§Œì•½, Subsystemì´ ìœ íš¨í•˜ë‹¤ë©´,
 	{
-		SessionInterface = Subsystem->GetSessionInterface(); // ¼¼¼Ç ÀÎÅÍÆäÀÌ½º °¡Á®¿À±â
+		SessionInterface = Subsystem->GetSessionInterface(); // ì„¸ì…˜ ì¸í„°í˜ì´ìŠ¤ ê°€ì ¸ì˜¤ê¸°
 		
-		// ¸¸¾à, ¼¼¼Ç ÀÎÅÍÆäÀÌ½º°¡ À¯È¿ÇÏ´Ù¸é,
+		// ë§Œì•½, ì„¸ì…˜ ì¸í„°í˜ì´ìŠ¤ê°€ ìœ íš¨í•˜ë‹¤ë©´,
 		if (SessionInterface.IsValid())
-		{									// 1¹øÀº ¿¹¸¦ µé¾î, CreateSessionÀÇ Á¤º¸°ªÀ» ¹Ş¾Æ¼­ OnCreateSessionComplete ÇÔ¼ö ½ÇÇàÇÑ´Ù´Â ¶æ. 
-											// (Enhanced Input Ã³·³ ¹ÙÀÎµùÇÑ´Ù°í »ı°¢ÇÏ¸é ½±´Ù. ³ª¸ÓÁöµµ ºñ½ÁÇÏ°Ô ¹ÙÀÎµù.
+		{									// 1ë²ˆì€ ì˜ˆë¥¼ ë“¤ì–´, CreateSessionì˜ ì •ë³´ê°’ì„ ë°›ì•„ì„œ OnCreateSessionComplete í•¨ìˆ˜ ì‹¤í–‰í•œë‹¤ëŠ” ëœ». 
+											// (Enhanced Input ì²˜ëŸ¼ ë°”ì¸ë”©í•œë‹¤ê³  ìƒê°í•˜ë©´ ì‰½ë‹¤. ë‚˜ë¨¸ì§€ë„ ë¹„ìŠ·í•˜ê²Œ ë°”ì¸ë”©.
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnCreateSessionComplete);
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnFindSessionComplete);
@@ -53,10 +53,10 @@ void UKJH_GameInstance::Init() // ÇÃ·¹ÀÌ¸¦ ´­·¶À» ¶§¸¸ ½ÇÇàÇÏ´Â »ı¼ºÀÚ. ÃÊ±âÈ­¸¸
 	}
 }
 
-////////// µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù ÇÔ¼ö ±¸°£ ½ÃÀÛ ------------------------------------------------------------------------------
+////////// ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”© í•¨ìˆ˜ êµ¬ê°„ ì‹œì‘ ------------------------------------------------------------------------------
 void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 {
-	// ¼¼¼Ç »ı¼º ½ÇÆĞ ½Ã,
+	// ì„¸ì…˜ ìƒì„± ì‹¤íŒ¨ ì‹œ,
 	if (!Success)
 	{
 		if (LoadingWidget)
@@ -66,14 +66,14 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 
 	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
-	// ¼¼¼ÇÀÌ ¼º°øÀûÀ¸·Î »ı¼º ½Ã,
-	if (ServerWidget) // ServerWidget Á¦°Å
+	// ì„¸ì…˜ì´ ì„±ê³µì ìœ¼ë¡œ ìƒì„± ì‹œ,
+	if (ServerWidget) // ServerWidget ì œê±°
 		ServerWidget->Teardown();
 
-	if (LoadingWidget) // LoadingWidget »ı¼º
+	if (LoadingWidget) // LoadingWidget ìƒì„±
 		LoadingWidget->Setup();
 
-	// ¸Ê ÀüÈ¯ Àü, ºñµ¿±â ·ÎµùÀ» ½ÃÀÛ -> ³¡³ª¸é OnMapPreloadCompleteÀ» È£ÃâÇÏ¿© ServerTravel ½ÃÀÛ
+	// ë§µ ì „í™˜ ì „, ë¹„ë™ê¸° ë¡œë”©ì„ ì‹œì‘ -> ëë‚˜ë©´ OnMapPreloadCompleteì„ í˜¸ì¶œí•˜ì—¬ ServerTravel ì‹œì‘
 	StreamableManager.RequestAsyncLoad(FSoftObjectPath(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap")),
 		FStreamableDelegate::CreateUObject(this, &UKJH_GameInstance::OnMapPreloadComplete));
 }
@@ -83,21 +83,21 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 	if (LoadingWidget)
 		LoadingWidget->Teardown();
 
-	// ³»°¡ ¼³Á¤ÇÑ ¸ÊÀ¸·Î listen ¼­¹ö¸¦ ¿­°í ÀÌµ¿ÇÑ´Ù.
+	// ë‚´ê°€ ì„¤ì •í•œ ë§µìœ¼ë¡œ listen ì„œë²„ë¥¼ ì—´ê³  ì´ë™í•œë‹¤.
 	//GetWorld()->ServerTravel(TEXT("/Game/MAPS/KJH/KJH_TestMap?listen"));
 
-	// ¼öÇõÀÌ ¸ÊÀ¸·Î listen ¼­¹ö¸¦ ¿­°í ÀÌµ¿ÇÑ´Ù.
+	// ìˆ˜í˜ì´ ë§µìœ¼ë¡œ listen ì„œë²„ë¥¼ ì—´ê³  ì´ë™í•œë‹¤.
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
 }
 
-// ¼¼¼Ç ÆÄ±« ¿Ï·á ½Ã È£ÃâµÇ´Â ÇÔ¼ö
+// ì„¸ì…˜ íŒŒê´´ ì™„ë£Œ ì‹œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜
 void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success)
 {
-	if (Success) // ÆÄ±«¿¡ ¼º°øÇÏ¸é?
+	if (Success) // íŒŒê´´ì— ì„±ê³µí•˜ë©´?
 	{
-		CreateSession(); // ¼¼¼ÇÀ» ¸¸µé¾î¹ö¸°´Ù. (±âÁ¸¿¡ ¼¼¼ÇÀÌ ÀÖÀ¸¸é ±×°ÍÀ» ºÎ¼ö°í »õ·Î¿î ¼¼¼ÇÀ» ¸¸µç´Ù´Â °ÍÀÌ´Ù.)
+		CreateSession(); // ì„¸ì…˜ì„ ë§Œë“¤ì–´ë²„ë¦°ë‹¤. (ê¸°ì¡´ì— ì„¸ì…˜ì´ ìˆìœ¼ë©´ ê·¸ê²ƒì„ ë¶€ìˆ˜ê³  ìƒˆë¡œìš´ ì„¸ì…˜ì„ ë§Œë“ ë‹¤ëŠ” ê²ƒì´ë‹¤.)
 	}
 
 	if (nullptr != GEngine)
@@ -115,7 +115,7 @@ void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, E
 void UKJH_GameInstance::RefreshServerList()
 {
 
-	// ±âÁ¸ ¼¼¼Ç °Ë»ö °á°ú ÃÊ±âÈ­
+	// ê¸°ì¡´ ì„¸ì…˜ ê²€ìƒ‰ ê²°ê³¼ ì´ˆê¸°í™”
 	if (SessionSearch.IsValid())
 	{
 		SessionSearch.Reset();
@@ -125,15 +125,15 @@ void UKJH_GameInstance::RefreshServerList()
 
 	if (SessionSearch.IsValid())
 	{
-		//SessionSearch->bIsLanQuery = true; // LAN »ç¿ë ¿©ºÎ, true ¸é LAN ¼¼¼ÇÀ» Ã£°í false ¸é ÀÎÅÍ³İ ¼¼¼ÇÀ» Ã£À½.
-		SessionSearch->bIsLanQuery = false; // LAN ¼¼¼Ç °Ë»ö ¿©ºÎ ¼³Á¤
+		//SessionSearch->bIsLanQuery = true; // LAN ì‚¬ìš© ì—¬ë¶€, true ë©´ LAN ì„¸ì…˜ì„ ì°¾ê³  false ë©´ ì¸í„°ë„· ì„¸ì…˜ì„ ì°¾ìŒ.
+		SessionSearch->bIsLanQuery = false; // LAN ì„¸ì…˜ ê²€ìƒ‰ ì—¬ë¶€ ì„¤ì •
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-		// ToSharedRef -> TSharedPtr À» Ç×»ó À¯È¿ÇÏ°Ô ¹Ù²ãÁÖ´Â ¸Ş¼­µå. TSharedptr Àº NullÀÏ ¼öµµ ÀÖ´Âµ¥, 
-		// FindSessionÀÌ¶õ ¸Ş¼­µå´Â NullÀÌ¸é À§ÇèÇÏ´Ï±î ¾ÖÃÊ¿¡ À¯È¿ÇÑ ³à¼®¸¸ ³Ö°Ô ¿äÃ»ÇÑ´Ù. 
-		// ±×·¡¼­ ¿ì¸®°¡ Ç×»ó À¯È¿ÇÏ°Ô ToSharedRef·Î º¯È¯ÇØÁà¾ßÇÑ´Ù.
+		// ToSharedRef -> TSharedPtr ì„ í•­ìƒ ìœ íš¨í•˜ê²Œ ë°”ê¿”ì£¼ëŠ” ë©”ì„œë“œ. TSharedptr ì€ Nullì¼ ìˆ˜ë„ ìˆëŠ”ë°, 
+		// FindSessionì´ë€ ë©”ì„œë“œëŠ” Nullì´ë©´ ìœ„í—˜í•˜ë‹ˆê¹Œ ì• ì´ˆì— ìœ íš¨í•œ ë…€ì„ë§Œ ë„£ê²Œ ìš”ì²­í•œë‹¤. 
+		// ê·¸ë˜ì„œ ìš°ë¦¬ê°€ í•­ìƒ ìœ íš¨í•˜ê²Œ ToSharedRefë¡œ ë³€í™˜í•´ì¤˜ì•¼í•œë‹¤.
 	}
 }
 
@@ -165,24 +165,26 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 	{
 		FServerData Data;
 		Data.Name = SearchResult.GetSessionIdStr();
-		Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections; // ÀÔÀå°¡´ÉÇÑ ÃÖ´ë ÇÃ·¹ÀÌ¾î ¼ö
+		Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections; // ì…ì¥ê°€ëŠ¥í•œ ìµœëŒ€ í”Œë ˆì´ì–´ ìˆ˜
 		Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections; 
-							 // ÃÖ´ë ÇÃ·¹ÀÌ¾î ¼ö - ºñ¾îÀÖ´Â ½½·ÔÀÇ ¼ö = Á¢¼Ó ÁßÀÎ ÇÃ·¹ÀÌ¾î ¼ö
+							 // ìµœëŒ€ í”Œë ˆì´ì–´ ìˆ˜ - ë¹„ì–´ìˆëŠ” ìŠ¬ë¡¯ì˜ ìˆ˜ = ì ‘ì† ì¤‘ì¸ í”Œë ˆì´ì–´ ìˆ˜
 		Data.HostUserName = SearchResult.Session.OwningUserName;
 		FString ServerName;
 		if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
 		{
-			Data.Name = SearchResult.GetSessionIdStr();
+			Data.Name = ServerName;
+			//Data.Name = SearchResult.GetSessionIdStr();
 		}
 		else
 		{
-			Data.Name = "Could not Find Name";
+			//Data.Name = "Could not Find Name";
+			Data.Name = SearchResult.GetSessionIdStr(); // ì„œë²„ ì´ë¦„ì„ ì°¾ì„ ìˆ˜ ì—†ëŠ” ê²½ìš°, ê³ ìœ  ì•„ì´ë””ë¥¼ ê°€ì ¸ì˜´
 		}
 
 		ServerNames.Add(Data);
 	}
 
-	// ServerWidgetÀÌ À¯È¿ÇÏ°í SetServerList È£ÃâÀÌ ¾ÈÀüÇÑ °æ¿ì¿¡¸¸ ½ÇÇà
+	// ServerWidgetì´ ìœ íš¨í•˜ê³  SetServerList í˜¸ì¶œì´ ì•ˆì „í•œ ê²½ìš°ì—ë§Œ ì‹¤í–‰
 	if (ServerWidget)
 	{
 		ServerWidget->SetServerList(ServerNames);
@@ -193,7 +195,7 @@ void UKJH_GameInstance::OnFindSessionComplete(bool Success)
 	}
 }
 
-// ¼¼¼Ç¿¡ µé¾î¿Ã °æ¿ì È£ÃâµÇ´Â ÇÔ¼ö
+// ì„¸ì…˜ì— ë“¤ì–´ì˜¬ ê²½ìš° í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜
 void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	FString Address;
@@ -212,63 +214,63 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 	if (PlayerController)
 	{
 		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-													// ÇØ´ç ¿É¼ÇÀº Àı´ë °æ·Î¸¦ »ç¿ëÇÏ¿© ÀÌµ¿ÇÏ´Â °ÍÀ» ÀÇ¹Ì
-													// Áï, Å¬¶óÀÌ¾ğÆ®¸¦ ¸í½ÃµÈ Á¤È®ÇÑ ¸ÊÀÌ³ª ¼­¹ö·Î ÀÌµ¿½ÃÅ²´Ù. 
-													// ÀÌ ¿É¼ÇÀ» »ç¿ëÇÒ ¶§´Â URLÀÌ ¿ÏÀüÈ÷ ÁöÁ¤µÇ¾î¾ß ÇÑ´Ù.
+													// í•´ë‹¹ ì˜µì…˜ì€ ì ˆëŒ€ ê²½ë¡œë¥¼ ì‚¬ìš©í•˜ì—¬ ì´ë™í•˜ëŠ” ê²ƒì„ ì˜ë¯¸
+													// ì¦‰, í´ë¼ì´ì–¸íŠ¸ë¥¼ ëª…ì‹œëœ ì •í™•í•œ ë§µì´ë‚˜ ì„œë²„ë¡œ ì´ë™ì‹œí‚¨ë‹¤. 
+													// ì´ ì˜µì…˜ì„ ì‚¬ìš©í•  ë•ŒëŠ” URLì´ ì™„ì „íˆ ì§€ì •ë˜ì–´ì•¼ í•œë‹¤.
 	}
 }
 
 
-////////// µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù ÇÔ¼ö ±¸°£ Á¾·á ------------------------------------------------------------------------------
+////////// ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”© í•¨ìˆ˜ êµ¬ê°„ ì¢…ë£Œ ------------------------------------------------------------------------------
 
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ ½ÃÀÛ ----------------------------------------------------------------------------------
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ ì‹œì‘ ----------------------------------------------------------------------------------
 
-// ¼­¹ö ¿­±â ÇÔ¼ö
+// ì„œë²„ ì—´ê¸° í•¨ìˆ˜
 void UKJH_GameInstance::Host(FString ServerName)
 {
 	 DesiredServerName = ServerName;
 
-	// ¸¸¾à, ¼¼¼Ç ÀÎÅÍÆäÀÌ½º°¡ À¯È¿ÇÏ´Ù¸é,
+	// ë§Œì•½, ì„¸ì…˜ ì¸í„°í˜ì´ìŠ¤ê°€ ìœ íš¨í•˜ë‹¤ë©´,
 	if (SessionInterface.IsValid())
 	{
-		// LoadingWidget ÃÊ±âÈ­
+		// LoadingWidget ì´ˆê¸°í™”
 		if (LoadingWidgetFactory)
 			LoadingWidget = CreateWidget<UKJH_LoadingWidget>(this, LoadingWidgetFactory);
 
 		if (LoadingWidget)
 		LoadingWidget -> Setup();
 
-		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);  // ÇöÀç ¼¼¼Ç Á¤º¸ ¾ò±â
-		if (ExistingSession) // ¼¼¼ÇÀÌ ÀÌ¹Ì Á¸ÀçÇÑ´Ù¸é
+		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);  // í˜„ì¬ ì„¸ì…˜ ì •ë³´ ì–»ê¸°
+		if (ExistingSession) // ì„¸ì…˜ì´ ì´ë¯¸ ì¡´ì¬í•œë‹¤ë©´
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Existing session found. Destroying the session..."));
-			SessionInterface->DestroySession(SESSION_NAME); // ±âÁ¸¿¡ ¸í¸íµÈ ¼¼¼ÇÀ» ÆÄ±«
-															// ½ÇÇàµÇ¸é 'DestroySession'ÀÌ µ¨¸®°ÔÀÌÆ®¿¡ Á¤º¸¸¦ Á¦°øÇÑ´Ù. Áï, ¹Ù·Î µ¨¸®°ÔÀÌÆ®°¡ È£ÃâµÈ´Ù.
+			SessionInterface->DestroySession(SESSION_NAME); // ê¸°ì¡´ì— ëª…ëª…ëœ ì„¸ì…˜ì„ íŒŒê´´
+															// ì‹¤í–‰ë˜ë©´ 'DestroySession'ì´ ë¸ë¦¬ê²Œì´íŠ¸ì— ì •ë³´ë¥¼ ì œê³µí•œë‹¤. ì¦‰, ë°”ë¡œ ë¸ë¦¬ê²Œì´íŠ¸ê°€ í˜¸ì¶œëœë‹¤.
 		}
 
-		else // ¼¼¼ÇÀÌ ¾øÀ» °æ¿ì
+		else // ì„¸ì…˜ì´ ì—†ì„ ê²½ìš°
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No existing session found. Creating a new session..."));
-			CreateSession(); // »õ·Î¿î ¼¼¼Ç »ı¼º
+			CreateSession(); // ìƒˆë¡œìš´ ì„¸ì…˜ ìƒì„±
 		}
 	}
 }
 
-// ¼­¹ö Á¢¼Ó ÇÔ¼ö
+// ì„œë²„ ì ‘ì† í•¨ìˆ˜
 void UKJH_GameInstance::Join(uint32 Index)
 {
-	// SessionInterface ¶Ç´Â SessionSearch°¡ À¯È¿ÇÏÁö ¾Ê´Ù¸é, return
+	// SessionInterface ë˜ëŠ” SessionSearchê°€ ìœ íš¨í•˜ì§€ ì•Šë‹¤ë©´, return
 	if (!SessionInterface.IsValid() || !SessionSearch.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SessionInterface or SessionSearch is not valid."));
 		return;
 	}
 
-	if (SessionInterface->GetNamedSession(SESSION_NAME)) // ÀÌ¹Ì ¼¼¼Ç¿¡ Á¢¼ÓµÇ¾î ÀÖ´ÂÁö È®ÀÎ
+	if (SessionInterface->GetNamedSession(SESSION_NAME)) // ì´ë¯¸ ì„¸ì…˜ì— ì ‘ì†ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Already connected to a session. Cannot join again."));
-		return; // ÀÌ¹Ì Á¢¼ÓµÈ ¼¼¼ÇÀÌ ÀÖ´Ù¸é ´Ù½Ã Á¢¼ÓÇÏÁö ¾Êµµ·Ï ¹æÁö
+		return; // ì´ë¯¸ ì ‘ì†ëœ ì„¸ì…˜ì´ ìˆë‹¤ë©´ ë‹¤ì‹œ ì ‘ì†í•˜ì§€ ì•Šë„ë¡ ë°©ì§€
 	}
 
 	if (ServerWidget)
@@ -279,58 +281,58 @@ void UKJH_GameInstance::Join(uint32 Index)
 	SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
 }
 
-// ¼¼¼Ç »ı¼º ÇÔ¼ö
+// ì„¸ì…˜ ìƒì„± í•¨ìˆ˜
 void UKJH_GameInstance::CreateSession()
 {
 	if (SessionInterface.IsValid())
 	{
-		FOnlineSessionSettings SessionSettings; // CreateSessionÀ» À§ÇØ ÀÓÀÇ·Î ¼¼¼Ç¼¼ÆÃÀ» ¸¸µé¾îÁØ´Ù.
-		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem ÀÌ NULL ·Î ¼¼ÆÃµÇ¸é (NULL : ·ÎÄÃ ¿¬°á ¼³Á¤)
+		FOnlineSessionSettings SessionSettings; // CreateSessionì„ ìœ„í•´ ì„ì˜ë¡œ ì„¸ì…˜ì„¸íŒ…ì„ ë§Œë“¤ì–´ì¤€ë‹¤.
+		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") // OnlineSubsystem ì´ NULL ë¡œ ì„¸íŒ…ë˜ë©´ (NULL : ë¡œì»¬ ì—°ê²° ì„¤ì •)
 		{
-			SessionSettings.bIsLANMatch = true; // true ½Ã : °°Àº ³×Æ®¿öÅ©¿¡ ÀÖ´Â »ç¶÷À» Ã£À½ (·ÎÄÃ ¿¬°á ¼³Á¤)
+			SessionSettings.bIsLANMatch = true; // true ì‹œ : ê°™ì€ ë„¤íŠ¸ì›Œí¬ì— ìˆëŠ” ì‚¬ëŒì„ ì°¾ìŒ (ë¡œì»¬ ì—°ê²° ì„¤ì •)
 		}
 
 		else
 		{
-			SessionSettings.bIsLANMatch = false; // false ½Ã : ´Ù¸¥ ³×Æ®¿öÅ©¿Í ¿¬°á °¡´ÉÇÏµµ·Ï ÇÔ. (Steam, XBox µî °ø½ÄÇÃ·§Æû ¿¬°á ¼³Á¤)
+			SessionSettings.bIsLANMatch = false; // false ì‹œ : ë‹¤ë¥¸ ë„¤íŠ¸ì›Œí¬ì™€ ì—°ê²° ê°€ëŠ¥í•˜ë„ë¡ í•¨. (Steam, XBox ë“± ê³µì‹í”Œë«í¼ ì—°ê²° ì„¤ì •)
 		}
 
-		SessionSettings.NumPublicConnections = 5; // ÇÃ·¹ÀÌ¾î ¼ö
-		SessionSettings.bShouldAdvertise = true; // ¿Â¶óÀÎ¿¡¼­ ¼¼¼ÇÀ» º¼ ¼ö ÀÖµµ·ÏÇÔ. '±¤°íÇÑ´Ù'
-		SessionSettings.bUseLobbiesIfAvailable = true; // ·Îºñ±â´ÉÀ» È°¼ºÈ­ÇÑ´Ù. (Host ÇÏ·Á¸é ÇÊ¿ä)
+		SessionSettings.NumPublicConnections = 5; // í”Œë ˆì´ì–´ ìˆ˜
+		SessionSettings.bShouldAdvertise = true; // ì˜¨ë¼ì¸ì—ì„œ ì„¸ì…˜ì„ ë³¼ ìˆ˜ ìˆë„ë¡í•¨. 'ê´‘ê³ í•œë‹¤'
+		SessionSettings.bUseLobbiesIfAvailable = true; // ë¡œë¹„ê¸°ëŠ¥ì„ í™œì„±í™”í•œë‹¤. (Host í•˜ë ¤ë©´ í•„ìš”)
 		SessionSettings.bUsesPresence = true;
 		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // ¼¼¼ÇÀ» »ı¼ºÇÑ´Ù. 
-																		   // ½ÇÇàµÇ¸é 'CreateSession'ÀÌ µ¨¸®°ÔÀÌÆ®¿¡ Á¤º¸¸¦ Á¦°øÇÑ´Ù. Áï, ¹Ù·Î µ¨¸®°ÔÀÌÆ®°¡ È£ÃâµÈ´Ù.
-																		   // ÀÎÀÚ(ÇÃ·¹ÀÌ¾î¹øÈ£, TEXT("¼¼¼ÇÀÌ¸§"), ¼¼¼Ç¼¼ÆÃ)
+		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings); // ì„¸ì…˜ì„ ìƒì„±í•œë‹¤. 
+																		   // ì‹¤í–‰ë˜ë©´ 'CreateSession'ì´ ë¸ë¦¬ê²Œì´íŠ¸ì— ì •ë³´ë¥¼ ì œê³µí•œë‹¤. ì¦‰, ë°”ë¡œ ë¸ë¦¬ê²Œì´íŠ¸ê°€ í˜¸ì¶œëœë‹¤.
+																		   // ì¸ì(í”Œë ˆì´ì–´ë²ˆí˜¸, TEXT("ì„¸ì…˜ì´ë¦„"), ì„¸ì…˜ì„¸íŒ…)
 	}
 }
 
 
-// UI »ı¼º °ü·Ã ÇÔ¼ö ----------------------------------------------------------------------------------------------------------------
-// ·Î±×ÀÎ UI »ı¼º ÇÔ¼ö
+// UI ìƒì„± ê´€ë ¨ í•¨ìˆ˜ ----------------------------------------------------------------------------------------------------------------
+// ë¡œê·¸ì¸ UI ìƒì„± í•¨ìˆ˜
 void UKJH_GameInstance::CreateLoginWidget()
 {
-	// LoginWidgetFactory¸¦ ÅëÇØ LogInUI À§Á¬ »ı¼º
+	// LoginWidgetFactoryë¥¼ í†µí•´ LogInUI ìœ„ì ¯ ìƒì„±
 	LoginWidget = CreateWidget<UKJH_LoginWidget>(this, LoginWidgetFactory);
 	LoginWidget->SetMyInterface(this);
 	LoginWidget->Setup();
 }
 
-// ¼­¹ö ¸ŞÀÎ¸Ş´º UI »ı¼º ÇÔ¼ö
+// ì„œë²„ ë©”ì¸ë©”ë‰´ UI ìƒì„± í•¨ìˆ˜
 void UKJH_GameInstance::CreateServerWidget()
 {
-	// ServerUIFactory¸¦ ÅëÇØ ServerUI À§Á¬ »ı¼º
+	// ServerUIFactoryë¥¼ í†µí•´ ServerUI ìœ„ì ¯ ìƒì„±
 	ServerWidget = CreateWidget<UKJH_ServerWidget>(this, ServerWidgetFactory);
 	ServerWidget -> SetMyInterface(this);
 	ServerWidget -> Setup();
 }
 
-// ÀÎ°ÔÀÓ UI »ı¼º ÇÔ¼ö
+// ì¸ê²Œì„ UI ìƒì„± í•¨ìˆ˜
 void UKJH_GameInstance::CreateInGameWidget()
 {
-	// InGameWidgetFactory¸¦ ÅëÇØ InGameUI À§Á¬ »ı¼º
+	// InGameWidgetFactoryë¥¼ í†µí•´ InGameUI ìœ„ì ¯ ìƒì„±
 	InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
 	InGameWidget->SetMyInterface(this);
 	InGameWidget->Setup();
@@ -338,13 +340,13 @@ void UKJH_GameInstance::CreateInGameWidget()
 
 void UKJH_GameInstance::LoadServerWidgetMap()
 {
-	// AKJH_PlayerController¸¦ °¡Á®¿Â´Ù,
+	// AKJH_PlayerControllerë¥¼ ê°€ì ¸ì˜¨ë‹¤,
 	AKJH_PlayerController* KJHPlayerController = Cast<AKJH_PlayerController>(GetFirstLocalPlayerController());
-	//// ÇÃ·¹ÀÌ¾îÀÇ Ã¹¹øÂ° ÄÁÆ®·Ñ·¯¸¦ °¡Á®¿Â´Ù.
+	//// í”Œë ˆì´ì–´ì˜ ì²«ë²ˆì§¸ ì»¨íŠ¸ë¡¤ëŸ¬ë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 	//APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // ÄÁÆ®·Ñ·¯°¡ ÀÖÀ¸¸é,
+	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // ì»¨íŠ¸ë¡¤ëŸ¬ê°€ ìˆìœ¼ë©´,
 	{
-		// ServerUI°¡ ÀÖ´Â ¸ÊÀ¸·Î ÀÌµ¿½ÃÅ²´Ù.
+		// ServerUIê°€ ìˆëŠ” ë§µìœ¼ë¡œ ì´ë™ì‹œí‚¨ë‹¤.
 		KJHPlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap", ETravelType::TRAVEL_Absolute);
 	}
 
@@ -354,20 +356,20 @@ void UKJH_GameInstance::LoadServerWidgetMap()
 	}
 }
 
-////////// Ä³¸¯ÅÍ ¼±ÅÃ °ü·Ã ÇÔ¼ö ----------------------------------------------------------------------------------------------------------------
-// Ä³¸¯ÅÍ ¼±ÅÃ °ü·Ã ÇÔ¼ö: PlayerController¸¦ ÀÎÀÚ·Î ¹Ş¾Æ °¢ ÇÃ·¹ÀÌ¾îÀÇ ¼±ÅÃÀ» µ¶¸³ÀûÀ¸·Î Ã³¸®
+////////// ìºë¦­í„° ì„ íƒ ê´€ë ¨ í•¨ìˆ˜ ----------------------------------------------------------------------------------------------------------------
+// ìºë¦­í„° ì„ íƒ ê´€ë ¨ í•¨ìˆ˜: PlayerControllerë¥¼ ì¸ìë¡œ ë°›ì•„ ê° í”Œë ˆì´ì–´ì˜ ì„ íƒì„ ë…ë¦½ì ìœ¼ë¡œ ì²˜ë¦¬
 void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI)
 {
 	if (!PlayerController) return;
 
-	// PlayerState °¡Á®¿À±â
+	// PlayerState ê°€ì ¸ì˜¤ê¸°
 	AKJH_PlayerState* PlayerState = PlayerController->GetPlayerState<AKJH_PlayerState>();
 	if (!PlayerState) return;
 
-	// ·ÎÄÃ ÄÁÆ®·Ñ·¯¸¸ Ã³¸®ÇÏµµ·Ï ¼³Á¤
+	// ë¡œì»¬ ì»¨íŠ¸ë¡¤ëŸ¬ë§Œ ì²˜ë¦¬í•˜ë„ë¡ ì„¤ì •
 	if (PlayerController->IsLocalController())
 	{
-		// Å¬¶óÀÌ¾ğÆ®¿¡¼­ ¼±ÅÃ »óÅÂ¸¦ ¼­¹ö¿¡ ¾Ë¸²
+		// í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì„ íƒ ìƒíƒœë¥¼ ì„œë²„ì— ì•Œë¦¼
 		if (!PlayerController->HasAuthority())
 		{
 			ServerNotifyCharacterSelected(PlayerController, bIsSelectedPersonFromUI);
@@ -375,13 +377,13 @@ void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController,
 		}
 	}
 
-	// ¼­¹ö¿¡¼­ PlayerState¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°í Ä³¸¯ÅÍ ½ºÆùÀ» Ã³¸®
+	// ì„œë²„ì—ì„œ PlayerStateë¥¼ ì—…ë°ì´íŠ¸í•˜ê³  ìºë¦­í„° ìŠ¤í°ì„ ì²˜ë¦¬
 	if (PlayerController->HasAuthority())
 	{
 		PlayerState->bIsPersonCharacterSelected = bIsSelectedPersonFromUI;
 		PlayerState->ForceNetUpdate();
 
-		// Ä³¸¯ÅÍ ½ºÆù Ã³¸®
+		// ìºë¦­í„° ìŠ¤í° ì²˜ë¦¬
 		AKJH_PlayerController* KJHController = Cast<AKJH_PlayerController>(PlayerController);
 		if (KJHController)
 		{
@@ -390,20 +392,20 @@ void UKJH_GameInstance::OnCharacterSelected(APlayerController* PlayerController,
 		}
 	}
 
-	// UI ¼±ÅÃ »óÅÂ¸¦ ¾÷µ¥ÀÌÆ®
+	// UI ì„ íƒ ìƒíƒœë¥¼ ì—…ë°ì´íŠ¸
 	bIsPersonSelected = bIsSelectedPersonFromUI;
 	bIsDroneSelected = !bIsSelectedPersonFromUI;
 }
 
 bool UKJH_GameInstance::ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson)
 {
-	// ¼­¹ö RPC ¿äÃ»ÀÇ À¯È¿¼º °Ë»ç
+	// ì„œë²„ RPC ìš”ì²­ì˜ ìœ íš¨ì„± ê²€ì‚¬
 	return true;
 }
 
 void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson)
 {
-	// ¼­¹ö¿¡¼­ Ä³¸¯ÅÍ ¼±ÅÃÀ» Ã³¸®
+	// ì„œë²„ì—ì„œ ìºë¦­í„° ì„ íƒì„ ì²˜ë¦¬
 	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
 
@@ -413,16 +415,16 @@ void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerCont
 //{
 //	if (World)
 //	{
-//		// ·ÎµåµÈ ¿ùµåÀÇ ¸Ê ÀÌ¸§ È®ÀÎ
+//		// ë¡œë“œëœ ì›”ë“œì˜ ë§µ ì´ë¦„ í™•ì¸
 //		FString MapName = World->GetMapName();
 //
-//		// ¸Ê ÀÌ¸§¿¡ "ServerWidgetMap"ÀÌ Æ÷ÇÔµÇ¾î ÀÖ´Ù¸é À§Á¬ »ı¼º
+//		// ë§µ ì´ë¦„ì— "ServerWidgetMap"ì´ í¬í•¨ë˜ì–´ ìˆë‹¤ë©´ ìœ„ì ¯ ìƒì„±
 //		if (MapName.Contains("ServerWidgetMap"))
 //		{
 //			UE_LOG(LogTemp, Log, TEXT("ServerWidgetMap detected, creating server widget..."));
-//			// 0.1ÃÊ Å¸ÀÌ¸Ó ¼³Á¤. ½ÇÁ¦ µô·¹ÀÌ´Â Tick¸¶´Ù Ã³¸®µÇ¹Ç·Î ¾ÈÀüÇÏ°Ô Ã³¸®µÊ.
+//			// 0.1ì´ˆ íƒ€ì´ë¨¸ ì„¤ì •. ì‹¤ì œ ë”œë ˆì´ëŠ” Tickë§ˆë‹¤ ì²˜ë¦¬ë˜ë¯€ë¡œ ì•ˆì „í•˜ê²Œ ì²˜ë¦¬ë¨.
 //
-//			// À§Á¬ »ı¼º¿ë Å¸ÀÌ¸Ó ÇÚµé
+//			// ìœ„ì ¯ ìƒì„±ìš© íƒ€ì´ë¨¸ í•¸ë“¤
 //			FTimerHandle WidgetCreationTimerHandle;
 //			GetWorld()->GetTimerManager().SetTimer(WidgetCreationTimerHandle, this, &UKJH_GameInstance::CreateServerWidget, 0.01f, false);
 //		}

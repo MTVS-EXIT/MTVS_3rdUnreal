@@ -55,6 +55,7 @@ void UKJH_ResultWidget::SwitchToDroneResultMenu()
 // 
 void UKJH_ResultWidget::PlayResultAnimations()
 {
+
     if (ShowRescueAnim)
     {
         UE_LOG(LogTemp, Warning, TEXT("Playing ShowRescueAnim"));

@@ -246,14 +246,10 @@ void AKHS_DronePlayer::Tick(float DeltaTime)
 	MeshComp->SetRelativeRotation(NewRotation);
 
 	// 시야에 있는 모든 태그를 가진 Actor를 감지하고 위젯 컴포넌트를 활성화/비활성화
-	TArray<FString> TagsToCheck = { TEXT("Safe"), TEXT("Caution"), TEXT("Danger") };
-	CheckVisionForTags(TagsToCheck);
+	// 이제는 시야가 아니라 OnResGetAIImage에서 관리
+	//TArray<FString> TagsToCheck = { TEXT("Safe"), TEXT("Caution"), TEXT("Danger") };
+	//CheckVisionForTags(TagsToCheck);
 
-	//// 매 프레임마다 감지된 액터를 체크
-	//if (bIsCurrentlyDetecting)
-	//{
-	//	PeriodicallyCheckVision();
-	//}
 
 	//Post Process(Radial Blur, Depth of Field) 설정 함수
 	SetDronePostProcess();
@@ -477,11 +473,11 @@ void AKHS_DronePlayer::DroneShowOutline()
 				// 맞은 액터가 KHS_AIVisionObject일 경우 윤곽선 적용
 				DroneEnableOutline(HitActor);
 			}
-			else
-			{
-				// 윤곽선 효과 해제
-				DroneDisableOutline(HitActor);
-			}
+			//else
+			//{
+			//	// 윤곽선 효과 해제
+			//	DroneDisableOutline(HitActor);
+			//}
 
 		}
 	}
@@ -497,7 +493,7 @@ void AKHS_DronePlayer::DroneShowOutline()
 	}
 
 	// 현재 감지된 액터들로 추적 세트 업데이트
-	//DetectedAIVisionObjects = DetectedOutlineObjects;
+	DetectedAIVisionObjects = DetectedOutlineObjects;
 }
 // 라인트레이스 기반 윤곽선 표시 함수
 void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
@@ -692,7 +688,7 @@ void AKHS_DronePlayer::InitializeVOIP()
 				}
 			}
 			// 원격 Talker 등록
-			//RegisterRemoteTalker();
+			RegisterRemoteTalker();
 
 		}
 	}
@@ -925,8 +921,9 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
+		//UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
 		
+		//[수행작업1]
 		//통신이 성공했을때 Response를 JsonLib를 통해 parsing한 결과를 배열에 담기.
 		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
 		//데이터가 있을때
@@ -977,6 +974,20 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 		{
 			//Data Parsing실패시
 			UE_LOG(LogTemp, Error, TEXT("No Parsing Image Data"));
+		}
+
+		//[수행작업2]
+		// Json에서 감지된 태그들을 파싱하여 배열로 추출
+		TArray<FString> DetectedTags = KHSJsonLib->JsonParseGetDetectedTags(Response->GetContentAsString());
+
+		if (DetectedTags.Num() > 0)
+		{
+			// 추출된 태그들을 CheckVisionForTags 함수에 전달하여 처리
+			CheckVisionForTags(DetectedTags);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No detected tags found in AI response"));
 		}
 	}
 	else
