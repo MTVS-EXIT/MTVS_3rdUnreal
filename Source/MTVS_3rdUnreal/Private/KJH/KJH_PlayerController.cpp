@@ -1,4 +1,4 @@
-ï»¿#include "KJH/KJH_PlayerController.h"
+#include "KJH/KJH_PlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerStart.h"
@@ -8,27 +8,25 @@
 #include "KJH/KJH_InGameWidget.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
-#include "KJH/KJH_ResultWidget.h"
-#include "KJH/KJH_GameInstance.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    // BeginPlayì—ì„œ ShowCharacterSelectWidgetì„ í˜¸ì¶œí•˜ì—¬ ë¡œì»¬ í´ë¼ì´ì–¸íŠ¸ì—ì„œë§Œ UIë¥¼ ìƒì„±í•˜ë„ë¡ ì„¤ì •
-    if (IsLocalController()) // ë¡œì»¬ í´ë¼ì´ì–¸íŠ¸ì¼ ë•Œë§Œ ì‹¤í–‰
+    // BeginPlay¿¡¼­ ShowCharacterSelectWidgetÀ» È£ÃâÇÏ¿© ·ÎÄÃ Å¬¶óÀÌ¾ğÆ®¿¡¼­¸¸ UI¸¦ »ı¼ºÇÏµµ·Ï ¼³Á¤
+    if (IsLocalController()) // ·ÎÄÃ Å¬¶óÀÌ¾ğÆ®ÀÏ ¶§¸¸ ½ÇÇà
     {
         ShowCharacterSelectWidget();
     }
 
-    // InGameWidget ì´ˆê¸°í™”
+    // InGameWidget ÃÊ±âÈ­
     if (InGameWidgetFactory)
     {
         InGameWidget = CreateWidget<UKJH_InGameWidget>(this, InGameWidgetFactory);
         if (InGameWidget)
         {
             InGameWidget->SetMyInterface(Cast<IKJH_Interface>(GetGameInstance()));
-            bIsInGameWidgetVisible = false; // ì²˜ìŒì—” falseë¡œ ì„¤ì •í•˜ì—¬ InGameWidgetì´ ì•ˆë³´ì´ê²Œ ì„¤ì •
+            bIsInGameWidgetVisible = false; // Ã³À½¿£ false·Î ¼³Á¤ÇÏ¿© InGameWidgetÀÌ ¾Èº¸ÀÌ°Ô ¼³Á¤
         }
     }
 
@@ -51,8 +49,8 @@ void AKJH_PlayerController::OnPossess(APawn* aPawn)
 {
     Super::OnPossess(aPawn);
 
-    // ìºë¦­í„°ê°€ Possessëœ í›„ì—ë„ UIë¥¼ í‘œì‹œí•˜ë„ë¡ ì„¤ì •
-    if (IsLocalController()) // ë¡œì»¬ í´ë¼ì´ì–¸íŠ¸ì¼ ë•Œë§Œ ì‹¤í–‰
+    // Ä³¸¯ÅÍ°¡ PossessµÈ ÈÄ¿¡µµ UI¸¦ Ç¥½ÃÇÏµµ·Ï ¼³Á¤
+    if (IsLocalController()) // ·ÎÄÃ Å¬¶óÀÌ¾ğÆ®ÀÏ ¶§¸¸ ½ÇÇà
     {
         ShowCharacterSelectWidget();
     }
@@ -67,19 +65,19 @@ void AKJH_PlayerController::OnPossess(APawn* aPawn)
     }
 }
 
-// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ìºë¦­í„° ì„ íƒ ë° ìŠ¤í° ê´€ë ¨ ================================================================================
+// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - Ä³¸¯ÅÍ ¼±ÅÃ ¹× ½ºÆù °ü·Ã ================================================================================
 void AKJH_PlayerController::ShowCharacterSelectWidget()
 {
-    // ë¡œì»¬ ì»¨íŠ¸ë¡¤ëŸ¬ì—ì„œë§Œ UIë¥¼ ìƒì„±í•˜ë„ë¡ ì„¤ì •
+    // ·ÎÄÃ ÄÁÆ®·Ñ·¯¿¡¼­¸¸ UI¸¦ »ı¼ºÇÏµµ·Ï ¼³Á¤
     if (IsLocalPlayerController())
     {
         if (!CharacterSelectWidget && CharacterSelectWidgetFactory)
         {
-            // ìœ„ì ¯ ìƒì„±
+            // À§Á¬ »ı¼º
             CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(this, CharacterSelectWidgetFactory);
             if (CharacterSelectWidget)
             {
-                // ìœ„ì ¯ ì„¤ì • ë° ë·°í¬íŠ¸ì— ì¶”ê°€
+                // À§Á¬ ¼³Á¤ ¹× ºäÆ÷Æ®¿¡ Ãß°¡
                 CharacterSelectWidget->Setup();
                 CharacterSelectWidget->AddToViewport();
                 UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget Created and Setup for Player."));
@@ -101,34 +99,15 @@ void AKJH_PlayerController::ClientShowCharacterSelectWidget_Implementation()
     ShowCharacterSelectWidget();
 }
 
-void AKJH_PlayerController::Client_ShowResultWidget_Implementation()
-{
-    if (IsLocalPlayerController() && ResultWidgetClass)
-    {
-        UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(this, ResultWidgetClass);
-        if (ResultWidget)
-        {
-            UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-            if (GameInstance)
-                ResultWidget->SetMyInterface(GameInstance);
-
-            ResultWidget->Setup();
-            ResultWidget->PlayResultAnimations();
-        }
-    }
-}
-
-
-
 void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 {
-    if (false == HasAuthority()) // í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì‹¤í–‰ëœ ê²½ìš°
+    if (false == HasAuthority()) // Å¬¶óÀÌ¾ğÆ®¿¡¼­ ½ÇÇàµÈ °æ¿ì
     {
         ServerSpawnCharacterBasedOnSelection(bIsPersonCharacterSelected);
         return;
     }
 
-    // ì„œë²„ì—ì„œì˜ ì‹¤í–‰ ë¡œì§
+    // ¼­¹ö¿¡¼­ÀÇ ½ÇÇà ·ÎÁ÷
     TSubclassOf<APawn> ChosenCharacterClass = bIsPersonCharacterSelected
         ? BP_JSH_PlayerClass
         : BP_KHS_DronePlayerClass;
@@ -140,63 +119,63 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
     {
         if (CharacterSelectWidgetFactory)
         {
-            // ìœ„ì ¯ ìƒì„±
+            // À§Á¬ »ı¼º
             CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(this, CharacterSelectWidgetFactory);
             if (CharacterSelectWidget)
             {
-                // ìœ„ì ¯ ì„¤ì • ë° ë·°í¬íŠ¸ì— ì¶”ê°€
+                // À§Á¬ ¼³Á¤ ¹× ºäÆ÷Æ®¿¡ Ãß°¡
                 CharacterSelectWidget->Setup();
                 CharacterSelectWidget->ShowSpawnWidget();
                 UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget is Setting!"));
             }
         }
 
-        // ì‚¬ëŒ ìŠ¤í° í¬ì¸íŠ¸ ì°¾ê¸°
+        // »ç¶÷ ½ºÆù Æ÷ÀÎÆ® Ã£±â
         TArray<AActor*> FoundPersonSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PersonSpawnPoint"), FoundPersonSpawns);
 
         if (FoundPersonSpawns.Num() > 0)
         {
-            AActor* PersonSpawnPoint = FoundPersonSpawns[0]; // ì²«ë²ˆì§¸ë¡œ ì°¾ì€ Person Spawn Point ì‚¬ìš©
+            AActor* PersonSpawnPoint = FoundPersonSpawns[0]; // Ã¹¹øÂ°·Î Ã£Àº Person Spawn Point »ç¿ë
             NewSpawnLocation = PersonSpawnPoint->GetActorLocation();
             NewSpawnRotation = PersonSpawnPoint->GetActorRotation();
         }
         else
         {
-            // ê²€ìƒ‰ì— ì‹¤íŒ¨í•  ê²½ìš°, ê¸°ë³¸ ìœ„ì¹˜ë¡œ ìŠ¤í°
+            // °Ë»ö¿¡ ½ÇÆĞÇÒ °æ¿ì, ±âº» À§Ä¡·Î ½ºÆù
             NewSpawnLocation = FVector(0.0f, 0.0f, 200.0f);
             NewSpawnRotation = FRotator::ZeroRotator;
         }
     }
-    else // ë“œë¡ ì´ ì„ íƒëì„ ê²½ìš°,
+    else // µå·ĞÀÌ ¼±ÅÃµÆÀ» °æ¿ì,
     {
 
         if (CharacterSelectWidgetFactory)
         {
-            // ìœ„ì ¯ ìƒì„±
+            // À§Á¬ »ı¼º
             CharacterSelectWidget = CreateWidget<UKJH_CharacterSelectWidget>(this, CharacterSelectWidgetFactory);
             if (CharacterSelectWidget)
             {
-                // ìœ„ì ¯ ì„¤ì • ë° ë·°í¬íŠ¸ì— ì¶”ê°€
+                // À§Á¬ ¼³Á¤ ¹× ºäÆ÷Æ®¿¡ Ãß°¡
                 CharacterSelectWidget->Setup();
                 CharacterSelectWidget->ShowSpawnWidget();
                 UE_LOG(LogTemp, Warning, TEXT("CharacterSelectWidget is Setting!"));
             }
         }
 
-        // ë“œë¡  ìŠ¤í° í¬ì¸íŠ¸ ì°¾ê¸°
+        // µå·Ğ ½ºÆù Æ÷ÀÎÆ® Ã£±â
         TArray<AActor*> FoundDroneSpawns;
         UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("DroneSpawnPoint"), FoundDroneSpawns);
 
         if (FoundDroneSpawns.Num() > 0)
         {
-            AActor* DroneSpawnPoint = FoundDroneSpawns[0]; // ì²«ë²ˆì§¸ë¡œ ì°¾ì€ Drone Spawn Point ì‚¬ìš©
+            AActor* DroneSpawnPoint = FoundDroneSpawns[0]; // Ã¹¹øÂ°·Î Ã£Àº Drone Spawn Point »ç¿ë
             NewSpawnLocation = DroneSpawnPoint->GetActorLocation();
             NewSpawnRotation = DroneSpawnPoint->GetActorRotation();
         }
         else
         {
-            // ê²€ìƒ‰ì— ì‹¤íŒ¨í•  ê²½ìš°, ê¸°ë³¸ ìœ„ì¹˜ë¡œ ìŠ¤í°
+            // °Ë»ö¿¡ ½ÇÆĞÇÒ °æ¿ì, ±âº» À§Ä¡·Î ½ºÆù
             NewSpawnLocation = FVector(0.0f, 0.0f, 100.0f);
             NewSpawnRotation = FRotator::ZeroRotator;
         }
@@ -210,7 +189,7 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
     APawn* NewPawn = GetWorld()->SpawnActor<APawn>(ChosenCharacterClass, NewSpawnLocation, NewSpawnRotation, SpawnParams);
     if (NewPawn)
     {
-        // ë„¤íŠ¸ì›Œí¬ ì„¤ì •
+        // ³×Æ®¿öÅ© ¼³Á¤
         NewPawn->SetReplicates(true);
         NewPawn->SetReplicateMovement(true);
         Possess(NewPawn);
@@ -247,8 +226,8 @@ void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
     }
 }
 
-// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ì¸ê²Œì„ UI ê´€ë ¨ ================================================================================
-// InGameWidget ON/ OFF í•¨ìˆ˜
+// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - ÀÎ°ÔÀÓ UI °ü·Ã ================================================================================
+// InGameWidget ON/ OFF ÇÔ¼ö
 void AKJH_PlayerController::ToggleInGameWidget(const FInputActionValue& Value)
 {
     if (false == IsLocalPlayerController())

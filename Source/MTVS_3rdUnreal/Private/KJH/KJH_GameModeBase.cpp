@@ -120,13 +120,19 @@ void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
 
 	bIsGameEnded = true;
 
-	// 모든 플레이어 컨트롤러에 대해 결과 위젯 표시 명령
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	// 로컬 플레이어 컨트롤러에 대해서만 위젯 생성
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC && PC->IsLocalController() && ResultWidgetClass)
 	{
-		AKJH_PlayerController* PC = Cast<AKJH_PlayerController>(It->Get());
-		if (PC)
+		UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
+		if (ResultWidget)
 		{
-			PC->Client_ShowResultWidget();
+			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
+			if (GameInstance)
+			ResultWidget->SetMyInterface(GameInstance);
+
+			ResultWidget->Setup();
+			ResultWidget->PlayResultAnimations(); // 애니메이션 시작
 		}
 	}
 }
