@@ -921,7 +921,7 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
+		//UE_LOG(LogTemp, Log, TEXT("Image uploaded successfully: %s"), *Response->GetContentAsString());
 		
 		//[수행작업1]
 		//통신이 성공했을때 Response를 JsonLib를 통해 parsing한 결과를 배열에 담기.
