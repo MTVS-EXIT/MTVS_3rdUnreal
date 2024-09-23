@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,17 +25,19 @@ class MTVS_3RDUNREAL_API UKHS_JsonParseLib : public UBlueprintFunctionLibrary
 	
 public: 
 
-	//AI �̹��� ó�� ��ȯ �̺�Ʈ Json Reader �Լ�
+	//AI 이미지 처리 반환 이벤트 Json Reader 함수
 	TArray<uint8> JsonParseGetAIImage(const FString& json);
 
-	//AI STT ó�� ��ȯ �̺�Ʈ Json Reader �Լ�
+	//AI STT 처리 반환 이벤트 Json Reader 함수
 	FString JsonParseGetAIText(const FString& json);
 
-	//AI STS ó�� ��ȯ �̺�Ʈ Json Reader �Լ�
+	//AI STS 처리 반환 이벤트 Json Reader 함수
 	TArray<uint8> JsonParseGetAIAudio(const FString& json);
+	
+	// AI봇에 감지된 태그들 추출 이벤트 Json Reader 함수
+	TArray<FString> JsonParseGetDetectedTags(const FString& json);
 
-
-	//Json Writer �Լ�
+	//Json Writer 함수
 	static FString MakeJson(const TMap<FString, FString> source);
 
 };
