@@ -473,11 +473,11 @@ void AKHS_DronePlayer::DroneShowOutline()
 				// 맞은 액터가 KHS_AIVisionObject일 경우 윤곽선 적용
 				DroneEnableOutline(HitActor);
 			}
-			else
-			{
-				// 윤곽선 효과 해제
-				DroneDisableOutline(HitActor);
-			}
+			//else
+			//{
+			//	// 윤곽선 효과 해제
+			//	DroneDisableOutline(HitActor);
+			//}
 
 		}
 	}
@@ -493,7 +493,7 @@ void AKHS_DronePlayer::DroneShowOutline()
 	}
 
 	// 현재 감지된 액터들로 추적 세트 업데이트
-	//DetectedAIVisionObjects = DetectedOutlineObjects;
+	DetectedAIVisionObjects = DetectedOutlineObjects;
 }
 // 라인트레이스 기반 윤곽선 표시 함수
 void AKHS_DronePlayer::DroneEnableOutline(AActor* HitActor)
@@ -688,7 +688,7 @@ void AKHS_DronePlayer::InitializeVOIP()
 				}
 			}
 			// 원격 Talker 등록
-			//RegisterRemoteTalker();
+			RegisterRemoteTalker();
 
 		}
 	}
