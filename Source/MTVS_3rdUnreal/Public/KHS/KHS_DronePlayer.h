@@ -163,8 +163,7 @@ public:
 	bool bIsCurrentlyDetecting;
 
 	//AI Image Sending URL
-	//FString AIDetectionURL = "metaai.iptime.org:7722/detect/";
-	FString AIDetectionURL = "http://192.168.219.116:7722/detect/";
+	FString AIDetectionURL = "metaai.iptime.org:7733/detect/";
 
 	// SceneCapture2D 액터 참조
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
@@ -175,8 +174,7 @@ public:
 	class UTextureRenderTarget2D* RenderTarget;
 
 	//AIChatBot Sending URL
-	//FString AIChatbotURL = "metaai.iptime.org:7722/chatbot/";
-	FString AIChatbotURL = "http://192.168.219.116:7722/chatbot/";
+	FString AIChatbotURL = "metaai.iptime.org:7733/chatbot/";
 
 	//AIChatBot STT 변수들
 	FString DisplayedText; //현재까지 표시된 텍스트들
