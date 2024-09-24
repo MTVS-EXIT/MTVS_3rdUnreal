@@ -4,6 +4,7 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "KHS/KHS_DroneMainUI.h"
 #include "KHS/KHS_AIVisionObject.h"
+#include <KHS/KHS_JsonParseLib.h>
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -37,7 +38,7 @@
 #include "HttpFwd.h"
 
 #include "Kismet/GameplayStatics.h"
-#include <KHS/KHS_JsonParseLib.h>
+#include "KJH/KJH_PlayerState.h"
 
 
 
@@ -848,8 +849,16 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UE_LOG(LogTemp, Error, TEXT("Failed to save image to %s"), *ImagePath);
 	}
 
-	// 서버로 전송 (네트워크 로직 추가 필요)
+	// 서버로 전송 
 	SendImageToServer(ImagePath, CompressedData);
+
+	// Player State에 탐지요청횟수 증가
+	auto* ps = GetPlayerState<AKJH_PlayerState>();
+	if (ps)
+	{
+		ps->IncrementDroneDetectedCount();
+	}
+
 }
 
 // 이미지 저장 경로를 설정하는 함수
@@ -989,6 +998,28 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No detected tags found in AI response"));
 		}
+
+		//[수행작업3] 
+		//카테고리별 count 추출 및 PlayerState에 반영
+		TArray<int32> DetectedCounts = KHSJsonLib->JsonParseGetDetectedCount(Response->GetContentAsString());
+
+		if (DetectedCounts.Num() > 0)
+		{
+			// PlayerState에 각 카테고리의 카운트 반영
+			AKJH_PlayerState* KJHPlayerState = GetPlayerState<AKJH_PlayerState>();
+			if (KJHPlayerState)
+			{
+				for (int32 i = 0; i < DetectedCounts.Num(); ++i)
+				{
+					//결과배열의 모든 인덱스 카테고리에 접근해 해당 인덱스의 값을 전달한다.
+					KJHPlayerState->IncrementDroneCategoryCount(i, DetectedCounts[i]);
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No detected counts found in AI response"));
+		}
 	}
 	else
 	{
@@ -1080,7 +1111,7 @@ void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpRespo
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
+		//UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
 
 		// STT 콜백 함수 호출
 		CallParsingAIText(Response->GetContentAsString());
@@ -1196,10 +1227,10 @@ void AKHS_DronePlayer::CallParsingAISound(const FString& json)
 		UE_LOG(LogTemp, Log, TEXT("WAV File Size: %d bytes"), SoundData.Num());
 
 		// 첫 44바이트의 데이터를 로그로 출력 (WAV 헤더)
-		for (int i = 0; i < 44; i++)
+		/*for (int i = 0; i < 44; i++)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Byte %d: %02x"), i, SoundData[i]);
-		}
+		}*/
 		
 		// WAV 헤더에서 샘플 속도 및 채널 수 정보 추출
 		int32 SampleRate=0;

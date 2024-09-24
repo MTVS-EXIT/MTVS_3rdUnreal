@@ -37,6 +37,9 @@ public:
 	// AI봇에 감지된 태그들 추출 이벤트 Json Reader 함수
 	TArray<FString> JsonParseGetDetectedTags(const FString& json);
 
+	// AI봇에 감지된 물품들 Count추출 이벤트 Json Reader 함수
+	TArray<int32> JsonParseGetDetectedCount(const FString& json);
+
 	//Json Writer 함수
 	static FString MakeJson(const TMap<FString, FString> source);
 

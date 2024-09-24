@@ -142,6 +142,49 @@ TArray<FString> UKHS_JsonParseLib::JsonParseGetDetectedTags(const FString& json)
 	return DetectedTags;
 }
 
+// AI봇에 감지된 물품들 Count추출 이벤트 Json Reader 함수
+TArray<int32> UKHS_JsonParseLib::JsonParseGetDetectedCount(const FString& json)
+{
+	TArray<int32> DetectedCounts = { 0, 0, 0 }; // 초기화 (safe: 0, caution: 1, danger: 2)
+
+	// Json Reader 생성
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(json);
+	TSharedPtr<FJsonObject> JsonResult;
+
+	if (FJsonSerializer::Deserialize(JsonReader, JsonResult) && JsonResult.IsValid())
+	{
+		// "categories" 필드가 존재하는지 확인
+		if (JsonResult->HasField(TEXT("categories")))
+		{
+			TSharedPtr<FJsonObject> CategoriesObject = JsonResult->GetObjectField(TEXT("categories"));
+
+			// "caution", "danger", "safe" 필드 확인 및 count 값 추출
+			for (int32 Index = 0; Index < 3; ++Index)
+			{
+				FString CategoryName = (Index == 0) ? TEXT("safe") : (Index == 1) ? TEXT("caution") : TEXT("danger");
+				if (CategoriesObject->HasTypedField<EJson::Object>(CategoryName))
+				{
+					TSharedPtr<FJsonObject> CategoryObject = CategoriesObject->GetObjectField(CategoryName);
+					int32 CountValue = CategoryObject->GetIntegerField(TEXT("count"));
+					DetectedCounts[Index] = CountValue; // 해당 카테고리의 count 값을 저장
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON for detected counts"));
+	}
+
+	// 로그로 DetectedCounts 배열 출력
+	for (int32 i = 0; i < DetectedCounts.Num(); ++i)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Category %d Count: %d"), i, DetectedCounts[i]);
+	}
+
+	return DetectedCounts; // count 배열 반환
+}
+
 //Json Writer 함수
 FString UKHS_JsonParseLib::MakeJson(const TMap<FString, FString> source)
 {
