@@ -95,7 +95,7 @@ void UKJH_LoginWidget::OnMyRegister()
 	FString RegisterPassword = RegisterMenu_UserPasswordText->GetText().ToString();
 
 	// 계정생성 정보를 서버로 전송할 URL 설정
-	FString URL = ""; // 백엔드 서버 URL
+	FString URL = "http://125.132.216.190:7757/api/signup"; // 백엔드 서버 URL
 
 	// JSON 객체(Object) 생성 후 입력된 정보 추가
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject()); // 새로운 Json 객체 생성
@@ -105,7 +105,7 @@ void UKJH_LoginWidget::OnMyRegister()
 		UE_LOG(LogTemp, Warning, TEXT("Failed to Create JsonObject"))
 	}
 
-	JsonObject->SetStringField("user_id", RegisterUserID); // UserID 텍스트를 받아서 "user_id" 키에 저장
+	JsonObject->SetStringField("loginId", RegisterUserID); // UserID 텍스트를 받아서 "user_id" 키에 저장
 	JsonObject->SetStringField("nickname", RegisterNickname); // Nickname 텍스트를 받아서 "nickname" 키에 저장
 	JsonObject->SetStringField("password", RegisterPassword); // Password 텍스트를 받아서 "password" 키에 저장
 
@@ -136,7 +136,7 @@ void UKJH_LoginWidget::SendRegisterRequest(const FString& URL, const FString& Js
 	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnRegisterResponseReceived);
 
 	// 3. 요청할 URL 설정
-	FString RequestURL = ""; // 요청을 처리할 URL 설정
+	FString RequestURL = "http://125.132.216.190:7757/api/login"; // 요청을 처리할 URL 설정
 	Request->SetURL(RequestURL);
 
 	// 4. 요청 타입 설정 (Post, Get 등)
@@ -207,7 +207,7 @@ void UKJH_LoginWidget::OnMyLogin()
 		UE_LOG(LogTemp, Warning, TEXT("Failed to Create JsonObject"));
 	}
 
-	JsonObject->SetStringField("user_id", LoginUserID);
+	JsonObject->SetStringField("loginId", LoginUserID);
 	JsonObject->SetStringField("password", LoginPassword);
 
 	// 4. JSON 데이터를 서버가 이해할 수 있는 문자열로 변환
