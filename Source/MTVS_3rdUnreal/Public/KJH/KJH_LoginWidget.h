@@ -49,6 +49,12 @@ public :
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* LoginMenu_UserPasswordText; // 로그인 메뉴의 패스워드 입력 필드
 
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UImage* LoginMenu_InvalidAccessImage; // 로그인 실패 이미지
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* LoginMenu_InvalidAccessFinishButton; // 로그인 실패 시 완료 버튼
+
 	UPROPERTY(meta = (BindWidget))
 	class UButton* LoginMenu_GuestLoginButton; // Guest 로그인 버튼 -> 바로 서버메뉴로 넘어갈 수 있음.
 
@@ -81,10 +87,13 @@ public :
 	class UImage* RegisterMenu_CreateSuccessImage; // 계정생성 성공 이미지
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* RegisterMenu_SuccessFinishButton; // 계정생성 성공 시 완료 버튼
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UImage* RegisterMenu_AlreadyExistImage; // 계정생성 실패 이미지
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* RegisterMenu_FinishButton; // 계정생성 성공 / 실패 이미지의 완료 버튼
+	class UButton* RegisterMenu_FailureFinishButton; // 계정생성 실패 시 완료 버튼
 
 ////////// 사용자 정의형 함수 구간 - UI 전환 관련 ====================================================================================================
 
@@ -100,11 +109,12 @@ public :
 
 	void SendRegisterRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // 계정생성 HTTP 요청을 보내는 함수
 	void OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // 계정생성 HTTP 요청 결과를 처리하는 함수
-
+	
+	UFUNCTION()
 	void ShowRegisterSuccessUI(); // 계정생성 성공 시 나타나는 UI 함수
 	UFUNCTION()
     void OnRegisterSuccessFinishClicked(); // 계정생성 성공 시 나타나는 확인 버튼 이벤트 처리 함수
-
+	UFUNCTION()
 	void ShowRegisterFailureUI(); // 계정생성 실패 시 나타나는 UI 함수
     UFUNCTION()
     void OnRegisterFailureFinishClicked(); // 계정생성 실패 시 나타나는 확인 버튼 이벤트 처리 함수
@@ -116,6 +126,11 @@ public :
 	void SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // 로그인 HTTP 요청을 보내는 함수
 	void OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // 로그인 HTTP 요청 결과를 처리하는 함수
 
+    UFUNCTION()
+    void ShowLoginFailureUI(); // 로그인 실패 시 나타나는 UI 함수
+    
+    UFUNCTION()
+    void OnLoginFailureFinishClicked();	// 로그인 실패 시 나타나는 확인 버튼 이벤트 처리 함수
 ////////// 사용자 정의형 함수 구간 - 게스트 로그인 관련 =======================================================================================================
 	UFUNCTION(BlueprintCallable)
 	void OnMyGuestLogin();
