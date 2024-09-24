@@ -4,6 +4,8 @@
 #include "KJH/KJH_PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "HttpModule.h"
+#include "KJH/KJH_GameInstance.h"
+#include "HttpFwd.h"
 
 
 ////////// 사용자 정의형 함수 구간 - 네트워크 복제 설정 함수 ----------------------------------------------------------------------------------------------------------------
@@ -92,30 +94,50 @@ void AKJH_PlayerState::SendDataToServer()
     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
     FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 
-    // HTTP 요청 객체 생성
+    // 4) HTTP 요청 객체 생성
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 
-    // 요청 완료 시 호출될 함수 설정
+    // 5) 요청 완료 시 호출될 함수 설정
     Request->OnProcessRequestComplete().BindUObject(this, &AKJH_PlayerState::OnDataSendComplete);
 
-    // 요청을 보낼 서버의 URL 설정
-    Request->SetURL(""); // 백엔드 URL로 변경 필요
+    // 6) 요청을 보낼 서버의 URL 설정
+    Request->SetURL("http://125.132.216.190:7757/api/result/save"); // 백엔드 URL 삽입
 
-    // HTTP 메소드를 POST로 설정
+    // 7) HTTP 메소드를 POST로 설정
     Request->SetVerb("POST");
 
-    // 요청 헤더에 콘텐츠 타입을 JSON으로 설정
+    // 8) 요청 헤더에 콘텐츠 타입을 JSON으로 설정
     Request->SetHeader("Content-Type", "application/json");
+
+    // GameInstance에서 AuthToken 가져오기
+    if (UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance()))
+    {
+        FString AuthToken = GameInstance->GetAuthToken();
+        if (false == AuthToken.IsEmpty())
+        {
+            Request->SetHeader("Authorization", AuthToken);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Auth token is empty. Request may fail."));
+        }
+    }
 
     // 요청 본문에 JSON 문자열 설정
     Request->SetContentAsString(JsonString);
 
     // 설정된 HTTP 요청을 서버로 전송
     Request->ProcessRequest();
-
 }
 
 void AKJH_PlayerState::OnDataSendComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-
+    if (bWasSuccessful)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Data sent successfully to server."));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to send data to server."));
+    }
 }
