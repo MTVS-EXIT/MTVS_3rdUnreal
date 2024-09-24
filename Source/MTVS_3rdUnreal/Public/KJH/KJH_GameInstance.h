@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -20,93 +20,94 @@ class MTVS_3RDUNREAL_API UKJH_GameInstance : public UGameInstance, public IKJH_I
 	
 public:
 
-////////// »ı¼ºÀÚ & ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ===========================================================================================
 
-	UKJH_GameInstance(const FObjectInitializer& ObjectInitializer); // GameInstanceÀÇ ¿¡µğÅÍ ½ÇÇà ½Ã »ı¼ºÀÚ ÇÔ¼ö ¼±¾ğ (ÃÊ±âÈ­¸¸ ÇØÁÜ)
+////////// ìƒì„±ì & ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ===========================================================================================
 
-	virtual void Init() override; // GameInstanceÀÇ BeginPlay ½Ã »ı¼ºÀÚ ÇÔ¼ö ¼±¾ğ (ÃÊ±âÈ­¸¸ ÇØÁÜ)
+	UKJH_GameInstance(const FObjectInitializer& ObjectInitializer); // GameInstanceì˜ ì—ë””í„° ì‹¤í–‰ ì‹œ ìƒì„±ì í•¨ìˆ˜ ì„ ì–¸ (ì´ˆê¸°í™”ë§Œ í•´ì¤Œ)
 
-////////// µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù ÇÔ¼ö ±¸°£ =============================================================================
+	virtual void Init() override; // GameInstanceì˜ BeginPlay ì‹œ ìƒì„±ì í•¨ìˆ˜ ì„ ì–¸ (ì´ˆê¸°í™”ë§Œ í•´ì¤Œ)
+
+////////// ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”© í•¨ìˆ˜ êµ¬ê°„ =============================================================================
 	
-	void OnCreateSessionComplete(FName SessionName, bool Success); // ¼¼¼Ç »ı¼º ¿Ï·á ½Ã È£ÃâµÉ ÇÔ¼ö
-	void OnDestroySessionComplete(FName SessionName, bool Success); // ¼¼¼Ç ÆÄ±« ¿Ï·á ½Ã È£ÃâµÉ ÇÔ¼ö
-	void OnFindSessionComplete(bool Success); // ¼¼¼Ç Ã£±â ¿Ï·á ½Ã È£ÃâµÉ ÇÔ¼ö. Success ÀÎÀÚ¸¸ ÀÖÀ¸¸é µÈ´Ù.
-											  // ¹ß°ßµÈ ¼¼¼Ç ¸ñ·ÏÀº SeesionSearch TSharedRef Æ÷ÀÎÅÍ¿¡ ÀÖ±â ¶§¹®ÀÌ´Ù.
+	void OnCreateSessionComplete(FName SessionName, bool Success); // ì„¸ì…˜ ìƒì„± ì™„ë£Œ ì‹œ í˜¸ì¶œë  í•¨ìˆ˜
+	void OnDestroySessionComplete(FName SessionName, bool Success); // ì„¸ì…˜ íŒŒê´´ ì™„ë£Œ ì‹œ í˜¸ì¶œë  í•¨ìˆ˜
+	void OnFindSessionComplete(bool Success); // ì„¸ì…˜ ì°¾ê¸° ì™„ë£Œ ì‹œ í˜¸ì¶œë  í•¨ìˆ˜. Success ì¸ìë§Œ ìˆìœ¼ë©´ ëœë‹¤.
+											  // ë°œê²¬ëœ ì„¸ì…˜ ëª©ë¡ì€ SeesionSearch TSharedRef í¬ì¸í„°ì— ìˆê¸° ë•Œë¬¸ì´ë‹¤.
 
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 	
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ =================================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ =================================================================================
 	
-	// 1) ¼¼¼Ç °ü·Ã ÇÔ¼ö --------------------------------
-	UFUNCTION(Exec) // Exec: ÄÜ¼ÖÃ¢¿¡ ÀÔ·ÂÇÒ ¼ö ÀÖµµ·Ï ¸¸µç´Ù.
-	void Host(FString ServerName) override; // ¼­¹ö ¿­±â ÇÔ¼ö
+	// 1) ì„¸ì…˜ ê´€ë ¨ í•¨ìˆ˜ --------------------------------
+	UFUNCTION(Exec) // Exec: ì½˜ì†”ì°½ì— ì…ë ¥í•  ìˆ˜ ìˆë„ë¡ ë§Œë“ ë‹¤.
+	void Host(FString ServerName) override; // ì„œë²„ ì—´ê¸° í•¨ìˆ˜
 
 	UFUNCTION(Exec)
-	void Join(uint32 Index); // ¼­¹ö Á¢¼Ó ÇÔ¼ö
+	void Join(uint32 Index); // ì„œë²„ ì ‘ì† í•¨ìˆ˜
 
 	UFUNCTION()
-	void CreateSession(); // ¼¼¼ÇÀ» ¸¸µå´Â ÇÔ¼ö
+	void CreateSession(); // ì„¸ì…˜ì„ ë§Œë“œëŠ” í•¨ìˆ˜
 
 	UFUNCTION()
-	void RefreshServerList(); // ¼­¹ö¸ñ·ÏÀ» Ã£´Â ÇÔ¼ö
+	void RefreshServerList(); // ì„œë²„ëª©ë¡ì„ ì°¾ëŠ” í•¨ìˆ˜
 
-	// 2) UI »ı¼º °ü·Ã ÇÔ¼ö ----------------------------------
+	// 2) UI ìƒì„± ê´€ë ¨ í•¨ìˆ˜ ----------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Create Widget")
-	void CreateLoginWidget(); // ·Î±×ÀÎ UI¸¦ »ı¼ºÇÏ´Â ÇÔ¼ö
-
-	UFUNCTION(BlueprintCallable, Category = "Create Widget")
-	void CreateServerWidget(); // ½ÃÀÛÈ­¸é UI¸¦ »ı¼ºÇÏ´Â ÇÔ¼ö
+	void CreateLoginWidget(); // ë¡œê·¸ì¸ UIë¥¼ ìƒì„±í•˜ëŠ” í•¨ìˆ˜
 
 	UFUNCTION(BlueprintCallable, Category = "Create Widget")
-	void CreateInGameWidget(); // ÀÎ°ÔÀÓ UI¸¦ »ı¼ºÇÏ´Â ÇÔ¼ö
+	void CreateServerWidget(); // ì‹œì‘í™”ë©´ UIë¥¼ ìƒì„±í•˜ëŠ” í•¨ìˆ˜
+
+	UFUNCTION(BlueprintCallable, Category = "Create Widget")
+	void CreateInGameWidget(); // ì¸ê²Œì„ UIë¥¼ ìƒì„±í•˜ëŠ” í•¨ìˆ˜
 
 
 
 
 	UFUNCTION(BlueprintCallable, Category = "Load Widget Map")
-	void LoadServerWidgetMap(); // ServerWidget UI°¡ ÀÖ´Â ¸ÊÀ¸·Î ·Îµå½ÃÅ°´Â ÇÔ¼ö (UI¸¦ ·¹º§¿¡ Attach ÇØ³õ¾ÒÀ½.)
+	void LoadServerWidgetMap(); // ServerWidget UIê°€ ìˆëŠ” ë§µìœ¼ë¡œ ë¡œë“œì‹œí‚¤ëŠ” í•¨ìˆ˜ (UIë¥¼ ë ˆë²¨ì— Attach í•´ë†“ì•˜ìŒ.)
 
 
-	// Ä³¸¯ÅÍ ¼±ÅÃ °ü·Ã ÇÔ¼ö ----------------------------------
+	// ìºë¦­í„° ì„ íƒ ê´€ë ¨ í•¨ìˆ˜ ----------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
-	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // ÇÃ·¹ÀÌ¾î°¡ ¼±ÅÃÇÑ Ä³¸¯ÅÍ¿¡ µû¶ó ÄÁÆ®·Ñ·¯°¡ ¼±ÅÃµÇ´Â ÇÔ¼ö
+	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // í”Œë ˆì´ì–´ê°€ ì„ íƒí•œ ìºë¦­í„°ì— ë”°ë¼ ì»¨íŠ¸ë¡¤ëŸ¬ê°€ ì„ íƒë˜ëŠ” í•¨ìˆ˜
 
-    UFUNCTION(Server, Reliable, WithValidation) // ServerRPC ´Â Å¬¶óÀÌ¾ğÆ®°¡ ¼­¹ö¿¡°Ô ¿äÃ»ÇÏ´Â °ÍÀÌ¹Ç·Î, Validate¿Í Implementation À¸·Î ³ª´²¼­ ±¸¼º
-    void ServerNotifyCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPerson); // ¼­¹ö¿¡¼­ Å¬¶óÀÌ¾ğÆ®ÀÇ Ä³¸¯ÅÍ ¼±ÅÃÀ» Ã³¸®ÇÏ´Â RPC ÇÔ¼ö ¼±¾ğ
-	bool ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson); // ¼­¹ö RPC ÇÔ¼öÀÇ À¯È¿¼º °Ë»ç (ÀÌ Á¤º¸¸¦ º¸³»µµ µÇ´ÂÁö, ¾Æ´ÑÁö)
-	void ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson); // ¼­¹ö RPC ÇÔ¼öÀÇ ±¸ÇöºÎ (¿äÃ»ÀÌ ½ÂÀÎµÇ¸é, ½ÇÁ¦·Ğ ¿©±â¼­ ½ÇÇà)
+    UFUNCTION(Server, Reliable, WithValidation) // ServerRPC ëŠ” í´ë¼ì´ì–¸íŠ¸ê°€ ì„œë²„ì—ê²Œ ìš”ì²­í•˜ëŠ” ê²ƒì´ë¯€ë¡œ, Validateì™€ Implementation ìœ¼ë¡œ ë‚˜ëˆ ì„œ êµ¬ì„±
+    void ServerNotifyCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPerson); // ì„œë²„ì—ì„œ í´ë¼ì´ì–¸íŠ¸ì˜ ìºë¦­í„° ì„ íƒì„ ì²˜ë¦¬í•˜ëŠ” RPC í•¨ìˆ˜ ì„ ì–¸
+	bool ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson); // ì„œë²„ RPC í•¨ìˆ˜ì˜ ìœ íš¨ì„± ê²€ì‚¬ (ì´ ì •ë³´ë¥¼ ë³´ë‚´ë„ ë˜ëŠ”ì§€, ì•„ë‹Œì§€)
+	void ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson); // ì„œë²„ RPC í•¨ìˆ˜ì˜ êµ¬í˜„ë¶€ (ìš”ì²­ì´ ìŠ¹ì¸ë˜ë©´, ì‹¤ì œë¡  ì—¬ê¸°ì„œ ì‹¤í–‰)
 
-////////// TSubclass & class ÂüÁ¶ ±¸°£ -----------------------------------------------------------------------------------------
+////////// TSubclass & class ì°¸ì¡° êµ¬ê°„ -----------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_LoginWidget> LoginWidgetFactory; // ServerWidget(UI) °øÀå
-	class UKJH_LoginWidget* LoginWidget; // ServerWidget(UI) ÂüÁ¶ ¼±¾ğ
+	TSubclassOf<class UKJH_LoginWidget> LoginWidgetFactory; // ServerWidget(UI) ê³µì¥
+	class UKJH_LoginWidget* LoginWidget; // ServerWidget(UI) ì°¸ì¡° ì„ ì–¸
 	
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) °øÀå
-	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) ÂüÁ¶ ¼±¾ğ
+	TSubclassOf<class UKJH_ServerWidget> ServerWidgetFactory; // ServerWidget(UI) ê³µì¥
+	class UKJH_ServerWidget* ServerWidget; // ServerWidget(UI) ì°¸ì¡° ì„ ì–¸
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) °øÀå
-	class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) ÂüÁ¶ ¼±¾ğ
+	TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) ê³µì¥
+	class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) ì°¸ì¡° ì„ ì–¸
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) °øÀå
-	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) ÂüÁ¶ ¼±¾ğ
+	TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) ê³µì¥
+	class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) ì°¸ì¡° ì„ ì–¸
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<class UKJH_LoadingWidget> LoadingWidgetFactory; // CharacterSelectWidget(UI) °øÀå
-	class UKJH_LoadingWidget* LoadingWidget; // CharacterSelectWidget(UI) ÂüÁ¶ ¼±¾ğ
+	TSubclassOf<class UKJH_LoadingWidget> LoadingWidgetFactory; // CharacterSelectWidget(UI) ê³µì¥
+	class UKJH_LoadingWidget* LoadingWidget; // CharacterSelectWidget(UI) ì°¸ì¡° ì„ ì–¸
 
-////////// Àü¿ª º¯¼ö & ÀÎ½ºÅÏ½º ¼±¾ğ ±¸°£ -------------------------------------------------------------------------------
+////////// ì „ì—­ ë³€ìˆ˜ & ì¸ìŠ¤í„´ìŠ¤ ì„ ì–¸ êµ¬ê°„ -------------------------------------------------------------------------------
 
-	IOnlineSessionPtr SessionInterface; // ¼¼¼Ç ÀÎÅÍÆäÀÌ½º¸¦ Àü¿ªÀÎ¼ö·Î ¼±¾ğ
-	TSharedPtr<class FOnlineSessionSearch> SessionSearch; // ¿Â¶óÀÎ ¼¼¼Ç °Ë»öÀ» ÇÒ ¼ö ÀÖ´Â Å¬·¡½º ÀÎ½ºÅÏ½º ¼±¾ğ
+	IOnlineSessionPtr SessionInterface; // ì„¸ì…˜ ì¸í„°í˜ì´ìŠ¤ë¥¼ ì „ì—­ì¸ìˆ˜ë¡œ ì„ ì–¸
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch; // ì˜¨ë¼ì¸ ì„¸ì…˜ ê²€ìƒ‰ì„ í•  ìˆ˜ ìˆëŠ” í´ë˜ìŠ¤ ì¸ìŠ¤í„´ìŠ¤ ì„ ì–¸
 
-	// Ä³¸¯ÅÍ ¼±ÅÃ »óÅÂ °ü¸®
-	bool bIsPersonSelected = false; // UI »ó¿¡¼­ »ç¶÷ÀÌ ¼±ÅÃµÇ¾ú´ÂÁö Ã¼Å©
-	bool bIsDroneSelected = false;  // UI »ó¿¡¼­ µå·ĞÀÌ ¼±ÅÃµÇ¾ú´ÂÁö Ã¼Å©
-	FString DesiredServerName; // Host ½Ã ¼­¹ö ÀÌ¸§À» ÁöÁ¤ÇÏ¿© ¼³Á¤ÇÏ±â À§ÇÑ º¯¼ö
+	// ìºë¦­í„° ì„ íƒ ìƒíƒœ ê´€ë¦¬
+	bool bIsPersonSelected = false; // UI ìƒì—ì„œ ì‚¬ëŒì´ ì„ íƒë˜ì—ˆëŠ”ì§€ ì²´í¬
+	bool bIsDroneSelected = false;  // UI ìƒì—ì„œ ë“œë¡ ì´ ì„ íƒë˜ì—ˆëŠ”ì§€ ì²´í¬
+	FString DesiredServerName; // Host ì‹œ ì„œë²„ ì´ë¦„ì„ ì§€ì •í•˜ì—¬ ì„¤ì •í•˜ê¸° ìœ„í•œ ë³€ìˆ˜
 
 ////////// Temp -----------------------------------------------------------------------------------------
     FStreamableManager StreamableManager;
@@ -114,7 +115,15 @@ public:
     UFUNCTION()
     void OnMapPreloadComplete();
 
-    //// ¿ùµå ÃÊ±âÈ­ ÈÄ È£ÃâµÇ´Â ÇÔ¼ö
-    //void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS);
+////////// ë°±ì—”ë“œ íŒ€ê³¼ í†µì‹ ì„ ìœ„í•œ í† í° ê´€ë ¨ ===========================================================================================
+
+    UPROPERTY()
+    FString AuthToken;
+
+    UFUNCTION(BlueprintCallable, Category = "Auth")
+    void SetAuthToken(const FString& Token) { AuthToken = Token; }
+
+    UFUNCTION(BlueprintCallable, Category = "Auth")
+    FString GetAuthToken() const { return AuthToken; }
 
 };

@@ -5,6 +5,7 @@
 #include "Animation/WidgetAnimation.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/TextBlock.h"
 
 bool UKJH_ResultWidget::Initialize()
 {
@@ -76,12 +77,38 @@ void UKJH_ResultWidget::PlayResultAnimations()
 void UKJH_ResultWidget::OnRescueAnimationFinished()
 {
     UE_LOG(LogTemp, Warning, TEXT("ShowRescueAnim finished, playing ShowCommonResultAnim"));
+
     if (ShowCommonResultAnim)
-    {
         PlayAnimation(ShowCommonResultAnim);
-    }
+
     else
-    {
         UE_LOG(LogTemp, Error, TEXT("ShowCommonResultAnim not found"));
-    }
+}
+
+// 결과값 저장 함수
+void UKJH_ResultWidget::SetResultData(int32 PersonSearchRoomResult, int32 PersonItemUsedResult, int32 PersonDamageResult, 
+                                      int32 DroneDetectedResult, int32 DroneDetectedSafeResult, int32 DroneDetectedCautionResult, int32 DroneDetectedDangerResult)
+{
+    // 소방관 플레이 결과값 저장
+    if (PersonResultMenu_FindRoomNum)
+        PersonResultMenu_FindRoomNum->SetText(FText::AsNumber(PersonSearchRoomResult));
+
+    if (PersonResultMenu_FindItemNum)
+        PersonResultMenu_FindItemNum->SetText(FText::AsNumber(PersonItemUsedResult));
+
+    if (PersonResultMenu_DamageNum)
+        PersonResultMenu_DamageNum->SetText(FText::AsNumber(PersonDamageResult));
+
+    // 드론 플레이 결과값 저장
+    if (DroneResultMenu_DetectedNum)
+        DroneResultMenu_DetectedNum->SetText(FText::AsNumber(DroneDetectedResult));
+
+    if (DroneResultMenu_DangerDetectedNum)
+        DroneResultMenu_DangerDetectedNum->SetText(FText::AsNumber(DroneDetectedDangerResult));
+
+    if (DroneResultMenu_CautionDetectedNum)
+        DroneResultMenu_CautionDetectedNum->SetText(FText::AsNumber(DroneDetectedCautionResult));
+
+    if (DroneResultMenu_SafeDetectedNum)
+        DroneResultMenu_SafeDetectedNum->SetText(FText::AsNumber(DroneDetectedSafeResult));
 }
