@@ -345,4 +345,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UUserWidget* PlayerMainUI;
+
+
+	// BackData ==================
+	class AKJH_PlayerState* KJHPlayerState;
+	
+	int CCount = 0;
+
+	// ======================={BackData}s
 };

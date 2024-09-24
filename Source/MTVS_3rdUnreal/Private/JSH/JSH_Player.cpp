@@ -15,7 +15,8 @@
 #include "Components/SpotLightComponent.h"
 #include "JSH_PlayerMainUI.h"
 #include "kismet/GameplayStatics.h"
- 
+#include "KJH/KJH_PlayerState.h"
+
 #include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -178,6 +179,8 @@ AJSH_Player::AJSH_Player()
 void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
+
+	KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
 	
 	// 태어날 때 모든 AX 목록 기억
 	FName tag = TEXT("AX");
@@ -204,6 +207,17 @@ void AJSH_Player::BeginPlay()
 			}
 		}
 	}
+
+	
+	KJHPlayerState = Cast<AKJH_PlayerState>(GetPlayerState());
+	
+
+
+	// APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	// if (PlayerController)
+	// {
+	// 	KJHPlayerState = Cast<AKJH_PlayerState>(PlayerController->GetPlayerState());
+	// }
 }
 
 
@@ -557,6 +571,21 @@ void AJSH_Player::MyTakeAX()
 		AttachAX(GrabAXActor);
 		AxModeON = true;
 		// WantWalk = true;
+
+		if (!GrabAXActor->ActorHasTag(FName("Count")))
+		{
+			GrabAXActor->Tags.Add(FName("Count"));
+
+			
+			if (KJHPlayerState)
+			{
+				KJHPlayerState->IncrementPersonItemUsedCount();
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
+			}
+		}
+
+
+		
 		break;
 	}
 }
@@ -680,7 +709,25 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 	{
 		mesh->SetSimulatePhysics(false);
 		mesh->AttachToComponent(FireHandComp , FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+
+		if (GrabFireActor->ActorHasTag(FName("Count")))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("no")));
+		}
+		else
+		{
+			GrabFireActor->Tags.Add(FName("Count"));
+			
+			if (KJHPlayerState)
+			{
+				KJHPlayerState->IncrementPersonItemUsedCount();
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
+			}
+		}
 	}
+
+	
 }
 
 void AJSH_Player::DetachFire(AActor* FireActor)
