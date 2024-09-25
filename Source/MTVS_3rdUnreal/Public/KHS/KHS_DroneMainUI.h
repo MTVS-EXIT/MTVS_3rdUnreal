@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,15 +16,19 @@ class MTVS_3RDUNREAL_API UKHS_DroneMainUI : public UUserWidget
 	
 public:
 
-	//µÂ∑– ∞Ìµµ∞Ë √≥∏Æ
+	//ÎìúÎ°† Í≥†ÎèÑÍ≥Ñ Ï≤òÎ¶¨
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HeightText;
 
-	//AI √≥∏Æ∞·∞˙ √‚∑¬
+	//AI Ï≤òÎ¶¨Í≤∞Í≥º Ï∂úÎ†•
 	UPROPERTY(meta = (BindWidget))
 	class UImage* AIImage;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Text_AIChatResult;
 
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* CaputreUIAnim;
+
+	void PlayCaptureAnim();
 };

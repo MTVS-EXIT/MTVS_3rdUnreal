@@ -32,8 +32,21 @@ UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer
 
 void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만 시켜준다.
 {
-	//// 월드 초기화 후 호출되는 델리게이트 바인딩
-	//FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &UKJH_GameInstance::OnPostWorldInitialization);
+	Super::Init();
+
+	// AudioComponent 초기화
+	AudioComponent = NewObject<UAudioComponent>(this, TEXT("BGMAudioComponent"));
+	if (AudioComponent)
+	{
+		AudioComponent->bAutoActivate = false;
+		AudioComponent->bAllowSpatialization = false;
+		AudioComponent->SetVolumeMultiplier(1.f);
+	}
+
+	// 초기에는 1번 사운드 재생
+	PlayLobbySound();
+
+	// ---------------------------------------------------------------------------------------------------------- //
 
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(); // OnlineSubsystem 가져오기
 	
@@ -409,6 +422,42 @@ void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerCont
 	OnCharacterSelected(PlayerController, bIsSelectedPerson);
 }
 
+////////// 사운드 재생 관련 함수 --------------------------------------------------------------------------------------------------------------
+// 로비 사운드 재생 함수
+void UKJH_GameInstance::PlayLobbySound()
+{
+	if (LobbySound && AudioComponent)
+	{
+		// 이전에 재생 중인 음성을 멈춘 후
+		StopCurrentSound();
+
+		// 오디오 컴포넌트를 로비 사운드로 설정하고 재생
+		AudioComponent->SetSound(LobbySound);
+		AudioComponent->Play();
+	}
+}
+
+// 시뮬레이션 스테이지 사운드 재생 함수
+void UKJH_GameInstance::PlayStageSound()
+{
+	if (StageSound && AudioComponent)
+	{
+		// 이전에 재생 중인 음성을 멈춘 후
+		StopCurrentSound();
+
+		// 오디오 컴포넌트를 스테이지(맵) 사운드로 설정하고 재생
+		AudioComponent->SetSound(StageSound);
+		AudioComponent->Play();
+	}
+}
+
+// 현재 사운드 재생 중지 함수
+void UKJH_GameInstance::StopCurrentSound()
+{
+	// 현재 재생 중인 음성이 있으면 중지
+	if (AudioComponent && AudioComponent->IsPlaying())
+		AudioComponent->Stop();
+}
 
 ////////// Temp ================================================================================================================================
 //void UKJH_GameInstance::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS)

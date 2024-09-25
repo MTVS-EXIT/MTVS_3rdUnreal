@@ -41,6 +41,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "KJH/KJH_PlayerState.h"
 #include <KJH/KJH_PlayerController.h>
+#include "Animation/WidgetAnimation.h"
 
 
 
@@ -126,21 +127,6 @@ void AKHS_DronePlayer::BeginPlay()
 			subsys->AddMappingContext(IMC_Drone, 0);
 		}
 	}
-	
-	//드론 Main UI초기화
-	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled())
-	{
-		if (DroneMainUIFactory)
-		{
-			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
-			if(DroneMainUI)
-			{
-				DroneMainUI->AddToViewport(0);
-				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-			}
-		}
-	}
 
 
 	//메시 위치, 회전 저장
@@ -196,6 +182,22 @@ void AKHS_DronePlayer::BeginPlay()
 			FlightAudioComponent->Play();
 		}
 	}
+
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	/*if (IsLocallyControlled())
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if(DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}*/
+
 }
 
 // Called every frame
@@ -352,7 +354,20 @@ void AKHS_DronePlayer::PossessedBy(AController* NewController)
 			subsys->AddMappingContext(IMC_Drone, 0); // 입력 매핑 추가
 		}
 	}
-
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if ( IsLocallyControlled() )
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if (DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
 }
 
 #pragma region Drone Camera Effect
@@ -901,6 +916,28 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
 	}
 
+	// CaptureUIAnim 애니메이션 재생(1초 딜레이후)
+	if (DroneMainUI)
+	{
+		GetWorld()->GetTimerManager().SetTimer(CaptureAnimTimerHandle, this, &AKHS_DronePlayer::PlayCaptureAnimation, 1.0f, false);
+	}
+}
+
+void AKHS_DronePlayer::PlayCaptureAnimation()
+{
+	if (DroneMainUI)
+	{
+		// DroneMainUI를 UKHS_DroneMainUI 클래스로 캐스팅하여 애니메이션 기능에 접근
+		UKHS_DroneMainUI* DroneMainUICast = Cast<UKHS_DroneMainUI>(DroneMainUI);
+
+		// 캐스팅이 성공하고 CaputreUIAnim 애니메이션이 유효한지 확인
+		if (DroneMainUICast && DroneMainUICast->CaputreUIAnim)
+		{
+			// 애니메이션 재생
+			DroneMainUICast->PlayCaptureAnim();
+		}
+		
+	}
 }
 
 // 이미지 저장 경로를 설정하는 함수
@@ -918,6 +955,8 @@ FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 	// 파일 경로 반환
 	return CapturedFolderPath / FileName;
 }
+
+
 
 // 이미지 전송 함수 (서버 전송 구현)
 void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData)
