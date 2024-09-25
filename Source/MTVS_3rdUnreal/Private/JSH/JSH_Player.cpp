@@ -940,4 +940,39 @@ void AJSH_Player::CancelVoiceChat(const FInputActionValue& Value)
 }
 
 
+void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	
+	if (OtherActor->ActorHasTag(FName("FRoomPlayer")) && !OtherActor->ActorHasTag(FName("PlayerFinded")))
+	{
+		KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+
+		OtherActor->Tags.Add(FName("PlayerFinded"));
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+	}
+	
+
+	if (OtherActor->ActorHasTag(FName("OverlapFire")))
+	{
+		KJHPlayerState->IncrementPersonDamageCount();
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_DamageCount));
+	}
+
+
+	
+	// if (OtherActor->ActorHasTag(FName("FRoomDrone")) && !OtherActor->ActorHasTag(FName("DroneFinded")))
+	// {
+	// 	KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+	//
+	// 	OtherActor->Tags.Add(FName("DroneFinded"));
+	//
+	// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+	// }
+}
+
+
 

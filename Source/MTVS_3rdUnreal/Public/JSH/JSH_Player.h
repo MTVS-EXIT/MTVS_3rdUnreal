@@ -357,4 +357,8 @@ public:
 
 	void StartVoiceChat(const FInputActionValue& Value);
 	void CancelVoiceChat(const FInputActionValue& Value);
+
+
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };
