@@ -71,8 +71,8 @@ class MTVS_3RDUNREAL_API AJSH_Player : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PushAction;
 	
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// UInputAction* SlideAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* VoiceAction;
 	
 public:
 	AJSH_Player();
@@ -353,4 +353,8 @@ public:
 	int CCount = 0;
 
 	// ======================={BackData}s
+	
+
+	void StartVoiceChat(const FInputActionValue& Value);
+	void CancelVoiceChat(const FInputActionValue& Value);
 };
