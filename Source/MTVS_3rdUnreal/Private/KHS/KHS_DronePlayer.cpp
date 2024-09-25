@@ -18,6 +18,7 @@
 #include "Components/TextBlock.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/Image.h"
+#include "Components/AudioComponent.h"
 
 #include "Engine/StaticMesh.h"
 #include "Engine/SceneCapture2D.h"
@@ -40,6 +41,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "KJH/KJH_PlayerState.h"
 #include <KJH/KJH_PlayerController.h>
+
 
 
 
@@ -171,7 +173,29 @@ void AKHS_DronePlayer::BeginPlay()
 		SyncSceneCaptureWithCamera();
 	}
 
-	//CallParsingAIText(""); //TEST용도
+	// 드론 위치에서 반복 재생되는 사운드 설정
+	if (FlightSFXFactory)
+	{
+		// 오디오 컴포넌트 생성 및 설정
+		FlightAudioComponent = NewObject<UAudioComponent>(this);
+		if (FlightAudioComponent)
+		{
+			FlightAudioComponent->SetSound(FlightSFXFactory);  // 사운드 설정
+			FlightAudioComponent->SetWorldLocation(GetActorLocation());  // 드론의 위치
+			FlightAudioComponent->bAutoActivate = false;  // 수동으로 재생 시작
+			FlightAudioComponent->bIsUISound = false;  // 3D 사운드로 설정
+			FlightAudioComponent->bAllowSpatialization = true;  // 공간 사운드 활성화
+			FlightAudioComponent->AttenuationSettings = FlightSoundAttenuation;  // 감쇠 설정
+			//FlightAudioComponent->bLooping = true;  // 반복 재생 설정
+
+			// 오디오 컴포넌트를 드론의 메시에 Attach (메시 컴포넌트에 붙임)
+			FlightAudioComponent->SetupAttachment(SphereComp);
+			FlightAudioComponent->RegisterComponent();  // 컴포넌트를 등록
+
+			// 사운드 재생 시작
+			FlightAudioComponent->Play();
+		}
+	}
 }
 
 // Called every frame
@@ -871,6 +895,12 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		ps->IncrementDroneDetectedCount();
 	}
 
+	// Capture 사운드를 1회 재생
+	if (CaptureSFXFactory)
+	{
+		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
+	}
+
 }
 
 // 이미지 저장 경로를 설정하는 함수
@@ -1186,6 +1216,12 @@ void AKHS_DronePlayer::UpdateDisplayedText()
 		if (AIChatText)
 		{
 			AIChatText->SetText(FText::FromString(DisplayedText));
+
+			// TypingSFXFactory 사운드를 1회 재생
+			if (TypingSFXFactory)
+			{
+				UGameplayStatics::PlaySound2D(this, TypingSFXFactory);
+			}
 		}
 	}
 	else
