@@ -34,17 +34,17 @@ public:
 	//openCV활용 매터리얼 이미지
 	cv::Mat image;
 
-	//블루프린트로 프레임 읽어내는 함수
-	UFUNCTION(BlueprintCallable)
-	void ReadScreenFrame();
+	////블루프린트로 프레임 읽어내는 함수
+	//UFUNCTION(BlueprintCallable)
+	//void ReadScreenFrame();
 
 	//이미지 매터리얼 텍스쳐로 만들기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UTexture2D* imageTexture;
 
-	//매터리얼을 텍스쳐로 만드는 함수
-	UTexture2D* MatToTexture2D(const cv::Mat InMat);
-	
-	//내 화면을 CV Mat타입으로 만드는 함수
-	cv::Mat GetScreenToCVMat();
+	////매터리얼을 텍스쳐로 만드는 함수
+	//UTexture2D* MatToTexture2D(const cv::Mat InMat);
+	//
+	////내 화면을 CV Mat타입으로 만드는 함수
+	//cv::Mat GetScreenToCVMat();
 };
