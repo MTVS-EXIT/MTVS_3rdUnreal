@@ -162,6 +162,8 @@ void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
 			ResultWidget->SetMyInterface(GameInstance);
 
 			ResultWidget->Setup();
+			ResultWidget->SetResultData(PersonSearchRoomResult, PersonItemUsedResult, PersonDamageResult,
+										DroneDetectedCount, DroneDetectedSafe, DroneDetectedCaution, DroneDetectedDanger);
 			ResultWidget->PlayResultAnimations(); // 애니메이션 시작
 		}
 	}

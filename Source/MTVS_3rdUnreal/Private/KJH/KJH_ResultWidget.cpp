@@ -89,26 +89,54 @@ void UKJH_ResultWidget::OnRescueAnimationFinished()
 void UKJH_ResultWidget::SetResultData(int32 PersonSearchRoomResult, int32 PersonItemUsedResult, int32 PersonDamageResult, 
                                       int32 DroneDetectedResult, int32 DroneDetectedSafeResult, int32 DroneDetectedCautionResult, int32 DroneDetectedDangerResult)
 {
+    // 포맷 함수 정의
+    auto FormatNumber = [](int32 Number) -> FString {
+        return FString::Printf(TEXT("(%02d)"), Number);
+        };
+
+    //// 포맷 함수 정의 방법 2
+    //auto FormatNumber = [](int32 Number) -> FText {
+    //    return FText::Format(INVTEXT("({0:02})"), FText::AsNumber(Number));
+
     // 소방관 플레이 결과값 저장
+    //if (PersonResultMenu_FindRoomNum)
+    //    PersonResultMenu_FindRoomNum->SetText(FText::AsNumber(PersonSearchRoomResult));
+
+    //if (PersonResultMenu_FindItemNum)
+    //    PersonResultMenu_FindItemNum->SetText(FText::AsNumber(PersonItemUsedResult));
+
+    //if (PersonResultMenu_DamageNum)
+    //    PersonResultMenu_DamageNum->SetText(FText::AsNumber(PersonDamageResult));
     if (PersonResultMenu_FindRoomNum)
-        PersonResultMenu_FindRoomNum->SetText(FText::AsNumber(PersonSearchRoomResult));
+        PersonResultMenu_FindRoomNum->SetText(FText::FromString(FormatNumber(PersonSearchRoomResult)));
 
     if (PersonResultMenu_FindItemNum)
-        PersonResultMenu_FindItemNum->SetText(FText::AsNumber(PersonItemUsedResult));
+        PersonResultMenu_FindItemNum->SetText(FText::FromString(FormatNumber(PersonItemUsedResult)));
 
     if (PersonResultMenu_DamageNum)
-        PersonResultMenu_DamageNum->SetText(FText::AsNumber(PersonDamageResult));
+        PersonResultMenu_DamageNum->SetText(FText::FromString(FormatNumber(PersonDamageResult)));
 
     // 드론 플레이 결과값 저장
+    //if (DroneResultMenu_DetectedNum)
+    //    DroneResultMenu_DetectedNum->SetText(FText::AsNumber(DroneDetectedResult));
+
+    //if (DroneResultMenu_DangerDetectedNum)
+    //    DroneResultMenu_DangerDetectedNum->SetText(FText::AsNumber(DroneDetectedDangerResult));
+
+    //if (DroneResultMenu_CautionDetectedNum)
+    //    DroneResultMenu_CautionDetectedNum->SetText(FText::AsNumber(DroneDetectedCautionResult));
+
+    //if (DroneResultMenu_SafeDetectedNum)
+    //    DroneResultMenu_SafeDetectedNum->SetText(FText::AsNumber(DroneDetectedSafeResult));
     if (DroneResultMenu_DetectedNum)
-        DroneResultMenu_DetectedNum->SetText(FText::AsNumber(DroneDetectedResult));
+        DroneResultMenu_DetectedNum->SetText(FText::FromString(FormatNumber(DroneDetectedResult)));
 
     if (DroneResultMenu_DangerDetectedNum)
-        DroneResultMenu_DangerDetectedNum->SetText(FText::AsNumber(DroneDetectedDangerResult));
+        DroneResultMenu_DangerDetectedNum->SetText(FText::FromString(FormatNumber(DroneDetectedDangerResult)));
 
     if (DroneResultMenu_CautionDetectedNum)
-        DroneResultMenu_CautionDetectedNum->SetText(FText::AsNumber(DroneDetectedCautionResult));
+        DroneResultMenu_CautionDetectedNum->SetText(FText::FromString(FormatNumber(DroneDetectedCautionResult)));
 
     if (DroneResultMenu_SafeDetectedNum)
-        DroneResultMenu_SafeDetectedNum->SetText(FText::AsNumber(DroneDetectedSafeResult));
+        DroneResultMenu_SafeDetectedNum->SetText(FText::FromString(FormatNumber(DroneDetectedSafeResult)));
 }
