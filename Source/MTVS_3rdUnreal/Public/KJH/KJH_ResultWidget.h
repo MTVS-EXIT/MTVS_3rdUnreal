@@ -34,13 +34,37 @@ public :
 	UPROPERTY(meta = (BindWidget))
 	class UButton* PersonResultMenu_DroneResultButton; // 드론 플레이어 결과 메뉴로 전환 버튼
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* PersonResultMenu_FindRoomNum; // 소방관 플레이 결과 - 탐색한 방의 횟수
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* PersonResultMenu_FindItemNum; // 소방관 플레이 결과 - 활용한 물품 횟수
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* PersonResultMenu_DamageNum; // 소방관 플레이 결과 - 데미지 입은 횟수
+
 	// 4) 드론 플레이어 메뉴 관련 --------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* DroneResultMenu; // 드론 플레이어 결과 메뉴 위젯
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* DroneResultMenu_PersonResultButton; // 소방관 플레이어 결과 메뉴로 전환 버튼
-	
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DroneResultMenu_DetectedNum; // 드론 플레이 결과 - 위험물 탐지한 횟수
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DroneResultMenu_DangerDetectedNum; // 드론 플레이 결과 - 위험 감지 횟수
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DroneResultMenu_CautionDetectedNum; // 드론 플레이 결과 - 주의 감지 횟수
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DroneResultMenu_SafeDetectedNum; // 드론 플레이 결과 - 안전 감지 횟수
+
+
+
+
 	// 5) 위젯 애니메이션 관련 -----------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* ShowRescueAnim; // 구조 시 애니메이션
@@ -54,8 +78,6 @@ public :
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	class UWidgetAnimation* ShowDroneResultAnim; // 드론 결과 메뉴 애니메이션
 
-
-
 ////////// 사용자 정의형 함수 구간 ==============================================================================
 	// 1) 버튼 함수 관련 ----------------------------------------------------------------------------------------
 	UFUNCTION()
@@ -66,10 +88,14 @@ public :
 
 	UFUNCTION()
 	void SwitchToDroneResultMenu(); // 드론 결과 메뉴로 전환 함수
+	
 	// 2) 위젯 애니메이션 관련 ----------------------------------------------------------------------------------
 	void PlayResultAnimations();
 	void OnRescueAnimationFinished();
 
-////////// 사용자 정의형 함수 구간 ==============================================================================
+	// 3) 결과값 저장 관련 -------------------------------------------------------------------------------------
+	void SetResultData(int32  PersonSearchRoomResult, int32 PersonItemUsedResult, int32 PersonDamageResult,
+					   int32 DroneDetectedResult, int32 DroneDetectedSafeResult, int32 DroneDetectedCautionResult, int32 DroneDetectedDangerResult);
+
 
 };

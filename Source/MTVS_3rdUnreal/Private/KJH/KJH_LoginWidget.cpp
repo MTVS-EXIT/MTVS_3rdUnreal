@@ -15,11 +15,38 @@
 #include "Delegates/Delegate.h"
 
 #include "Engine/TimerHandle.h"
+#include "Components/Image.h"
 ////////// 생성자 & 초기화 함수 구간 ===================================================================
 bool UKJH_LoginWidget::Initialize()
 {
 	Super::Initialize();
 
+	if (RegisterMenu_CreateSuccessImage)
+		RegisterMenu_CreateSuccessImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (RegisterMenu_SuccessFinishButton)
+	{
+		RegisterMenu_SuccessFinishButton->SetVisibility(ESlateVisibility::Hidden);
+		RegisterMenu_SuccessFinishButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnRegisterSuccessFinishClicked);
+	}
+
+	if (RegisterMenu_AlreadyExistImage)
+		RegisterMenu_AlreadyExistImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (RegisterMenu_FailureFinishButton)
+	{
+		RegisterMenu_FailureFinishButton->SetVisibility(ESlateVisibility::Hidden);
+		RegisterMenu_FailureFinishButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnRegisterFailureFinishClicked);
+	}
+
+	if (LoginMenu_InvalidAccessImage)
+		LoginMenu_InvalidAccessImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (LoginMenu_InvalidAccessFinishButton)
+	{
+		LoginMenu_InvalidAccessFinishButton->SetVisibility(ESlateVisibility::Hidden);
+		LoginMenu_InvalidAccessFinishButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnLoginFailureFinishClicked);
+	}
 
 ////////// 버튼 클릭 이벤트 델리게이트 구간 ====================================================================================================
 	// 로그인 메뉴 버튼 델리게이트 바인딩
@@ -31,6 +58,7 @@ bool UKJH_LoginWidget::Initialize()
 
 	if (LoginMenu_GuestLoginButton)
 	LoginMenu_GuestLoginButton->OnClicked.AddDynamic(this, &UKJH_LoginWidget::OnMyGuestLogin); // GuestLoginButton 버튼 눌렀을 때 OnMyGuestLogin 함수 호출
+
 
 	// 계정 생성 메뉴 버튼 델리게이트 바인딩
 	if (RegisterMenu_CreateButton)
@@ -95,7 +123,7 @@ void UKJH_LoginWidget::OnMyRegister()
 	FString RegisterPassword = RegisterMenu_UserPasswordText->GetText().ToString();
 
 	// 계정생성 정보를 서버로 전송할 URL 설정
-	FString URL = "http://125.132.216.190:7757/api/signup"; // 백엔드 서버 URL
+	FString URL = "http://125.132.216.190:7757/api/auth/signup"; // 백엔드 서버 URL
 
 	// JSON 객체(Object) 생성 후 입력된 정보 추가
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject()); // 새로운 Json 객체 생성
@@ -136,7 +164,7 @@ void UKJH_LoginWidget::SendRegisterRequest(const FString& URL, const FString& Js
 	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnRegisterResponseReceived);
 
 	// 3. 요청할 URL 설정
-	FString RequestURL = "http://125.132.216.190:7757/api/login"; // 요청을 처리할 URL 설정
+	FString RequestURL = "http://125.132.216.190:7757/api/auth/signup"; // 요청을 처리할 URL 설정
 	Request->SetURL(RequestURL);
 
 	// 4. 요청 타입 설정 (Post, Get 등)
@@ -159,6 +187,7 @@ void UKJH_LoginWidget::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttp
 	if (false == bWasSuccessful || false == Response.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Register request failed")); // 요청 실패 로그
+		ShowRegisterFailureUI();
 		return;
 	}
 
@@ -173,20 +202,103 @@ void UKJH_LoginWidget::OnRegisterResponseReceived(FHttpRequestPtr Request, FHttp
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
 
 	// 5. JSON 응답을 파싱(구문 해석), 성공적으로 파싱 시, JsonObject에 데이터 삽입
+
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
 		// 6. 서버 응답에서 "success" 라는 필드를 찾아, 성공 여부를 확인
-		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
-
-		if (bSuccess) // 계정생성에 성공 시, 계정생성이 완료되었습니다. UI 송출
+		if (JsonObject->HasField(TEXT("success")))
 		{
-			// UI 송출하는 로직 (추후 추가)
+			bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
+			if (bSuccess)
+			{
+				ShowRegisterSuccessUI(); // 계정생성에 성공 시, 계정생성이 완료되었습니다. UI 송출
+			}
+			else
+			{
+				FString errorMessage;
+				if (JsonObject->TryGetStringField(TEXT("message"), errorMessage))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Register Failed: %s"), *errorMessage);
+				}
+				ShowRegisterFailureUI();
+			}
 		}
-		else // 실패 시 로그 출력
+		else if (JsonObject->HasField(TEXT("error")))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Register Failed!"));
+			// 에러 필드가 있는 경우
+			FString errorMessage = JsonObject->GetStringField(TEXT("error"));
+			UE_LOG(LogTemp, Warning, TEXT("Register Failed: %s"), *errorMessage);
+			ShowRegisterFailureUI();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Unexpected response format"));
+			ShowRegisterFailureUI();
 		}
 	}
+
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to parse JSON response"));
+		ShowRegisterFailureUI();
+	}
+}
+
+// 계정생성 성공 시 나타나는 UI 함수
+void UKJH_LoginWidget::ShowRegisterSuccessUI()
+{
+	// 계정생성에 성공하는 경우, "계정이 생성되었습니다." 이미지 송출
+	if (RegisterMenu_CreateSuccessImage)
+	RegisterMenu_CreateSuccessImage->SetVisibility(ESlateVisibility::Visible);
+
+	// 확인 버튼 생성
+	if (RegisterMenu_SuccessFinishButton)
+		RegisterMenu_SuccessFinishButton->SetVisibility(ESlateVisibility::Visible);
+
+}
+
+// 계정생성 성공 시 나타나는 확인 버튼 이벤트 처리 함수
+void UKJH_LoginWidget::OnRegisterSuccessFinishClicked()
+{
+	// 계정생성 성공 시 나타나는 확인 버튼을 누를경우,
+	OpenLoginMenu();
+
+	if (RegisterMenu_CreateSuccessImage)
+		RegisterMenu_CreateSuccessImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (RegisterMenu_SuccessFinishButton)
+		RegisterMenu_SuccessFinishButton->SetVisibility(ESlateVisibility::Hidden);
+}
+
+// 계정생성 실패 시 나타나는 UI 함수
+void UKJH_LoginWidget::ShowRegisterFailureUI()
+{
+	// 계정생성에 실패하는 경우, "이미 존재하는 계정입니다." 이미지 송출
+    // 0.1초 후에 UI를 표시
+    FTimerHandle TimerHandle;
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+    {
+        if (RegisterMenu_AlreadyExistImage)
+        {
+            RegisterMenu_AlreadyExistImage->SetVisibility(ESlateVisibility::Visible);
+        }
+        if (RegisterMenu_FailureFinishButton)
+        {
+            RegisterMenu_FailureFinishButton->SetVisibility(ESlateVisibility::Visible);
+        }
+        UE_LOG(LogTemp, Warning, TEXT("ShowRegisterFailureUI executed after delay"));
+    }, 0.1f, false);
+}
+
+// 계정생성 실패 시 나타나는 확인 버튼 이벤트 처리 함수
+void UKJH_LoginWidget::OnRegisterFailureFinishClicked()
+{
+	// 계정생성 실패 시 나타나는 확인 버튼을 누를경우,
+	if (RegisterMenu_AlreadyExistImage)
+		RegisterMenu_AlreadyExistImage->SetVisibility(ESlateVisibility::Hidden); // 이미지 숨김
+
+	if (RegisterMenu_FailureFinishButton)
+		RegisterMenu_FailureFinishButton->SetVisibility(ESlateVisibility::Hidden); // 버튼 숨김
 }
 
 ////////// 사용자 정의형 함수 구간 - 로그인 관련 =======================================================================================================
@@ -198,7 +310,7 @@ void UKJH_LoginWidget::OnMyLogin()
 	FString LoginPassword = LoginMenu_UserPasswordText->GetText().ToString();
 
 	// 2. 로그인 정보를 서버로 전송할 URL 설정
-	FString URL = ""; // 백엔드 서버 URL
+	FString URL = "http://125.132.216.190:7757/api/auth/login"; // 백엔드 서버 URL
 
 	//// 3. JSON 객체 생성 후 입력된 정보 추가
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
@@ -239,7 +351,7 @@ void UKJH_LoginWidget::SendLoginRequest(const FString& URL, const FString& JsonP
 	Request->OnProcessRequestComplete().BindUObject(this, &UKJH_LoginWidget::OnLoginResponseReceived);
 
 	// 3. 요청할 URL 설정
-	FString RequestURL = ""; // 요청을 처리할 URL 설정
+	FString RequestURL = "http://125.132.216.190:7757/api/auth/login"; // 요청을 처리할 URL 설정
 	Request->SetURL(RequestURL);
 
 	// 4. 요청 타입 설정 (Post, Get 등)
@@ -262,12 +374,40 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 	if (false == bWasSuccessful || false == Response.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Login request failed")); // 요청 실패 로그
+		ShowLoginFailureUI();
 		return;
 	}
 
 	// 2. 서버로부터 받은 응답을 문자열로 가져옴
 	FString ResponseContent = Response->GetContentAsString();
 	UE_LOG(LogTemp, Log, TEXT("Login Response: %s"), *ResponseContent);  // 받은 응답을 로그로 출력
+
+	//// 새로 추가: 응답 헤더 로깅
+	//TArray<FString> Headers = Response->GetAllHeaders();
+	//UE_LOG(LogTemp, Log, TEXT("Response Headers:"));
+	//for (const FString& Header : Headers)
+	//{
+	//	UE_LOG(LogTemp, Log, TEXT("%s"), *Header);
+	//}
+
+	//// 특정 헤더 값 가져오기 (예: Authorization 토큰)
+	//FString AuthToken;
+	//if (Response->GetHeader(TEXT("Authorization")).IsEmpty() == false)
+	//{
+	//	AuthToken = Response->GetHeader(TEXT("Authorization"));
+	//	UE_LOG(LogTemp, Log, TEXT("Authorization Token: %s"), *AuthToken);
+
+	//	// GameInstance에 토큰 저장
+	//	if (UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance()))
+	//	{
+	//		GameInstance->SetAuthToken(AuthToken);
+	//		UE_LOG(LogTemp, Log, TEXT("Auth Token saved to GameInstance"));
+	//	}
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Authorization header not found"));
+	//}
 
 	// 3. JSON 응답을 처리하기 위해 JSON 객체 생성
 	TSharedPtr<FJsonObject> JsonObject;
@@ -283,16 +423,56 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 
 		if (bSuccess) // 로그인에 성공 시, 게임 인스턴스를 가져와 ServerWidgetMap으로 이동
 		{
-			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
-			if (GameInstance)
-				GameInstance->LoadServerWidgetMap();
+			// 로그인 성공 처리
+			FString AuthToken;
+			if (JsonObject->TryGetStringField(TEXT("token"), AuthToken))
+			{
+				// 토큰 저장 및 다음 단계로 진행
+				UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+				if (GameInstance)
+				{
+					GameInstance->SetAuthToken(AuthToken);
+					GameInstance->LoadServerWidgetMap();
+				}
+			}
 		}
-		else // 실패 시 로그 출력
+		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Login Failed!"));
+			// 로그인 실패 처리
+			FString errorMessage;
+			if (JsonObject->TryGetStringField(TEXT("message"), errorMessage))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Login Failed: %s"), *errorMessage);
+			}
+			ShowLoginFailureUI();
 		}
-
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Unexpected response format"));
+		ShowLoginFailureUI();
+	}
+}
+
+// 로그인 실패 시 나타나는 UI 함수
+void UKJH_LoginWidget::ShowLoginFailureUI()
+{
+	if (LoginMenu_InvalidAccessImage)
+		LoginMenu_InvalidAccessImage->SetVisibility(ESlateVisibility::Visible);
+
+	if (LoginMenu_InvalidAccessFinishButton)
+		LoginMenu_InvalidAccessFinishButton->SetVisibility(ESlateVisibility::Visible);
+}
+
+// 로그인 실패 시 나타나는 확인 버튼 이벤트 처리 함수
+void UKJH_LoginWidget::OnLoginFailureFinishClicked()
+{
+	// 로그인 실패 UI 숨기기
+	if (LoginMenu_InvalidAccessImage)
+		LoginMenu_InvalidAccessImage->SetVisibility(ESlateVisibility::Hidden);
+
+	if (LoginMenu_InvalidAccessFinishButton)
+		LoginMenu_InvalidAccessFinishButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
 ////////// 사용자 정의형 함수 구간 - 게스트 로그인 관련 =======================================================================================================

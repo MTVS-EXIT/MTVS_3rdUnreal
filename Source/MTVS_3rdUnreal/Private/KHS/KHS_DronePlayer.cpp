@@ -4,6 +4,7 @@
 #include "KHS/KHS_DronePlayer.h"
 #include "KHS/KHS_DroneMainUI.h"
 #include "KHS/KHS_AIVisionObject.h"
+#include <KHS/KHS_JsonParseLib.h>
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -17,6 +18,7 @@
 #include "Components/TextBlock.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/Image.h"
+#include "Components/AudioComponent.h"
 
 #include "Engine/StaticMesh.h"
 #include "Engine/SceneCapture2D.h"
@@ -37,7 +39,10 @@
 #include "HttpFwd.h"
 
 #include "Kismet/GameplayStatics.h"
-#include <KHS/KHS_JsonParseLib.h>
+#include "KJH/KJH_PlayerState.h"
+#include <KJH/KJH_PlayerController.h>
+#include "Animation/WidgetAnimation.h"
+
 
 
 
@@ -122,21 +127,6 @@ void AKHS_DronePlayer::BeginPlay()
 			subsys->AddMappingContext(IMC_Drone, 0);
 		}
 	}
-	
-	//드론 Main UI초기화
-	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled())
-	{
-		if (DroneMainUIFactory)
-		{
-			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
-			if(DroneMainUI)
-			{
-				DroneMainUI->AddToViewport(0);
-				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-			}
-		}
-	}
 
 
 	//메시 위치, 회전 저장
@@ -169,7 +159,45 @@ void AKHS_DronePlayer::BeginPlay()
 		SyncSceneCaptureWithCamera();
 	}
 
-	//CallParsingAIText(""); //TEST용도
+	// 드론 위치에서 반복 재생되는 사운드 설정
+	if (FlightSFXFactory)
+	{
+		// 오디오 컴포넌트 생성 및 설정
+		FlightAudioComponent = NewObject<UAudioComponent>(this);
+		if (FlightAudioComponent)
+		{
+			FlightAudioComponent->SetSound(FlightSFXFactory);  // 사운드 설정
+			FlightAudioComponent->SetWorldLocation(GetActorLocation());  // 드론의 위치
+			FlightAudioComponent->bAutoActivate = false;  // 수동으로 재생 시작
+			FlightAudioComponent->bIsUISound = false;  // 3D 사운드로 설정
+			FlightAudioComponent->bAllowSpatialization = true;  // 공간 사운드 활성화
+			FlightAudioComponent->AttenuationSettings = FlightSoundAttenuation;  // 감쇠 설정
+			//FlightAudioComponent->bLooping = true;  // 반복 재생 설정
+
+			// 오디오 컴포넌트를 드론의 메시에 Attach (메시 컴포넌트에 붙임)
+			FlightAudioComponent->SetupAttachment(SphereComp);
+			FlightAudioComponent->RegisterComponent();  // 컴포넌트를 등록
+
+			// 사운드 재생 시작
+			FlightAudioComponent->Play();
+		}
+	}
+
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	/*if (IsLocallyControlled())
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if(DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}*/
+
 }
 
 // Called every frame
@@ -295,10 +323,11 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneUp, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveUp);
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
 		input->BindAction(IA_Function, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::SaveCaptureToImage);
-		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::SetUpNetworkVoice);
-		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
+		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::StartVoiceChat);
+		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::CancelVoiceChat);
 	}
 }
+
 //재시작시 Drone Player Possess를 다시 잡아줌
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
@@ -325,7 +354,20 @@ void AKHS_DronePlayer::PossessedBy(AController* NewController)
 			subsys->AddMappingContext(IMC_Drone, 0); // 입력 매핑 추가
 		}
 	}
-
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if ( IsLocallyControlled() )
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if (DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
 }
 
 #pragma region Drone Camera Effect
@@ -694,6 +736,16 @@ void AKHS_DronePlayer::InitializeVOIP()
 	}
 }
 
+void AKHS_DronePlayer::StartVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StartTalking();
+}
+
+void AKHS_DronePlayer::CancelVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StopTalking();
+}
+
 #pragma endregion
 
 #pragma region Image AI Object Detection
@@ -848,8 +900,44 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UE_LOG(LogTemp, Error, TEXT("Failed to save image to %s"), *ImagePath);
 	}
 
-	// 서버로 전송 (네트워크 로직 추가 필요)
+	// 서버로 전송 
 	SendImageToServer(ImagePath, CompressedData);
+
+	// Player State에 탐지요청횟수 증가
+	auto* ps = GetPlayerState<AKJH_PlayerState>();
+	if (ps)
+	{
+		ps->IncrementDroneDetectedCount();
+	}
+
+	// Capture 사운드를 1회 재생
+	if (CaptureSFXFactory)
+	{
+		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
+	}
+
+	// CaptureUIAnim 애니메이션 재생(1초 딜레이후)
+	if (DroneMainUI)
+	{
+		GetWorld()->GetTimerManager().SetTimer(CaptureAnimTimerHandle, this, &AKHS_DronePlayer::PlayCaptureAnimation, 1.0f, false);
+	}
+}
+
+void AKHS_DronePlayer::PlayCaptureAnimation()
+{
+	if (DroneMainUI)
+	{
+		// DroneMainUI를 UKHS_DroneMainUI 클래스로 캐스팅하여 애니메이션 기능에 접근
+		UKHS_DroneMainUI* DroneMainUICast = Cast<UKHS_DroneMainUI>(DroneMainUI);
+
+		// 캐스팅이 성공하고 CaputreUIAnim 애니메이션이 유효한지 확인
+		if (DroneMainUICast && DroneMainUICast->CaputreUIAnim)
+		{
+			// 애니메이션 재생
+			DroneMainUICast->PlayCaptureAnim();
+		}
+		
+	}
 }
 
 // 이미지 저장 경로를 설정하는 함수
@@ -867,6 +955,8 @@ FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 	// 파일 경로 반환
 	return CapturedFolderPath / FileName;
 }
+
+
 
 // 이미지 전송 함수 (서버 전송 구현)
 void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData)
@@ -928,7 +1018,7 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
 		//데이터가 있을때
 		if (data.Num() > 0)
-		{
+		{ 
 			//(선택) 파일 이름을 지정하여
 			FString FileName = FString::Printf(TEXT("/Returned_%s.jpg"), *FDateTime::Now().ToString());
 			//(선택) 파일 경로 지정 후
@@ -988,6 +1078,28 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No detected tags found in AI response"));
+		}
+
+		//[수행작업3] 
+		//카테고리별 count 추출 및 PlayerState에 반영
+		TArray<int32> DetectedCounts = KHSJsonLib->JsonParseGetDetectedCount(Response->GetContentAsString());
+
+		if (DetectedCounts.Num() > 0)
+		{
+			// PlayerState에 각 카테고리의 카운트 반영
+			AKJH_PlayerState* KJHPlayerState = GetPlayerState<AKJH_PlayerState>();
+			if (KJHPlayerState)
+			{
+				for (int32 i = 0; i < DetectedCounts.Num(); ++i)
+				{
+					//결과배열의 모든 인덱스 카테고리에 접근해 해당 인덱스의 값을 전달한다.
+					KJHPlayerState->IncrementDroneCategoryCount(i, DetectedCounts[i]);
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No detected counts found in AI response"));
 		}
 	}
 	else
@@ -1080,7 +1192,7 @@ void AKHS_DronePlayer::OnAudioUploadComplete(FHttpRequestPtr Request, FHttpRespo
 {
 	if (bWasSuccessful && Response.IsValid())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
+		//UE_LOG(LogTemp, Log, TEXT("Audio File Uploading Success: %s"), *Response->GetContentAsString());
 
 		// STT 콜백 함수 호출
 		CallParsingAIText(Response->GetContentAsString());
@@ -1143,6 +1255,12 @@ void AKHS_DronePlayer::UpdateDisplayedText()
 		if (AIChatText)
 		{
 			AIChatText->SetText(FText::FromString(DisplayedText));
+
+			// TypingSFXFactory 사운드를 1회 재생
+			if (TypingSFXFactory)
+			{
+				UGameplayStatics::PlaySound2D(this, TypingSFXFactory);
+			}
 		}
 	}
 	else
@@ -1196,10 +1314,10 @@ void AKHS_DronePlayer::CallParsingAISound(const FString& json)
 		UE_LOG(LogTemp, Log, TEXT("WAV File Size: %d bytes"), SoundData.Num());
 
 		// 첫 44바이트의 데이터를 로그로 출력 (WAV 헤더)
-		for (int i = 0; i < 44; i++)
+		/*for (int i = 0; i < 44; i++)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Byte %d: %02x"), i, SoundData[i]);
-		}
+		}*/
 		
 		// WAV 헤더에서 샘플 속도 및 채널 수 정보 추출
 		int32 SampleRate=0;
@@ -1364,6 +1482,8 @@ void AKHS_DronePlayer::TestSound()
 		UE_LOG(LogTemp, Error, TEXT("SoundWave Create Failed"));
 	}
 }
+
+
 
 #pragma endregion
 

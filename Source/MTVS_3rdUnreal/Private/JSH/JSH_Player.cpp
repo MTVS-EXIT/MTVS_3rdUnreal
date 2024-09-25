@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "JSH/JSH_Player.h"
@@ -15,6 +15,7 @@
 #include "Components/SpotLightComponent.h"
 #include "JSH_PlayerMainUI.h"
 #include "kismet/GameplayStatics.h"
+#include "KJH/KJH_PlayerController.h"
 #include "KJH/KJH_PlayerState.h"
 
 #include "Net/UnrealNetwork.h"
@@ -32,6 +33,12 @@ AJSH_Player::AJSH_Player()
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
 
 
+
+
+
+
+
+	
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> TMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/UEFN_Mannequin/Meshes/SKM_UEFN_Mannequin.SKM_UEFN_Mannequin'"));
     if (TMesh.Succeeded())
     {
@@ -195,7 +202,7 @@ void AJSH_Player::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , Firetag , FireList);
 
 
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() && !PlayerMainUI)
 	{
 		if (PlayerMainUIFactory)
 		{
@@ -237,7 +244,15 @@ void AJSH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	
+	UEnhancedInputComponent* input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	if (input)
+	{
+		input->BindAction(VoiceAction, ETriggerEvent::Started, this, &AJSH_Player::StartVoiceChat);
+		input->BindAction(VoiceAction, ETriggerEvent::Completed, this, &AJSH_Player::CancelVoiceChat);
+	}
 
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -408,6 +423,7 @@ void AJSH_Player::E(const FInputActionValue& Value)
 {
 	Server_E();
 }
+
 
 
 
@@ -904,11 +920,59 @@ void AJSH_Player::AllOff()
 }
 
 
+
+
 // ------------------------------------------------------------------------
 
 
 
-// void AJSH_Player::Slide(const FInputActionValue& Value)
-// {
-// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AJSH_Player::MyReleaseAX, 2.0f, false);
-// }
+
+
+
+void AJSH_Player::StartVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StartTalking();
+}
+
+void AJSH_Player::CancelVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StopTalking();
+}
+
+
+void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	
+	if (OtherActor->ActorHasTag(FName("FRoomPlayer")) && !OtherActor->ActorHasTag(FName("PlayerFinded")))
+	{
+		KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+
+		OtherActor->Tags.Add(FName("PlayerFinded"));
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+	}
+	
+
+	if (OtherActor->ActorHasTag(FName("OverlapFire")))
+	{
+		KJHPlayerState->IncrementPersonDamageCount();
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_DamageCount));
+	}
+
+
+	
+	// if (OtherActor->ActorHasTag(FName("FRoomDrone")) && !OtherActor->ActorHasTag(FName("DroneFinded")))
+	// {
+	// 	KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+	//
+	// 	OtherActor->Tags.Add(FName("DroneFinded"));
+	//
+	// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+	// }
+}
+
+
+

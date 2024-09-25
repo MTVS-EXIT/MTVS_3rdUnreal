@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,69 +21,84 @@ class MTVS_3RDUNREAL_API AKJH_PlayerController : public APlayerController
 
 public:
 
-////////// »ı¼ºÀÚ & ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ================================================================================================================
+////////// ìƒì„±ì & ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ================================================================================================================
 
-    virtual void BeginPlay() override; // BeginPlay ÃÊ±âÈ­ ÇÔ¼ö
-    virtual void OnPossess(APawn* aPawn) override; // Ä³¸¯ÅÍ°¡ PossessµÉ ¶§ È£ÃâµÇ´Â ÇÔ¼ö
+    virtual void BeginPlay() override; // BeginPlay ì´ˆê¸°í™” í•¨ìˆ˜
+    virtual void OnPossess(APawn* aPawn) override; // ìºë¦­í„°ê°€ Possessë  ë•Œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜
 
-    // ÀÔ·Â ±¸¼º ¿ä¼Ò ¼³Á¤ ÇÔ¼ö ¼±¾ğ
-    virtual void SetupInputComponent() override; // SetupInputComponent ÇÔ¼ö ¼±¾ğ
+    // ì…ë ¥ êµ¬ì„± ìš”ì†Œ ì„¤ì • í•¨ìˆ˜ ì„ ì–¸
+    virtual void SetupInputComponent() override; // SetupInputComponent í•¨ìˆ˜ ì„ ì–¸
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ ==================================================================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ ==================================================================================================================
  
-     // 1) Ä³¸¯ÅÍ ¼±ÅÃ UI °ü·Ã ---------------------------------------------------------------------------
-    void ShowCharacterSelectWidget();  // Ä³¸¯ÅÍ ¼±ÅÃ UI¸¦ Ç¥½ÃÇÏ´Â ÇÔ¼ö (·ÎÄÃ Å¬¶óÀÌ¾ğÆ®¿¡¼­¸¸ ½ÇÇà)
+     // 1) ìºë¦­í„° ì„ íƒ UI ê´€ë ¨ ---------------------------------------------------------------------------
+    void ShowCharacterSelectWidget();  // ìºë¦­í„° ì„ íƒ UIë¥¼ í‘œì‹œí•˜ëŠ” í•¨ìˆ˜ (ë¡œì»¬ í´ë¼ì´ì–¸íŠ¸ì—ì„œë§Œ ì‹¤í–‰)
 
     UFUNCTION(Client, Reliable)
-    void ClientShowCharacterSelectWidget(); // ¼­¹ö -> Å¬¶óÀÌ¾ğÆ® Ä³¸¯ÅÍ ¼±ÅÃ UI¸¦ º¸¿©ÁÖ´Â ÇÔ¼ö
+    void ClientShowCharacterSelectWidget(); // ì„œë²„ -> í´ë¼ì´ì–¸íŠ¸ ìºë¦­í„° ì„ íƒ UIë¥¼ ë³´ì—¬ì£¼ëŠ” í•¨ìˆ˜
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void ServerSpawnCharacterBasedOnSelection(bool bIsPersonSelected); // Å¬¶óÀÌ¾ğÆ® -> ¼­¹ö Ä³¸¯ÅÍ ½ºÆù ¿äÃ» ÇÔ¼ö
+    void ServerSpawnCharacterBasedOnSelection(bool bIsPersonSelected); // í´ë¼ì´ì–¸íŠ¸ -> ì„œë²„ ìºë¦­í„° ìŠ¤í° ìš”ì²­ í•¨ìˆ˜
 
-    void SpawnCharacterBasedOnSelection(); // Ä³¸¯ÅÍ ¼±ÅÃ¿¡ µû¶ó Ä³¸¯ÅÍ¸¦ ½ºÆùÇÏ´Â ÇÔ¼ö
+    void SpawnCharacterBasedOnSelection(); // ìºë¦­í„° ì„ íƒì— ë”°ë¼ ìºë¦­í„°ë¥¼ ìŠ¤í°í•˜ëŠ” í•¨ìˆ˜
+
+    // 2) ë“œë¡  & í”Œë ˆì´ì–´ ê³ ìœ  UI ìƒì„± ê´€ë ¨ -------------------------------------------------------------
+    UFUNCTION(Server, Reliable)
+    void Server_NotifyPawnPossessed(APawn* aPawn); // ServerRPCë¥¼ í†µí•´ Possess ì •ë³´ë¥¼ í™•ì¸í•˜ê³  
+                                                   // ì ì ˆí•œ UI ì„¤ì •ì„ íŠ¸ë¦¬ê±°í•˜ëŠ” í•¨ìˆ˜
 
     UFUNCTION(Client, Reliable)
-    void Client_SetupDroneUI(); // ¼­¹ö -> Å¬¶óÀÌ¾ğÆ® µå·Ğ UI¸¦ ¼³Á¤ÇÏ´Â ÇÔ¼ö
+    void Client_SetupDroneUI(); // ë“œë¡  UIë¥¼ ì„¤ì •í•˜ëŠ” ClientRPC
 
-    // 2) InGameWidget UI °ü·Ã ---------------------------------------------------------------------------
+    UFUNCTION(Client, Reliable)
+    void Client_SetupPersonUI(); // ì†Œë°©ê´€ UIë¥¼ ì„¤ì •í•˜ëŠ” ClientRPC
+
+    // 3) InGameWidget UI ê´€ë ¨ ---------------------------------------------------------------------------
     void ToggleInGameWidget(const FInputActionValue& Value);
 
-    // 3) Ä³¸¯ÅÍ ºí·çÇÁ¸°Æ® ºñµ¿±â ·Îµù °ü·Ã -------------------------------------------------------------
 
 
-////////// Àü¿ª º¯¼ö ±¸°£ ============================================================================================================================
-    bool bIsPersonCharacterSelected; // Ä³¸¯ÅÍ ¼±ÅÃ »óÅÂ º¯¼ö (true: »ç¶÷, false: µå·Ğ)
-    bool bIsInGameWidgetVisible; // InGameWidget °¡½Ã¼º »óÅÂ º¯¼ö
+////////// ì „ì—­ ë³€ìˆ˜ êµ¬ê°„ ============================================================================================================================
+    bool bIsPersonCharacterSelected; // ìºë¦­í„° ì„ íƒ ìƒíƒœ ë³€ìˆ˜ (true: ì‚¬ëŒ, false: ë“œë¡ )
+    bool bIsInGameWidgetVisible; // InGameWidget ê°€ì‹œì„± ìƒíƒœ ë³€ìˆ˜
 
-////////// TSubclass & class ÂüÁ¶ ±¸°£ ================================================================================================================
-    // 1) Ä³¸¯ÅÍ °øÅë ÀÔ·Â Å° EnhancedInput °ü·Ã --------------------------------------------
+////////// TSubclass & class ì°¸ì¡° êµ¬ê°„ ================================================================================================================
+    // 1) ìºë¦­í„° ê³µí†µ ì…ë ¥ í‚¤ EnhancedInput ê´€ë ¨ --------------------------------------------
     UPROPERTY(EditAnywhere, Category = "EnhancedInput")
-    class UInputMappingContext* IMC_Common; // Mapping Context ÂüÁ¶
+    class UInputMappingContext* IMC_Common; // Mapping Context ì°¸ì¡°
 
     UPROPERTY(EditAnywhere, Category = "EnhancedInput")
-    class UInputAction* IA_ToggleInGameWidget; // InputAction ÂüÁ¶
+    class UInputAction* IA_ToggleInGameWidget; // InputAction ì°¸ì¡°
 
-    // 2) UI °ü·Ã ---------------------------------------------------------------------------
+    // 2) UI ê´€ë ¨ ---------------------------------------------------------------------------
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) °øÀå
-    class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) ÂüÁ¶ ¼±¾ğ
+    TSubclassOf<class UKJH_CharacterSelectWidget> CharacterSelectWidgetFactory; // CharacterSelectWidget(UI) ê³µì¥
+    class UKJH_CharacterSelectWidget* CharacterSelectWidget; // CharacterSelectWidget(UI) ì°¸ì¡° ì„ ì–¸
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) °øÀå
-    class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) ÂüÁ¶ ¼±¾ğ
+    TSubclassOf<class UKJH_InGameWidget> InGameWidgetFactory; // InGameWidget(UI) ê³µì¥
+    class UKJH_InGameWidget* InGameWidget; // InGameWidget(UI) ì°¸ì¡° ì„ ì–¸
 
-    // 3) Ä³¸¯ÅÍ ºí·çÇÁ¸°Æ® °ü·Ã ------------------------------------------------------------
+   UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<class UKHS_DroneMainUI> DroneWidgetFactory; // DroneWidget(UI) ê³µì¥
+    class UKHS_DroneMainUI* DroneWidget; // DroneWidget(UI) ì°¸ì¡° ì„ ì–¸
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<class UJSH_PlayerMainUI> PersonWidgetFactory; // PersonWidget(UI) ê³µì¥
+    class UJSH_PlayerMainUI* PersonWidget; // PersonWidget(UI) ì°¸ì¡° ì„ ì–¸
+
+    // 3) ìºë¦­í„° ë¸”ë£¨í”„ë¦°íŠ¸ ê´€ë ¨ ------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
-	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP ÂüÁ¶
+	TSubclassOf<class AJSH_Player> BP_JSH_PlayerClass; // Player BP ì°¸ì¡°
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Classes")
-	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP ÂüÁ¶
+	TSubclassOf<class AKHS_DronePlayer> BP_KHS_DronePlayerClass; // Drone BP ì°¸ì¡°
 
-    // 4) SpawnPoint ºí·çÇÁ¸°Æ® °ü·Ã ------------------------------------------------------------
+    // 4) SpawnPoint ë¸”ë£¨í”„ë¦°íŠ¸ ê´€ë ¨ ------------------------------------------------------------
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP ÂüÁ¶ (ÇöÀç ÄÚµå¿¡¼± ÅÂ±×·Î Ã£À¸¹Ç·Î ÇÊ¼ö´Â ¾Æ´Ô)
+    TSubclassOf<AActor> PersonSpawnPointClass; // PersonSpawnPoint BP ì°¸ì¡° (í˜„ì¬ ì½”ë“œì—ì„  íƒœê·¸ë¡œ ì°¾ìœ¼ë¯€ë¡œ í•„ìˆ˜ëŠ” ì•„ë‹˜)
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Locations")
-    TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP ÂüÁ¶ (ÇöÀç ÄÚµå¿¡¼± ÅÂ±×·Î Ã£À¸¹Ç·Î ÇÊ¼ö´Â ¾Æ´Ô)
+    TSubclassOf<AActor> DroneSpawnPointClass; // DroneSpawnPoint BP ì°¸ì¡° (í˜„ì¬ ì½”ë“œì—ì„  íƒœê·¸ë¡œ ì°¾ìœ¼ë¯€ë¡œ í•„ìˆ˜ëŠ” ì•„ë‹˜)
 
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -19,87 +19,119 @@ class MTVS_3RDUNREAL_API UKJH_LoginWidget : public UKJH_WidgetSystem
 
 public :
 
-////////// »ı¼ºÀÚ & ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ===================================================================
-	virtual bool Initialize(); // ÃÊ±âÈ­ ÇÔ¼ö
+////////// ìƒì„±ì & ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ===================================================================
+	virtual bool Initialize(); // ì´ˆê¸°í™” í•¨ìˆ˜
 
-////////// UI ¹ÙÀÎµù ±¸°£ ==============================================================================
-	// 1) ¸Ş´º Ã¼ÀÎÁö °ü·Ã ---------------------------------------------------------------------------
+////////// UI ë°”ì¸ë”© êµ¬ê°„ ==============================================================================
+	// 1) ë©”ë‰´ ì²´ì¸ì§€ ê´€ë ¨ ---------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher; // °¢ ¸Ş´º·Î ÀüÈ¯½ÃÅ³ ¼ö ÀÖ´Â Menu Switcher
+	class UWidgetSwitcher* MenuSwitcher; // ê° ë©”ë‰´ë¡œ ì „í™˜ì‹œí‚¬ ìˆ˜ ìˆëŠ” Menu Switcher
 
-	// 2) ·Î±×ÀÎ ¸Ş´º °ü·Ã ---------------------------------------------------------------------------
+	// 2) ë¡œê·¸ì¸ ë©”ë‰´ ê´€ë ¨ ---------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* ShowLoginMenuAnim; // ·Î±×ÀÎ ¸Ş´º Show ¾Ö´Ï¸ŞÀÌ¼Ç
+	class UWidgetAnimation* ShowLoginMenuAnim; // ë¡œê·¸ì¸ ë©”ë‰´ Show ì• ë‹ˆë©”ì´ì…˜
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* HideLoginMenuAnim; // ·Î±×ÀÎ ¸Ş´º Hide ¾Ö´Ï¸ŞÀÌ¼Ç
+	class UWidgetAnimation* HideLoginMenuAnim; // ë¡œê·¸ì¸ ë©”ë‰´ Hide ì• ë‹ˆë©”ì´ì…˜
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UWidget* LoginMenu; // ·Î±×ÀÎ ¸Ş´º À§Á¬
+	class UWidget* LoginMenu; // ë¡œê·¸ì¸ ë©”ë‰´ ìœ„ì ¯
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* LoginMenu_RegisterButton; // °èÁ¤ »ı¼º ¸Ş´º·Î ÀüÈ¯ÇÏ´Â ¹öÆ°
+	class UButton* LoginMenu_RegisterButton; // ê³„ì • ìƒì„± ë©”ë‰´ë¡œ ì „í™˜í•˜ëŠ” ë²„íŠ¼
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* LoginMenu_LoginButton; // ·Î±×ÀÎ ¹öÆ°
+	class UButton* LoginMenu_LoginButton; // ë¡œê·¸ì¸ ë²„íŠ¼
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UEditableTextBox* LoginMenu_UserIDText; // ·Î±×ÀÎ ¸Ş´ºÀÇ ¾ÆÀÌµğ ÀÔ·Â ÇÊµå
+	class UEditableTextBox* LoginMenu_UserIDText; // ë¡œê·¸ì¸ ë©”ë‰´ì˜ ì•„ì´ë”” ì…ë ¥ í•„ë“œ
 
 	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* LoginMenu_UserPasswordText; // ·Î±×ÀÎ ¸Ş´ºÀÇ ÆĞ½º¿öµå ÀÔ·Â ÇÊµå
+	class UEditableTextBox* LoginMenu_UserPasswordText; // ë¡œê·¸ì¸ ë©”ë‰´ì˜ íŒ¨ìŠ¤ì›Œë“œ ì…ë ¥ í•„ë“œ
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UImage* LoginMenu_InvalidAccessImage; // ë¡œê·¸ì¸ ì‹¤íŒ¨ ì´ë¯¸ì§€
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* LoginMenu_InvalidAccessFinishButton; // ë¡œê·¸ì¸ ì‹¤íŒ¨ ì‹œ ì™„ë£Œ ë²„íŠ¼
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* LoginMenu_GuestLoginButton; // Guest ·Î±×ÀÎ ¹öÆ° -> ¹Ù·Î ¼­¹ö¸Ş´º·Î ³Ñ¾î°¥ ¼ö ÀÖÀ½.
+	class UButton* LoginMenu_GuestLoginButton; // Guest ë¡œê·¸ì¸ ë²„íŠ¼ -> ë°”ë¡œ ì„œë²„ë©”ë‰´ë¡œ ë„˜ì–´ê°ˆ ìˆ˜ ìˆìŒ.
 
-	// 3) °èÁ¤»ı¼º ¸Ş´º °ü·Ã --------------------------------------------------------------------------
+	// 3) ê³„ì •ìƒì„± ë©”ë‰´ ê´€ë ¨ --------------------------------------------------------------------------
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* ShowRegisterMenuAnim; // °èÁ¤»ı¼º ¸Ş´º Show ¾Ö´Ï¸ŞÀÌ¼Ç
+	class UWidgetAnimation* ShowRegisterMenuAnim; // ê³„ì •ìƒì„± ë©”ë‰´ Show ì• ë‹ˆë©”ì´ì…˜
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* HideRegisterMenuAnim; // °èÁ¤»ı¼º ¸Ş´º Hide ¾Ö´Ï¸ŞÀÌ¼Ç
+	class UWidgetAnimation* HideRegisterMenuAnim; // ê³„ì •ìƒì„± ë©”ë‰´ Hide ì• ë‹ˆë©”ì´ì…˜
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UWidget* RegisterMenu; // °èÁ¤»ı¼º ¸Ş´º À§Á¬
+	class UWidget* RegisterMenu; // ê³„ì •ìƒì„± ë©”ë‰´ ìœ„ì ¯
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* RegisterMenu_CreateButton; // °èÁ¤ »ı¼º ¹öÆ°
+	class UButton* RegisterMenu_CreateButton; // ê³„ì • ìƒì„± ë²„íŠ¼
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UButton* RegisterMenu_CancelButton; // ·Î±×ÀÎ ¸Ş´º·Î ÀüÈ¯ ¹öÆ°
+	class UButton* RegisterMenu_CancelButton; // ë¡œê·¸ì¸ ë©”ë‰´ë¡œ ì „í™˜ ë²„íŠ¼
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UEditableTextBox* RegisterMenu_UserIDText; // °èÁ¤»ı¼º ¸Ş´ºÀÇ ¾ÆÀÌµğ ÀÔ·Â ÇÊµå
+	class UEditableTextBox* RegisterMenu_UserIDText; // ê³„ì •ìƒì„± ë©”ë‰´ì˜ ì•„ì´ë”” ì…ë ¥ í•„ë“œ
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UEditableTextBox* RegisterMenu_UserNicknameText; // °èÁ¤»ı¼º ¸Ş´ºÀÇ ´Ğ³×ÀÓ ÀÔ·Â ÇÊµå
+	class UEditableTextBox* RegisterMenu_UserNicknameText; // ê³„ì •ìƒì„± ë©”ë‰´ì˜ ë‹‰ë„¤ì„ ì…ë ¥ í•„ë“œ
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	class UEditableTextBox* RegisterMenu_UserPasswordText; // °èÁ¤»ı¼º ¸Ş´ºÀÇ ÆĞ½º¿öµå ÀÔ·Â ÇÊµå
+	class UEditableTextBox* RegisterMenu_UserPasswordText; // ê³„ì •ìƒì„± ë©”ë‰´ì˜ íŒ¨ìŠ¤ì›Œë“œ ì…ë ¥ í•„ë“œ
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - UI ÀüÈ¯ °ü·Ã ====================================================================================================
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UImage* RegisterMenu_CreateSuccessImage; // ê³„ì •ìƒì„± ì„±ê³µ ì´ë¯¸ì§€
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* RegisterMenu_SuccessFinishButton; // ê³„ì •ìƒì„± ì„±ê³µ ì‹œ ì™„ë£Œ ë²„íŠ¼
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UImage* RegisterMenu_AlreadyExistImage; // ê³„ì •ìƒì„± ì‹¤íŒ¨ ì´ë¯¸ì§€
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* RegisterMenu_FailureFinishButton; // ê³„ì •ìƒì„± ì‹¤íŒ¨ ì‹œ ì™„ë£Œ ë²„íŠ¼
+
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - UI ì „í™˜ ê´€ë ¨ ====================================================================================================
 
 	UFUNCTION(BlueprintCallable)
-	void OpenRegisterMenu(); // °èÁ¤»ı¼º ¸Ş´º·Î ÀüÈ¯ ÇÔ¼ö
+	void OpenRegisterMenu(); // ê³„ì •ìƒì„± ë©”ë‰´ë¡œ ì „í™˜ í•¨ìˆ˜
 
 	UFUNCTION(BlueprintCallable)
-	void OpenLoginMenu(); // °èÁ¤»ı¼º ¸Ş´º·Î ÀüÈ¯ ÇÔ¼ö
+	void OpenLoginMenu(); // ê³„ì •ìƒì„± ë©”ë‰´ë¡œ ì „í™˜ í•¨ìˆ˜
 	
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - °èÁ¤»ı¼º °ü·Ã ====================================================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ê³„ì •ìƒì„± ê´€ë ¨ ====================================================================================================
 	UFUNCTION(BlueprintCallable)
-	void OnMyRegister(); // °èÁ¤»ı¼º ¿äÃ» ÇÔ¼ö
+	void OnMyRegister(); // ê³„ì •ìƒì„± ìš”ì²­ í•¨ìˆ˜
 
-	void SendRegisterRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // °èÁ¤»ı¼º HTTP ¿äÃ»À» º¸³»´Â ÇÔ¼ö
-	void OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // °èÁ¤»ı¼º HTTP ¿äÃ» °á°ú¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö
-
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - ·Î±×ÀÎ °ü·Ã =======================================================================================================
+	void SendRegisterRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // ê³„ì •ìƒì„± HTTP ìš”ì²­ì„ ë³´ë‚´ëŠ” í•¨ìˆ˜
+	void OnRegisterResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // ê³„ì •ìƒì„± HTTP ìš”ì²­ ê²°ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
+	
+	UFUNCTION()
+	void ShowRegisterSuccessUI(); // ê³„ì •ìƒì„± ì„±ê³µ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” UI í•¨ìˆ˜
+	UFUNCTION()
+    void OnRegisterSuccessFinishClicked(); // ê³„ì •ìƒì„± ì„±ê³µ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” í™•ì¸ ë²„íŠ¼ ì´ë²¤íŠ¸ ì²˜ë¦¬ í•¨ìˆ˜
+	UFUNCTION()
+	void ShowRegisterFailureUI(); // ê³„ì •ìƒì„± ì‹¤íŒ¨ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” UI í•¨ìˆ˜
+    UFUNCTION()
+    void OnRegisterFailureFinishClicked(); // ê³„ì •ìƒì„± ì‹¤íŒ¨ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” í™•ì¸ ë²„íŠ¼ ì´ë²¤íŠ¸ ì²˜ë¦¬ í•¨ìˆ˜
+	
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ë¡œê·¸ì¸ ê´€ë ¨ =======================================================================================================
 	UFUNCTION(BlueprintCallable)
-	void OnMyLogin(); // ·Î±×ÀÎ ¿äÃ» ÇÔ¼ö
+	void OnMyLogin(); // ë¡œê·¸ì¸ ìš”ì²­ í•¨ìˆ˜
 
-	void SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // ·Î±×ÀÎ HTTP ¿äÃ»À» º¸³»´Â ÇÔ¼ö
-	void OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // ·Î±×ÀÎ HTTP ¿äÃ» °á°ú¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö
+	void SendLoginRequest(const FString& URL, const FString& JsonPayload, const FString& RequestType); // ë¡œê·¸ì¸ HTTP ìš”ì²­ì„ ë³´ë‚´ëŠ” í•¨ìˆ˜
+	void OnLoginResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); // ë¡œê·¸ì¸ HTTP ìš”ì²­ ê²°ê³¼ë¥¼ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - °Ô½ºÆ® ·Î±×ÀÎ °ü·Ã =======================================================================================================
+    UFUNCTION()
+    void ShowLoginFailureUI(); // ë¡œê·¸ì¸ ì‹¤íŒ¨ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” UI í•¨ìˆ˜
+    
+    UFUNCTION()
+    void OnLoginFailureFinishClicked();	// ë¡œê·¸ì¸ ì‹¤íŒ¨ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” í™•ì¸ ë²„íŠ¼ ì´ë²¤íŠ¸ ì²˜ë¦¬ í•¨ìˆ˜
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ê²ŒìŠ¤íŠ¸ ë¡œê·¸ì¸ ê´€ë ¨ =======================================================================================================
 	UFUNCTION(BlueprintCallable)
 	void OnMyGuestLogin();
 
