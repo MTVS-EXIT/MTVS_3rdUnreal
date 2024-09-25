@@ -126,7 +126,7 @@ void AKHS_DronePlayer::BeginPlay()
 	
 	//드론 Main UI초기화
 	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() && !DroneMainUI)
 	{
 		if (DroneMainUIFactory)
 		{

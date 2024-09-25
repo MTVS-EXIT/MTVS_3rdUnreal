@@ -109,7 +109,7 @@ public:
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 	FString DesiredServerName; // Host 시 서버 이름을 지정하여 설정하기 위한 변수
 
-////////// Temp -----------------------------------------------------------------------------------------
+////////// 비동기 함수 관련 -----------------------------------------------------------------------------------------
     FStreamableManager StreamableManager;
 
     UFUNCTION()
@@ -126,4 +126,5 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Auth")
     FString GetAuthToken() const { return AuthToken; }
 
+////////// 사운드 관련 ================================================================================================================
 };

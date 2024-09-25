@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "JSH/JSH_Player.h"
@@ -195,7 +195,7 @@ void AJSH_Player::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , Firetag , FireList);
 
 
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() && !PlayerMainUI)
 	{
 		if (PlayerMainUIFactory)
 		{
