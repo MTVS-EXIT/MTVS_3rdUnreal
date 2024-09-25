@@ -10,8 +10,8 @@
 
 AKJH_PlayerState::AKJH_PlayerState()
 {
-    // 초기값 설정
-    bIsGameEnded = false; // 게임이 시작되었을 때는 종료되지 않은 상태로 설정
+    //// 초기값 설정
+    //bIsGameEnded = false; // 게임이 시작되었을 때는 종료되지 않은 상태로 설정
 }
 
 ////////// 사용자 정의형 함수 구간 - 네트워크 복제 설정 함수 ----------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ void AKJH_PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     // bIsPersonCharacterSelected 변수가 서버에서 클라이언트로 복제되도록 설정
     DOREPLIFETIME(AKJH_PlayerState, bIsPersonCharacterSelected);
 
-    DOREPLIFETIME(AKJH_PlayerState, bIsGameEnded);
+    //DOREPLIFETIME(AKJH_PlayerState, bIsGameEnded);
 
     DOREPLIFETIME(AKJH_PlayerState, PersonState_SearchRoomCount);
     DOREPLIFETIME(AKJH_PlayerState, PersonState_ItemUsedCount);
