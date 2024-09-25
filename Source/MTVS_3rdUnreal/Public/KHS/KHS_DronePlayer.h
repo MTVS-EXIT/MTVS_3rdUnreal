@@ -163,7 +163,8 @@ public:
 	bool bIsCurrentlyDetecting;
 
 	//AI Image Sending URL
-	FString AIDetectionURL = "metaai.iptime.org:7733/detect/";
+	//FString AIDetectionURL = "metaai.iptime.org:7733/detect/";
+	FString AIDetectionURL = "metaai2.iptime.org:7733/detect/";
 
 	// SceneCapture2D 액터 참조
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Capture")
@@ -174,13 +175,31 @@ public:
 	class UTextureRenderTarget2D* RenderTarget;
 
 	//AIChatBot Sending URL
-	FString AIChatbotURL = "metaai.iptime.org:7733/chatbot/";
+	//FString AIChatbotURL = "metaai.iptime.org:7733/chatbot/";
+	FString AIChatbotURL = "metaai2.iptime.org:7733/chatbot/";
 
 	//AIChatBot STT 변수들
 	FString DisplayedText; //현재까지 표시된 텍스트들
 	FString FullText; //파싱한 전체 텍스트
 	int32 CurrentCharIndex; //표시텍스트 인덱스
 	FTimerHandle TextDisplayTimerHandle; //텍스트 애니메이션 핸들
+
+	//SFX 변수들
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundBase* TypingSFXFactory;  // 캡쳐사운드
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundBase* CaptureSFXFactory;  // 캡쳐사운드
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundBase* FlightSFXFactory;  // 비행사운드
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundAttenuation* FlightSoundAttenuation;  // 사운드 감쇠 설정
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
+	class UAudioComponent* FlightAudioComponent;  // 반복 재생을 위한 오디오 컴포넌트
+
 
 	//==============================================
 	//함수
@@ -271,5 +290,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void TestSound();
+
+	/** Called for VoiceChatAction input */
+	void StartVoiceChat(const FInputActionValue& Value);
+	void CancelVoiceChat(const FInputActionValue& Value);
 
 };
