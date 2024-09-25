@@ -356,7 +356,7 @@ void AKHS_DronePlayer::PossessedBy(AController* NewController)
 	}
 	//드론 Main UI초기화
 	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled() && !DroneMainUI)
+	if ( IsLocallyControlled() )
 	{
 		if (DroneMainUIFactory)
 		{
@@ -916,13 +916,20 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
 	}
 
-	// CaptureUIAnim 애니메이션 재생
+	// CaptureUIAnim 애니메이션 재생(0.3초 딜레이후)
+	if (DroneMainUI)
+	{
+		GetWorld()->GetTimerManager().SetTimer(CaptureAnimTimerHandle, this, &AKHS_DronePlayer::PlayCaptureAnimation, 1.0f, false);
+	}
+}
+
+void AKHS_DronePlayer::PlayCaptureAnimation()
+{
 	if (DroneMainUI)
 	{
 		auto* WBP_DroneMainUI = Cast<UKHS_DroneMainUI>(DroneMainUI);
 		if (WBP_DroneMainUI)
 		{
-			// 'CaptureUIAnim' 애니메이션을 찾아서 재생
 			WBP_DroneMainUI->PlayCaptureAnim();  // 애니메이션 재생
 		}
 	}
@@ -943,6 +950,8 @@ FString AKHS_DronePlayer::GetImagePath(const FString& FileName) const
 	// 파일 경로 반환
 	return CapturedFolderPath / FileName;
 }
+
+
 
 // 이미지 전송 함수 (서버 전송 구현)
 void AKHS_DronePlayer::SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData)
