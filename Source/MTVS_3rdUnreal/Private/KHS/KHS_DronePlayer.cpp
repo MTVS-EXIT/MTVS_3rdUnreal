@@ -127,20 +127,20 @@ void AKHS_DronePlayer::BeginPlay()
 		}
 	}
 	
-	//드론 Main UI초기화
-	//로컬 플레이어인 경우에만 UI생성하도록 수정
-	if (IsLocallyControlled())
-	{
-		if (DroneMainUIFactory)
-		{
-			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
-			if(DroneMainUI)
-			{
-				DroneMainUI->AddToViewport(0);
-				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-			}
-		}
-	}
+	////드론 Main UI초기화
+	////로컬 플레이어인 경우에만 UI생성하도록 수정
+	//if (IsLocallyControlled() && !DroneMainUI)
+	//{
+	//	if (DroneMainUIFactory)
+	//	{
+	//		DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+	//		if(DroneMainUI)
+	//		{
+	//			DroneMainUI->AddToViewport(0);
+	//			UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+	//		}
+	//	}
+	//}
 
 
 	//메시 위치, 회전 저장
