@@ -41,6 +41,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "KJH/KJH_PlayerState.h"
 #include <KJH/KJH_PlayerController.h>
+#include "Animation/WidgetAnimation.h"
 
 
 
@@ -126,21 +127,6 @@ void AKHS_DronePlayer::BeginPlay()
 			subsys->AddMappingContext(IMC_Drone, 0);
 		}
 	}
-	
-	////드론 Main UI초기화
-	////로컬 플레이어인 경우에만 UI생성하도록 수정
-	//if (IsLocallyControlled() && !DroneMainUI)
-	//{
-	//	if (DroneMainUIFactory)
-	//	{
-	//		DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
-	//		if(DroneMainUI)
-	//		{
-	//			DroneMainUI->AddToViewport(0);
-	//			UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-	//		}
-	//	}
-	//}
 
 
 	//메시 위치, 회전 저장
@@ -196,6 +182,22 @@ void AKHS_DronePlayer::BeginPlay()
 			FlightAudioComponent->Play();
 		}
 	}
+
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if (IsLocallyControlled())
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if(DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
+
 }
 
 // Called every frame
@@ -352,7 +354,20 @@ void AKHS_DronePlayer::PossessedBy(AController* NewController)
 			subsys->AddMappingContext(IMC_Drone, 0); // 입력 매핑 추가
 		}
 	}
-
+	//드론 Main UI초기화
+	//로컬 플레이어인 경우에만 UI생성하도록 수정
+	if (IsLocallyControlled() && !DroneMainUI)
+	{
+		if (DroneMainUIFactory)
+		{
+			DroneMainUI = CreateWidget<UUserWidget>(GetWorld(), DroneMainUIFactory);
+			if (DroneMainUI)
+			{
+				DroneMainUI->AddToViewport(0);
+				UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+			}
+		}
+	}
 }
 
 #pragma region Drone Camera Effect
@@ -901,6 +916,16 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
 	}
 
+	// CaptureUIAnim 애니메이션 재생
+	if (DroneMainUI)
+	{
+		auto* WBP_DroneMainUI = Cast<UKHS_DroneMainUI>(DroneMainUI);
+		if (WBP_DroneMainUI)
+		{
+			// 'CaptureUIAnim' 애니메이션을 찾아서 재생
+			WBP_DroneMainUI->PlayCaptureAnim();  // 애니메이션 재생
+		}
+	}
 }
 
 // 이미지 저장 경로를 설정하는 함수
