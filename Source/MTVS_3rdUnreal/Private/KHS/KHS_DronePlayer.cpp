@@ -39,6 +39,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "KJH/KJH_PlayerState.h"
+#include <KJH/KJH_PlayerController.h>
 
 
 
@@ -296,10 +297,11 @@ void AKHS_DronePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		input->BindAction(IA_DroneUp, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveUp);
 		input->BindAction(IA_DroneDown, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::DroneMoveDown);
 		input->BindAction(IA_Function, ETriggerEvent::Triggered, this, &AKHS_DronePlayer::SaveCaptureToImage);
-		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::SetUpNetworkVoice);
-		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::StopVoice);
+		input->BindAction(IA_Voice, ETriggerEvent::Started, this, &AKHS_DronePlayer::StartVoiceChat);
+		input->BindAction(IA_Voice, ETriggerEvent::Completed, this, &AKHS_DronePlayer::CancelVoiceChat);
 	}
 }
+
 //재시작시 Drone Player Possess를 다시 잡아줌
 void AKHS_DronePlayer::PossessedBy(AController* NewController)
 {
@@ -695,6 +697,16 @@ void AKHS_DronePlayer::InitializeVOIP()
 	}
 }
 
+void AKHS_DronePlayer::StartVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StartTalking();
+}
+
+void AKHS_DronePlayer::CancelVoiceChat(const FInputActionValue& Value)
+{
+	GetController<AKJH_PlayerController>()->StopTalking();
+}
+
 #pragma endregion
 
 #pragma region Image AI Object Detection
@@ -937,7 +949,7 @@ void AKHS_DronePlayer::OnResGetAIImage(FHttpRequestPtr Request, FHttpResponsePtr
 		TArray<uint8> data = KHSJsonLib->JsonParseGetAIImage(Response->GetContentAsString());
 		//데이터가 있을때
 		if (data.Num() > 0)
-		{
+		{ 
 			//(선택) 파일 이름을 지정하여
 			FString FileName = FString::Printf(TEXT("/Returned_%s.jpg"), *FDateTime::Now().ToString());
 			//(선택) 파일 경로 지정 후
@@ -1395,6 +1407,8 @@ void AKHS_DronePlayer::TestSound()
 		UE_LOG(LogTemp, Error, TEXT("SoundWave Create Failed"));
 	}
 }
+
+
 
 #pragma endregion
 

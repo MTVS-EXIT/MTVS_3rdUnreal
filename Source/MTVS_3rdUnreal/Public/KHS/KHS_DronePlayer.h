@@ -272,4 +272,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TestSound();
 
+	/** Called for VoiceChatAction input */
+	void StartVoiceChat(const FInputActionValue& Value);
+	void CancelVoiceChat(const FInputActionValue& Value);
+
 };
