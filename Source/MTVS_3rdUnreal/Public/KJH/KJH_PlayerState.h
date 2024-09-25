@@ -20,8 +20,8 @@ public:
 	AKJH_PlayerState();
 
 ////////// 변수 참조 구간 ===============================================================================================
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "GameState")
-    bool bIsGameEnded; // 플레이 종료되었는지 여부 확인
+	//UPROPERTY(Replicated, BlueprintReadWrite, Category = "GameState")
+ //   bool bIsGameEnded; // 플레이 종료되었는지 여부 확인
 
 	// 플레이어가 사람 캐릭터를 선택했는지 여부를 저장
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character Selection")
