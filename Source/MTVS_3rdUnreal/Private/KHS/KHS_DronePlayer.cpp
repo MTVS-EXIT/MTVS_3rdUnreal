@@ -916,7 +916,7 @@ void AKHS_DronePlayer::SaveCaptureToImage()
 		UGameplayStatics::PlaySound2D(this, CaptureSFXFactory);
 	}
 
-	// CaptureUIAnim 애니메이션 재생(0.3초 딜레이후)
+	// CaptureUIAnim 애니메이션 재생(1초 딜레이후)
 	if (DroneMainUI)
 	{
 		GetWorld()->GetTimerManager().SetTimer(CaptureAnimTimerHandle, this, &AKHS_DronePlayer::PlayCaptureAnimation, 1.0f, false);
@@ -927,11 +927,16 @@ void AKHS_DronePlayer::PlayCaptureAnimation()
 {
 	if (DroneMainUI)
 	{
-		auto* WBP_DroneMainUI = Cast<UKHS_DroneMainUI>(DroneMainUI);
-		if (WBP_DroneMainUI)
+		// DroneMainUI를 UKHS_DroneMainUI 클래스로 캐스팅하여 애니메이션 기능에 접근
+		UKHS_DroneMainUI* DroneMainUICast = Cast<UKHS_DroneMainUI>(DroneMainUI);
+
+		// 캐스팅이 성공하고 CaputreUIAnim 애니메이션이 유효한지 확인
+		if (DroneMainUICast && DroneMainUICast->CaputreUIAnim)
 		{
-			WBP_DroneMainUI->PlayCaptureAnim();  // 애니메이션 재생
+			// 애니메이션 재생
+			DroneMainUICast->PlayCaptureAnim();
 		}
+		
 	}
 }
 
