@@ -39,7 +39,7 @@ public:
 	
 ////////// 사용자 정의형 함수 구간 =================================================================================
 	
-	// 1) 세션 관련 함수 --------------------------------
+	// 1) 세션 관련 함수 --------------------------------------------------------------------------------------
 	UFUNCTION(Exec) // Exec: 콘솔창에 입력할 수 있도록 만든다.
 	void Host(FString ServerName) override; // 서버 열기 함수
 
@@ -52,7 +52,7 @@ public:
 	UFUNCTION()
 	void RefreshServerList(); // 서버목록을 찾는 함수
 
-	// 2) UI 생성 관련 함수 ----------------------------------
+	// 2) UI 생성 관련 함수 -----------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Create Widget")
 	void CreateLoginWidget(); // 로그인 UI를 생성하는 함수
 
@@ -62,14 +62,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Create Widget")
 	void CreateInGameWidget(); // 인게임 UI를 생성하는 함수
 
-
-
-
+	// 3) Travel 관련 함수 ------------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Load Widget Map")
 	void LoadServerWidgetMap(); // ServerWidget UI가 있는 맵으로 로드시키는 함수 (UI를 레벨에 Attach 해놓았음.)
 
 
-	// 캐릭터 선택 관련 함수 ----------------------------------
+	// 4) 캐릭터 선택 관련 함수 --------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Character Selection")
 	void OnCharacterSelected(APlayerController* PlayerController, bool bIsSelectedPersonFromUI); // 플레이어가 선택한 캐릭터에 따라 컨트롤러가 선택되는 함수
 
@@ -78,7 +76,13 @@ public:
 	bool ServerNotifyCharacterSelected_Validate(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 유효성 검사 (이 정보를 보내도 되는지, 아닌지)
 	void ServerNotifyCharacterSelected_Implementation(APlayerController* PlayerController, bool bIsSelectedPerson); // 서버 RPC 함수의 구현부 (요청이 승인되면, 실제론 여기서 실행)
 
-////////// TSubclass & class 참조 구간 -----------------------------------------------------------------------------------------
+	// 5) 사운드 관련 함수 --------------------------------------------------------------------------------------
+	void PlayLobbySound(); // 로비 사운드 재생 함수
+	void PlayStageSound(); // 시뮬레이션 스테이지 사운드 재생 함수
+	void StopCurrentSound(); // 현재 사운드 재생 중지 함수
+
+////////// TSubclass & class 참조 구간 ==========================================================================
+	// 1) UI 관련 참조 ------------------------------------------------------------------------------------------
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UKJH_LoginWidget> LoginWidgetFactory; // ServerWidget(UI) 공장
 	class UKJH_LoginWidget* LoginWidget; // ServerWidget(UI) 참조 선언
@@ -99,6 +103,16 @@ public:
 	TSubclassOf<class UKJH_LoadingWidget> LoadingWidgetFactory; // CharacterSelectWidget(UI) 공장
 	class UKJH_LoadingWidget* LoadingWidget; // CharacterSelectWidget(UI) 참조 선언
 
+	// 2) 사운드 관련 참조 ----------------------------------------------------------------------------------------------
+	UPROPERTY(Transient)
+	class UAudioComponent* AudioComponent; // 여러 사운드 관리를 위한 컴포넌트 참조
+	
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class USoundWave* LobbySound; // 로비 사운드
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class USoundWave* StageSound; // 스테이지(맵) 사운드
+
 ////////// 전역 변수 & 인스턴스 선언 구간 -------------------------------------------------------------------------------
 
 	IOnlineSessionPtr SessionInterface; // 세션 인터페이스를 전역인수로 선언
@@ -109,7 +123,7 @@ public:
 	bool bIsDroneSelected = false;  // UI 상에서 드론이 선택되었는지 체크
 	FString DesiredServerName; // Host 시 서버 이름을 지정하여 설정하기 위한 변수
 
-////////// 비동기 함수 관련 -----------------------------------------------------------------------------------------
+////////// 비동기 함수 관련 ---------------------------------------------------------------------------------------------
     FStreamableManager StreamableManager;
 
     UFUNCTION()
@@ -126,5 +140,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Auth")
     FString GetAuthToken() const { return AuthToken; }
 
-////////// 사운드 관련 ================================================================================================================
+
+
 };
