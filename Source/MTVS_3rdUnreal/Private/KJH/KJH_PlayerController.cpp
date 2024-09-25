@@ -225,16 +225,16 @@ void AKJH_PlayerController::Server_NotifyPawnPossessed_Implementation(APawn* aPa
 // 드론 UI를 설정하는 ClientRPC
 void AKJH_PlayerController::Client_SetupDroneUI_Implementation()
 {
-    // 로컬 클라이언트에서만 드론 UI를 생성 및 표시
-    if (DroneWidgetFactory && IsLocalController())
-    {
-        DroneWidget = CreateWidget<UKHS_DroneMainUI>(this, DroneWidgetFactory);
-        if (DroneWidget)
-        {
-            DroneWidget->AddToViewport();
-            UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
-        }
-    }
+    //// 로컬 클라이언트에서만 드론 UI를 생성 및 표시
+    //if (DroneWidgetFactory && IsLocalController())
+    //{
+    //    DroneWidget = CreateWidget<UKHS_DroneMainUI>(this, DroneWidgetFactory);
+    //    if (DroneWidget)
+    //    {
+    //        DroneWidget->AddToViewport();
+    //        UE_LOG(LogTemp, Warning, TEXT("Drone UI created for local player"));
+    //    }
+    //}
 }
 
 // 소방관 UI를 설정하는 ClientRPC
