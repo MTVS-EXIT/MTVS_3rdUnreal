@@ -29,7 +29,7 @@ void UKJH_ResultWidget::QuitPressed()
 {
     if (MenuInterface)
     {
-        MenuInterface->LoadServerWidgetMap(); // ServerWidget맵으로 이동
+        MenuInterface->LoadServerWidgetMap(false); // ServerWidget맵으로 이동
         Teardown(); // Widget 파괴
     }
 }
