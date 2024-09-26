@@ -89,6 +89,9 @@ void AKJH_PlayerState::SendDataToServer()
 
     // 2) PlayerState의 모든 관련 데이터를 JSON 객체에 추가
     JsonObject->SetBoolField("bIsPersonCharacterSelected", bIsPersonCharacterSelected);  // 플레이어가 소방관인지 드론인지 여부
+
+
+
     JsonObject->SetNumberField("PersonState_SearchRoomCount", PersonState_SearchRoomCount);  // 소방관이 탐색한 방의 수
     JsonObject->SetNumberField("PersonState_ItemUsedCount", PersonState_ItemUsedCount);  // 소방관이 사용한 아이템의 수
     JsonObject->SetNumberField("PersonState_DamageCount", PersonState_DamageCount);  // 소방관이 받은 데미지 횟수

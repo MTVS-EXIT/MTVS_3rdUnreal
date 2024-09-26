@@ -425,13 +425,16 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 		{
 			// 로그인 성공 처리
 			FString AuthToken;
-			if (JsonObject->TryGetStringField(TEXT("token"), AuthToken))
+			FString UserId;
+			if (JsonObject->TryGetStringField(TEXT("token"), AuthToken) &&
+				JsonObject->TryGetStringField(TEXT("userId"), UserId))
 			{
 				// 토큰 저장 및 다음 단계로 진행
 				UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
 				if (GameInstance)
 				{
 					GameInstance->SetAuthToken(AuthToken);
+					GameInstance->SetUserId(UserId);
 					GameInstance->ContinueCurrentSound(); // 로그인 성공 시에도 현재 사운드 계속 재생
 					GameInstance->LoadServerWidgetMap(true); // true 인자를 통해 현재 사운드를 유지하며 이동
 				}
