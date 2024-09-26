@@ -10,6 +10,7 @@
 #include "KJH/KJH_PlayerController.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "KJH/KJH_PlayerState.h"
 
 UKJH_CharacterSelectWidget::UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize)
 {
@@ -52,9 +53,26 @@ void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 	AKJH_PlayerController* PlayerController = Cast<AKJH_PlayerController>(GetOwningPlayer());
 	if (PlayerController)
 	{
-		PlayerController->bIsPersonCharacterSelected = true;
+		// PlayerState 업데이트
+		AKJH_PlayerState* PS = PlayerController->GetPlayerState<AKJH_PlayerState>();
+		if (PS)
+		{
+			PS->Server_SetIsPersonCharacter(true);
+			UE_LOG(LogTemp, Warning, TEXT("Updating PlayerState: Person Character Selected"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerState"));
+		}
+
+		// PlayerController 업데이트 및 서버에 알림
+		PlayerController->Server_UpdateCharacterSelection(true);
+
+		// 캐릭터 스폰 요청
 		PlayerController->ServerSpawnCharacterBasedOnSelection(true);
-		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
+
+		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected and Spawn Requested"));
+
 		UpdateSelectButtonStates();
 
 		// 스폰 애니메이션이 충분히 재생된 후 Teardown
@@ -62,7 +80,12 @@ void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TeardownControl, [this]()
 		{
 			Teardown();
+			UE_LOG(LogTemp, Warning, TEXT("Character Select Widget Torn Down"));
 		}, 2.0f, false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerController"));
 	}
 }
 

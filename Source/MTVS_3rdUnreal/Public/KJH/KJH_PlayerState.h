@@ -76,6 +76,9 @@ public:
 	void SendDataToServer();
 	void OnDataSendComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetIsPersonCharacter(bool bIsPerson);
+
 ////////// Temp ======================================================================
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
@@ -83,6 +86,10 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
     void Multicast_TriggerGameEnd();
+
+	UFUNCTION(Client, Reliable)
+    void Client_ShowResultWidget();
+
 	void ShowResultWidget();
 
 };

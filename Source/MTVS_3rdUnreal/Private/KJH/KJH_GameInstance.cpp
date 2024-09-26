@@ -240,12 +240,21 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	
+
 	if (PlayerController)
 	{
-		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+		// 호스트 플레이어의 경우에도 ClientTravel을 호출
+		if (PlayerController->GetLocalRole() == ROLE_Authority)
+		{
+			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Relative);
+		}
+		else
+		{
+			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 													// 해당 옵션은 절대 경로를 사용하여 이동하는 것을 의미
 													// 즉, 클라이언트를 명시된 정확한 맵이나 서버로 이동시킨다. 
 													// 이 옵션을 사용할 때는 URL이 완전히 지정되어야 한다.
+		}
 	}
 }
 

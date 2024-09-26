@@ -165,13 +165,21 @@ void AKJH_PlayerState::OnDataSendComplete(FHttpRequestPtr Request, FHttpResponse
     }
 }
 
+void AKJH_PlayerState::Server_SetIsPersonCharacter_Implementation(bool bIsPerson)
+{
+    bIsPersonCharacterSelected = bIsPerson;
+}
+
 ////////// Temp ======================================================================
 void AKJH_PlayerState::Multicast_TriggerGameEnd_Implementation()
 {
-    // 서버에서 실행 중인 경우 (리슨 서버 포함)
+    UE_LOG(LogTemp, Warning, TEXT("Multicast_TriggerGameEnd called on %s"),
+           GetNetMode() == NM_ListenServer ? TEXT("Listen Server") :
+           (GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Dedicated Server")));
+
+    // 서버에서만 실행
     if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_DedicatedServer)
     {
-        // 모든 플레이어에 대해 ShowResultWidget 호출
         for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
         {
             APlayerController* PC = It->Get();
@@ -180,17 +188,16 @@ void AKJH_PlayerState::Multicast_TriggerGameEnd_Implementation()
                 AKJH_PlayerState* PS = PC->GetPlayerState<AKJH_PlayerState>();
                 if (PS)
                 {
-                    PS->ShowResultWidget();
+                    PS->Client_ShowResultWidget();
                 }
             }
         }
     }
+}
 
-    // 리슨 서버의 로컬 플레이어이거나 일반 클라이언트인 경우
-    if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_Client)
-    {
-        ShowResultWidget();
-    }
+void AKJH_PlayerState::Client_ShowResultWidget_Implementation()
+{
+    ShowResultWidget();
 }
 
 void AKJH_PlayerState::ShowResultWidget()
@@ -198,10 +205,12 @@ void AKJH_PlayerState::ShowResultWidget()
     APlayerController* PC = Cast<APlayerController>(GetOwner());
     if (PC && ResultWidgetClass)
     {
+        UE_LOG(LogTemp, Warning, TEXT("Attempting to create ResultWidget for %s"),
+               GetNetMode() == NM_ListenServer ? TEXT("Listen Server") : TEXT("Client"));
+
         UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
         if (ResultWidget)
         {
-
             UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
             if (GameInstance)
             {
@@ -215,6 +224,16 @@ void AKJH_PlayerState::ShowResultWidget()
             ResultWidget->SetResultData(PersonState_SearchRoomCount, PersonState_ItemUsedCount, PersonState_DamageCount,
                                         DroneState_DetectedCount, DroneState_DetectedSafeCount, DroneState_DetectedCautionCount, DroneState_DetectedDangerCount);
             ResultWidget->PlayResultAnimations();
+
+            UE_LOG(LogTemp, Warning, TEXT("ResultWidget created and setup complete"));
         }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to create ResultWidget"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Conditions not met for creating ResultWidget"));
     }
 }

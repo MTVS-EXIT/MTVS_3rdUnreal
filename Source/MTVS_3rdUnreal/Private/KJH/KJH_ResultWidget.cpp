@@ -171,6 +171,23 @@ void UKJH_ResultWidget::MoveToReportWeb()
         return;
     }
 
+    // 인증 토큰 가져오기 및 공백 제거
+    FString AuthToken = GameInstance->GetAuthToken();
+    AuthToken = AuthToken.TrimStartAndEnd();  // 앞뒤 공백 제거
+    AuthToken = AuthToken.Replace(TEXT(" "), TEXT(""));  // 중간 공백 제거
+
+    UE_LOG(LogTemp, Log, TEXT("Auth Token: %s"), *AuthToken);
+
+    if (AuthToken.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Auth token is empty. Cannot proceed with data submission."));
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("인증 정보가 없습니다. 다시 로그인해 주세요."));
+        }
+        return;
+    }
+
     // JSON 객체 생성
     TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 
@@ -194,6 +211,9 @@ void UKJH_ResultWidget::MoveToReportWeb()
     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
     FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 
+    // JSON 데이터 로그 출력 (디버깅)
+    UE_LOG(LogTemp, Log, TEXT("JSON Sent: %s"), *JsonString);
+
     // HTTP 요청 생성
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 
@@ -209,41 +229,68 @@ void UKJH_ResultWidget::MoveToReportWeb()
     }
     Request->SetURL(URL);
 
+    // POST 방식 및 헤더 설정
     Request->SetVerb("POST");
     Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    Request->SetContentAsString(JsonString);
+    Request->SetHeader(TEXT("Authorization"), FString::Printf(TEXT("Bearer %s"), *AuthToken));
 
-    // 인증 토큰 추가
-    FString AuthToken = GameInstance->GetAuthToken();
-    if (!AuthToken.IsEmpty())
-    {
-        Request->SetHeader(TEXT("Authorization"), FString::Printf(TEXT("Bearer %s"), *AuthToken));
-    }
+    Request->SetContentAsString(JsonString);
 
     // 요청 완료 시 호출될 함수 설정
     Request->OnProcessRequestComplete().BindUObject(this, &UKJH_ResultWidget::OnReportDataSent);
 
     // 요청 전송
     Request->ProcessRequest();
+
+    UE_LOG(LogTemp, Log, TEXT("Sending data to server. URL: %s, Data: %s"), *URL, *JsonString);
 }
 
 void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-    if (bWasSuccessful)
+    if (bWasSuccessful && Response.IsValid())
     {
-        UE_LOG(LogTemp, Log, TEXT("Data sent successfully to server."));
+        int32 ResponseCode = Response->GetResponseCode();
+        FString ResponseContent = Response->GetContentAsString();
 
-        // 리더보드 웹 페이지로 이동
-        FPlatformProcess::LaunchURL(TEXT("http://125.132.216.190:7758/"), nullptr, nullptr); // 리더보드 URL로 이동
+        // 서버 응답 코드 및 내용 로그 출력
+        UE_LOG(LogTemp, Log, TEXT("Server Response Code: %d"), ResponseCode);
+        UE_LOG(LogTemp, Log, TEXT("Server Response Content: %s"), *ResponseContent);
+
+        if (ResponseCode == 200 || ResponseCode == 201)  // 성공적인 응답 처리
+        {
+            UE_LOG(LogTemp, Log, TEXT("Data sent successfully to server."));
+
+            if (GEngine)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Data Sent Successfully!"));
+            }
+
+            // 리더보드 웹 페이지로 이동
+            FPlatformProcess::LaunchURL(TEXT("http://125.132.216.190:7758/"), nullptr, nullptr);
+        }
+        else if (ResponseCode == 401 || ResponseCode == 403)  // 인증 오류 처리
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Authentication failed. Please log in again. Response Code: %d"), ResponseCode);
+            if (GEngine)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Authorization Failed"));
+            }
+        }
+        else  // 기타 서버 오류 처리
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Server error occurred. Response code: %d"), ResponseCode);
+            if (GEngine)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server Error: %d"), ResponseCode));
+            }
+        }
     }
-    else
+    else  // 요청 실패 처리
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to send data to server."));
-
-        // 실패 시 사용자에게 알림 (팝업 메시지 등)
+        UE_LOG(LogTemp, Error, TEXT("HTTP Request failed or response was invalid."));
         if (GEngine)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("데이터 전송에 실패했습니다."));
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Data Sent Failed"));
         }
     }
 }
