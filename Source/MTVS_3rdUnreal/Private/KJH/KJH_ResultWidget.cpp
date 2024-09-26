@@ -6,6 +6,8 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/TextBlock.h"
+#include "KJH/KJH_GameInstance.h"
+#include "GenericPlatform/GenericPlatformHttp.h"
 
 bool UKJH_ResultWidget::Initialize()
 {
@@ -145,5 +147,32 @@ void UKJH_ResultWidget::SetResultData(int32 PersonSearchRoomResult, int32 Person
 
 void UKJH_ResultWidget::MoveToReportWeb()
 {
+    UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get GameInstance"));
+        return;
+    }
 
+    FString UserId = GameInstance->GetUserId();
+    FString AuthToken = GameInstance->GetAuthToken();
+
+    if (UserId.IsEmpty() || AuthToken.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("User ID or Auth Token is empty"));
+        return;
+    }
+
+    FString BaseUrl = "";
+    FString FinalUrl = FString::Printf(TEXT("%s?userId=%s"), *BaseUrl, *UserId);
+
+    // URL 인코딩
+    FinalUrl = FGenericPlatformHttp::UrlEncode(FinalUrl);
+
+    // 웹 브라우저를 열 때 인증 토큰을 헤더에 포함시킬 수 없으므로, 
+    // 백엔드에서 토큰 검증을 위한 별도의 엔드포인트를 구현하는 것이 좋습니다.
+    // 여기서는 간단히 URL을 열기만 합니다.
+    FPlatformProcess::LaunchURL(*FinalUrl, nullptr, nullptr);
+
+    UE_LOG(LogTemp, Log, TEXT("Moving to report web page: %s"), *FinalUrl);
 }

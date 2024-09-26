@@ -104,6 +104,16 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/00_BetaMap/BetaMap?listen"));
 }
 
+void UKJH_GameInstance::SetUserId(const FString& NewUserId)
+{
+	UserId = NewUserId;
+}
+
+FString UKJH_GameInstance::GetUserId() const
+{
+	return UserId;
+}
+
 // 세션 파괴 완료 시 호출되는 함수
 void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success)
 {
