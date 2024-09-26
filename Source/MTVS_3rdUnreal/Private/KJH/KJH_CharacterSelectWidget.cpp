@@ -132,13 +132,14 @@ void UKJH_CharacterSelectWidget::ShowSpawnWidget()
 		UE_LOG(LogTemp, Warning, TEXT("CharacterSpawnWidget is Activate"));
 	}
 
+	UGameplayStatics::PlaySound2D(this, SpawnNoiseSound, 1.0f, 1.0f, 0.0f);
+
 	if (GetWorld())
 	{
 		FTimerHandle TimerHandle_TransitionAnimControl;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TransitionAnimControl, [this]()
 		{
 			PlayAnimation(ShowSpawnTransitionAnim);
-			UGameplayStatics::PlaySound2D(this, SpawnNoiseSound, 1.0f, 1.0f, 0.0f);
 		}, 2.3f, false);
 	}
 }

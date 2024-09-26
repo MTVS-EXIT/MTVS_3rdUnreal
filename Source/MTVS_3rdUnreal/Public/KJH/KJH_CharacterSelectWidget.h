@@ -49,6 +49,7 @@ public:
 	class UKJH_GameInstance* GameInstance; // GameInstance 참조 선언
 
 	// 2) 사운드 관련 참조 --------------------------------------------------------------------------------------------------------
+	UPROPERTY(EditAnywhere, Category = "Sound")
 	class USoundWave* SpawnNoiseSound; // 스폰 시 애니메이션과 함께 재생되는 Noise 사운드 참조
 
 ////////// 사용자 정의형 함수 구간 - 캐릭터 선택 관련 =============================================================================

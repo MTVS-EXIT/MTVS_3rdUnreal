@@ -215,6 +215,9 @@ void AKJH_PlayerState::ShowResultWidget()
             if (GameInstance)
             {
                 ResultWidget->SetMyInterface(GameInstance);
+
+                // 면체호흡 사운드 중지
+                GameInstance->StopBreathSound();
             }
             else
             {

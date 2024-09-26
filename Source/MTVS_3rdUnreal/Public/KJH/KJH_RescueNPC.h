@@ -43,4 +43,12 @@ public:
 	UFUNCTION(Server, Reliable)
     void Server_NotifyPlayerContact(AJSH_Player* ContactPlayer); // 서버에게 플레이어가 접촉했음을 알리는 함수
 
+
+////////// TSubclass & class 참조 구간 ==========================================================================
+	// 1) 사운드 관련 참조 --------------------------------------------------------------------------------------
+	UPROPERTY(EditAnywhere, Category = "Sound")
+    class USoundBase* CoughSound;
+
+	float TimeSinceLastCough;
+
 };
