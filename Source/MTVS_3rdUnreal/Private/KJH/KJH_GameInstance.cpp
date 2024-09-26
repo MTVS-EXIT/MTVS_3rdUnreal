@@ -99,9 +99,17 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 	
 	StopCurrentSound(); // 기존 사운드 중지
 
-	PlayStageSound(); // 베타맵으로 이동하기 직전에 스테이지 사운드로 전환
+	//PlayStageSound(); // 베타맵으로 이동하기 직전에 스테이지 사운드로 전환
 
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/00_BetaMap/BetaMap?listen"));
+
+	// 맵 전환 후 약간의 지연을 두고 StageSound 재생
+	FTimerHandle TimerHandle_StageSound;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_StageSound, this, &UKJH_GameInstance::PlayStageSound, 3.0f, false);
+
+	// 맵 전환 후 약간의 지연을 두고 StageSound 재생
+	FTimerHandle TimerHandle_BreathSound;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_BreathSound, this, &UKJH_GameInstance::PlayBreathSound, 4.0f, false);
 }
 
 void UKJH_GameInstance::SetUserId(const FString& NewUserId)
@@ -240,12 +248,21 @@ void UKJH_GameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	
+
 	if (PlayerController)
 	{
-		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+		// 호스트 플레이어의 경우에도 ClientTravel을 호출
+		if (PlayerController->GetLocalRole() == ROLE_Authority)
+		{
+			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Relative);
+		}
+		else
+		{
+			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 													// 해당 옵션은 절대 경로를 사용하여 이동하는 것을 의미
 													// 즉, 클라이언트를 명시된 정확한 맵이나 서버로 이동시킨다. 
 													// 이 옵션을 사용할 때는 URL이 완전히 지정되어야 한다.
+		}
 	}
 }
 
@@ -470,7 +487,14 @@ void UKJH_GameInstance::PlayLobbySound()
 void UKJH_GameInstance::PlayStageSound()
 {
 	if (StageSound)
+	{
 		CurrentPlayingSound = UGameplayStatics::SpawnSound2D(this, StageSound, 1.0f, 1.0f, 0.0f);
+		UE_LOG(LogTemp, Warning, TEXT("Started playing stage sound"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("StageSound is not set"));
+	}
 }
 
 // 현재 사운드 재생 중지 함수
@@ -495,6 +519,20 @@ void UKJH_GameInstance::ContinueCurrentSound()
 	{
 		// 현재 재생 중인 사운드가 없다면 로비 사운드 재생
 		PlayLobbySound();
+	}
+}
+
+void UKJH_GameInstance::PlayBreathSound()
+{
+	//if (BreathSound)
+	//	UGameplayStatics::PlaySound2D(this, BreathSound, 10.0f, 1.0f, 0.0f);
+}
+
+void UKJH_GameInstance::StopBreathSound()
+{
+	if (BreathSoundComponent && BreathSoundComponent->IsPlaying())
+	{
+		BreathSoundComponent->Stop();
 	}
 }
 

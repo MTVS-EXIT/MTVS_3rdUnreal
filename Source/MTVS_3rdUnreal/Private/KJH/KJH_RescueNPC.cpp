@@ -8,6 +8,7 @@
 #include "JSH/JSH_Player.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "KJH/KJH_PlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AKJH_RescueNPC::AKJH_RescueNPC()
@@ -29,6 +30,9 @@ AKJH_RescueNPC::AKJH_RescueNPC()
 	bAlwaysRelevant = true;
 	PrimaryActorTick.bCanEverTick = true;
 	SetReplicates(true);
+
+
+	TimeSinceLastCough = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +42,9 @@ void AKJH_RescueNPC::BeginPlay()
 	
 	// Sphere에 Overlap 시 호출되는 델리게이트 함수
 	InteractionSphere->OnComponentBeginOverlap.AddDynamic(this, &AKJH_RescueNPC::OnInteractionSphereOverlapBegin);
+
+
+	TimeSinceLastCough = 0.0f;
 }
 
 // Called every frame
@@ -45,6 +52,16 @@ void AKJH_RescueNPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	TimeSinceLastCough += DeltaTime;
+
+	if (TimeSinceLastCough >= 7.0f)
+	{
+		if (CoughSound)
+		{
+			UGameplayStatics::SpawnSoundAtLocation(this, CoughSound, GetActorLocation(), FRotator::ZeroRotator, 1.0f, 1.0f, 0.0f);
+		}
+		TimeSinceLastCough = 0.0f;
+	}
 }
 
 // Called to bind functionality to input

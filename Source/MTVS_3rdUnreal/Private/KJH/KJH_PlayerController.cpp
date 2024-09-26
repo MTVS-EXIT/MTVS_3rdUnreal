@@ -10,6 +10,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "KHS/KHS_DroneMainUI.h"
 #include "JSH_PlayerMainUI.h"
+#include "Net/UnrealNetwork.h"
 
 void AKJH_PlayerController::BeginPlay()
 {
@@ -198,7 +199,7 @@ void AKJH_PlayerController::SpawnCharacterBasedOnSelection()
 
 void AKJH_PlayerController::ServerSpawnCharacterBasedOnSelection_Implementation(bool bIsPersonSelected)
 {
-    bIsPersonCharacterSelected = bIsPersonSelected;
+    Server_UpdateCharacterSelection(bIsPersonSelected);
     SpawnCharacterBasedOnSelection();
 }
 
@@ -279,4 +280,15 @@ void AKJH_PlayerController::ToggleInGameWidget(const FInputActionValue& Value)
     }
 }
 
+void AKJH_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AKJH_PlayerController, bIsPersonCharacterSelected);
+}
+
+void AKJH_PlayerController::Server_UpdateCharacterSelection_Implementation(bool bIsPerson)
+{
+    bIsPersonCharacterSelected = bIsPerson;
+}
 

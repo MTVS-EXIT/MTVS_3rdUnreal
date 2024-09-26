@@ -80,9 +80,14 @@ public:
 
 	// 5) 사운드 관련 함수 --------------------------------------------------------------------------------------
 	void PlayLobbySound(); // 로비 사운드 재생 함수
+	UFUNCTION()
 	void PlayStageSound(); // 시뮬레이션 스테이지 사운드 재생 함수
 	void StopCurrentSound(); // 현재 사운드 재생 중지 함수
 	void ContinueCurrentSound(); // 현재 사운드 유지 함수
+
+	UFUNCTION()
+	void PlayBreathSound(); // 면체 호흡 사운드 재생 함수
+	void StopBreathSound(); // 면체 호흡 사운드 중지 함수
 
 ////////// TSubclass & class 참조 구간 ==========================================================================
 	// 1) UI 관련 참조 ------------------------------------------------------------------------------------------
@@ -113,8 +118,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class USoundWave* StageSound; // 스테이지(맵) 사운드
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class USoundWave* BreathSound; // 소방관 면체호흡 사운드
+
 	UPROPERTY()
 	class UAudioComponent* CurrentPlayingSound; // 현재 재생 중인 사운드를 추적하기 위한 변수 추가
+
+    UPROPERTY()
+    class UAudioComponent* BreathSoundComponent; // 소방관 면체호흡 사운드 오디오 컴포넌트 추가
 
 ////////// 전역 변수 & 인스턴스 선언 구간 -------------------------------------------------------------------------------
 
