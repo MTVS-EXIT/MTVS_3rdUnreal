@@ -941,3 +941,80 @@ void AJSH_Player::CancelVoiceChat(const FInputActionValue& Value)
 
 
 
+
+
+void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+	
+
+	if (OtherActor->ActorHasTag(FName("FRoomPlayer")) && !OtherActor->ActorHasTag(FName("PlayerFinded")))
+	{
+		Server_Overlap_Room(OtherActor);
+	}
+    
+	if (OtherActor->ActorHasTag(FName("OverlapFire")))
+	{
+		Server_Overlap_Fire(OtherActor);
+	}
+}
+
+
+
+
+// void AJSH_Player::Server_Overlap_Room_Implementation(AActor* OtherActor)
+// {
+// 	// KJHPlayerState->IncrementPersonSearchRoomCount_Implementation()
+//
+// 	NetMulti_Overlap_Room_Implementation(OtherActor);
+// }
+//
+// void AJSH_Player::NetMulti_Overlap_Room_Implementation(AActor* OtherActor)
+// {
+// 	OtherActor->Tags.Add(FName("PlayerFinded"));
+//
+// 	KJHPlayerState->PersonState_SearchRoomCount++;
+//
+// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+// }
+//
+//
+//
+// void AJSH_Player::Server_Overlap_Fire_Implementation(AActor* OtherActor)
+// {
+// 	// KJHPlayerState->IncrementPersonDamageCount();
+//
+// 	NetMulti_Overlap_Fire_Implementation(OtherActor);
+// 	
+// }
+//
+// void AJSH_Player::NetMulti_Overlap_Fire_Implementation(AActor* OtherActor)
+// {
+// 	KJHPlayerState->PersonState_DamageCount++;
+// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
+// 	// 받을게 없농
+// }
+
+
+
+
+void AJSH_Player::Server_Overlap_Room_Implementation(AActor* OtherActor)
+{
+	
+		KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+
+		OtherActor->Tags.Add(FName("PlayerFinded"));
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+
+}
+
+
+void AJSH_Player::Server_Overlap_Fire_Implementation(AActor* OtherActor)
+{
+		KJHPlayerState->IncrementPersonDamageCount();
+
+		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
+
+}
+

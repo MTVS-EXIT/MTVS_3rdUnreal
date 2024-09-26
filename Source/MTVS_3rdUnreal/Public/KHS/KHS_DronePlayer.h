@@ -162,6 +162,9 @@ public:
 	//태그를 사용하여 감지 중인지 여부
 	bool bIsCurrentlyDetecting;
 
+	//캡쳐 애니메이션 재생을 위한 타이머 핸들
+	FTimerHandle CaptureAnimTimerHandle;  
+
 	//AI Image Sending URL
 	//FString AIDetectionURL = "metaai.iptime.org:7733/detect/";
 	FString AIDetectionURL = "metaai2.iptime.org:7733/detect/";
@@ -263,6 +266,9 @@ public:
 
 	// 이미지 저장 경로를 설정하는 함수
 	FString GetImagePath(const FString& FileName) const;
+	
+	//캡쳐애니메이션 재생함수
+	void PlayCaptureAnimation();
 
 	// 이미지 전송 함수 (서버 전송 구현)
 	void SendImageToServer(const FString& ImagePath, const TArray64<uint8>& ImageData);

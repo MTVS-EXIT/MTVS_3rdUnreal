@@ -82,7 +82,7 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 		LoadingWidget->Setup();
 
 	// 맵 전환 전, 비동기 로딩을 시작 -> 끝나면 OnMapPreloadComplete을 호출하여 ServerTravel 시작
-	StreamableManager.RequestAsyncLoad(FSoftObjectPath(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap")),
+	StreamableManager.RequestAsyncLoad(FSoftObjectPath(TEXT("/Game/MAPS/TA_JSY/00_BetaMap/BetaMap")),
 		FStreamableDelegate::CreateUObject(this, &UKJH_GameInstance::OnMapPreloadComplete));
 }
 
@@ -97,7 +97,7 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 	// 수혁이 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
 
-	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/0_AlphaMap/AlphaMap?listen"));
+	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/00_BetaMap/BetaMap?listen"));
 }
 
 // 세션 파괴 완료 시 호출되는 함수

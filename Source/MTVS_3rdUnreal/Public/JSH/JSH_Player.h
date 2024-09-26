@@ -357,4 +357,15 @@ public:
 
 	void StartVoiceChat(const FInputActionValue& Value);
 	void CancelVoiceChat(const FInputActionValue& Value);
+
+
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+
+	UFUNCTION(Server, Reliable)
+	void Server_Overlap_Room(AActor* OtherActor);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_Overlap_Fire(AActor* OtherActor);
 };
