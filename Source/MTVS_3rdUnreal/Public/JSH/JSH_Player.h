@@ -114,7 +114,7 @@ public:
 	
 	// * 시계 ==================================
 
-	UPROPERTY(EditAnywhere, Category=Watch)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Watch)
 	UChildActorComponent* DigitalWatch;
 
 	UPROPERTY(EditAnywhere, Category=Watch)
@@ -139,7 +139,7 @@ public:
 
 	
 	// * 손전등 ========================================
-	UPROPERTY(EditAnywhere, Category=FlashLight)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=FlashLight)
 	UChildActorComponent* FlashLightChildActor;
 
 	UPROPERTY(EditAnywhere, Category=FlashLight)
