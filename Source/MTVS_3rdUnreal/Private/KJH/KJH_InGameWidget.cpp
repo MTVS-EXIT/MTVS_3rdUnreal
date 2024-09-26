@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_InGameWidget.h"
@@ -10,10 +10,10 @@ bool UKJH_InGameWidget::Initialize()
 
 
 	if (InGameMenu_CancelButton)
-	InGameMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_InGameWidget::CancelPressed); // Cancel ¹öÆ° ´­·¶À» ¶§ CancelPressed ÇÔ¼ö È£Ãâ
+	InGameMenu_CancelButton->OnClicked.AddDynamic(this, &UKJH_InGameWidget::CancelPressed); // Cancel ë²„íŠ¼ ëˆŒë €ì„ ë•Œ CancelPressed í•¨ìˆ˜ í˜¸ì¶œ
 
 	if (InGameMenu_QuitButton)
-	InGameMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_InGameWidget::QuitPressed); // Quit ¹öÆ° ´­·¶À» ¶§ QuitPressed ÇÔ¼ö È£Ãâ
+	InGameMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_InGameWidget::QuitPressed); // Quit ë²„íŠ¼ ëˆŒë €ì„ ë•Œ QuitPressed í•¨ìˆ˜ í˜¸ì¶œ
 
 	return true;
 }
@@ -26,19 +26,19 @@ void UKJH_InGameWidget::Setup()
 	PlayAnimation(InGameMenuAnim);
 }
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ ============================================================================================================
-// ÀÎ°ÔÀÓ Widget -> °ÔÀÓÀ¸·Î º¹±ÍÇÏ´Â ¹öÆ°
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ ============================================================================================================
+// ì¸ê²Œì„ Widget -> ê²Œì„ìœ¼ë¡œ ë³µê·€í•˜ëŠ” ë²„íŠ¼
 void UKJH_InGameWidget::CancelPressed()
 {
-	Teardown(); // Widget ÆÄ±«
+	Teardown(); // Widget íŒŒê´´
 }
 
-// ÀÎ°ÔÀÓ Widget -> °ÔÀÓÀ» Á¾·áÇÏ¿© ¸ŞÀÎ¸Ş´º·Î ÀÌµ¿ÇÏ´Â ÇÔ¼ö
+// ì¸ê²Œì„ Widget -> ê²Œì„ì„ ì¢…ë£Œí•˜ì—¬ ë©”ì¸ë©”ë‰´ë¡œ ì´ë™í•˜ëŠ” í•¨ìˆ˜
 void UKJH_InGameWidget::QuitPressed()
 {
 	if (MenuInterface)
 	{
-		MenuInterface->LoadServerWidgetMap(); // ServerWidget¸ÊÀ¸·Î ÀÌµ¿
-		Teardown(); // Widget ÆÄ±«
+		MenuInterface->LoadServerWidgetMap(false); // ServerWidgetë§µìœ¼ë¡œ ì´ë™
+		Teardown(); // Widget íŒŒê´´
 	}
 }
