@@ -792,6 +792,7 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 		if (MeshComp && MeshComp->GetAnimInstance())
 		{
 			MeshComp->GetAnimInstance()->Montage_Play(AxMontage, 1.0f);
+			PlaySoundAtLocation();
 		}
 	}
 
@@ -823,8 +824,6 @@ void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 			// FCollisionQueryParams params;
 			// params.AddIgnoredActor(this);
 			// bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, params);
-
-			
 		}
 	}
 }
@@ -981,6 +980,16 @@ void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
 
 			GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
 		}
+	}
+}
+
+void AJSH_Player::PlaySoundAtLocation()
+{
+	if (SoundToPlay)
+	{
+		// Get the actor's current location and play the sound at that location
+		FVector ActorLocation = GetActorLocation();
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, ActorLocation);
 	}
 }
 

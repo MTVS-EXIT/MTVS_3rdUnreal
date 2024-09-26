@@ -361,5 +361,14 @@ public:
 
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+
+	// Function to play sound at a specified location
+	UFUNCTION(BlueprintCallable, Category = "Sound")
+	void PlaySoundAtLocation();
+
+	// Sound to play
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Sound")
+	USoundBase* SoundToPlay;
 	
 };
