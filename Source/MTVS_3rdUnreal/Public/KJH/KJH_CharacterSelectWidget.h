@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -18,48 +18,51 @@ class MTVS_3RDUNREAL_API UKJH_CharacterSelectWidget : public UKJH_WidgetSystem
 
 public:
 
-////////// »ı¼ºÀÚ & ÃÊ±âÈ­ ÇÔ¼ö ±¸°£ ===========================================================================================
-	UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize); // »ı¼ºÀÚ ¼±¾ğ
-	virtual bool Initialize() override; // Initialization ¼±¾ğ
+////////// ìƒì„±ì & ì´ˆê¸°í™” í•¨ìˆ˜ êµ¬ê°„ ===========================================================================================
+	UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize); // ìƒì„±ì ì„ ì–¸
+	virtual bool Initialize() override; // Initialization ì„ ì–¸
 
-////////// UI ¹ÙÀÎµù ±¸°£ =======================================================================================================
-	// 1) ¸Ş´º Ã¼ÀÎÁö °ü·Ã ------------------------------------------------------------------------------------------------------
+////////// UI ë°”ì¸ë”© êµ¬ê°„ =======================================================================================================
+	// 1) ë©”ë‰´ ì²´ì¸ì§€ ê´€ë ¨ ------------------------------------------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher; // UI¸¦ Ã¼ÀÎÁö ½ÃÅ³ ¼ö ÀÖ´Â Switcher
+	class UWidgetSwitcher* MenuSwitcher; // UIë¥¼ ì²´ì¸ì§€ ì‹œí‚¬ ìˆ˜ ìˆëŠ” Switcher
 	
-	// 2) Ä³¸¯ÅÍ ¼±ÅÃ UI °ü·Ã ---------------------------------------------------------------------------------------------------
+	// 2) ìºë¦­í„° ì„ íƒ UI ê´€ë ¨ ---------------------------------------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterSelectMenu; // Ä³¸¯ÅÍ ¼±ÅÃ Widget UI
+	class UWidget* CharacterSelectMenu; // ìºë¦­í„° ì„ íƒ Widget UI
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* PersonSelectButton; // »ç¶÷ ¼±ÅÃ ¹öÆ°
+	class UButton* PersonSelectButton; // ì‚¬ëŒ ì„ íƒ ë²„íŠ¼
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* DroneSelectButton; // µå·Ğ ¼±ÅÃ ¹öÆ°
+	class UButton* DroneSelectButton; // ë“œë¡  ì„ íƒ ë²„íŠ¼
 
-	// 3) ½ºÆù UI °ü·Ã ----------------------------------------------------------------------------------------------------------
+	// 3) ìŠ¤í° UI ê´€ë ¨ ----------------------------------------------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterSpawnWidget; // Ä³¸¯ÅÍ ½ºÆù ½Ã Glitch Widget UI
+	class UWidget* CharacterSpawnWidget; // ìºë¦­í„° ìŠ¤í° ì‹œ Glitch Widget UI
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
-	class UWidgetAnimation* ShowSpawnTransitionAnim; // Ä³¸¯ÅÍ ½ºÆù ½Ã È­¸é ¹à¾ÆÁö´Â Widget UI
+	class UWidgetAnimation* ShowSpawnTransitionAnim; // ìºë¦­í„° ìŠ¤í° ì‹œ í™”ë©´ ë°ì•„ì§€ëŠ” Widget UI
 
-////////// TSubclass & class ÂüÁ¶ ±¸°£ ============================================================================================
-	class UKJH_GameInstance* GameInstance; // GameInstance ÂüÁ¶ ¼±¾ğ
+////////// TSubclass & class ì°¸ì¡° êµ¬ê°„ ============================================================================================
+	// 1) ê²Œì„ì¸ìŠ¤í„´ìŠ¤ ê´€ë ¨ ì°¸ì¡° --------------------------------------------------------------------------------------------------
+	class UKJH_GameInstance* GameInstance; // GameInstance ì°¸ì¡° ì„ ì–¸
 
+	// 2) ì‚¬ìš´ë“œ ê´€ë ¨ ì°¸ì¡° --------------------------------------------------------------------------------------------------------
+	class USoundWave* SpawnNoiseSound; // ìŠ¤í° ì‹œ ì• ë‹ˆë©”ì´ì…˜ê³¼ í•¨ê»˜ ì¬ìƒë˜ëŠ” Noise ì‚¬ìš´ë“œ ì°¸ì¡°
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - Ä³¸¯ÅÍ ¼±ÅÃ °ü·Ã =============================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ìºë¦­í„° ì„ íƒ ê´€ë ¨ =============================================================================
 	UFUNCTION()
-	void ShowCharacterSelect();  // Ä³¸¯ÅÍ ¼±ÅÃ UI¸¦ Ç¥½ÃÇÏ´Â ÇÔ¼ö
+	void ShowCharacterSelect();  // ìºë¦­í„° ì„ íƒ UIë¥¼ í‘œì‹œí•˜ëŠ” í•¨ìˆ˜
 
 	UFUNCTION()
-	void SelectPersonCharacter(); // »ç¶÷ Ä³¸¯ÅÍ ¼±ÅÃ Ã³¸® ÇÔ¼ö
+	void SelectPersonCharacter(); // ì‚¬ëŒ ìºë¦­í„° ì„ íƒ ì²˜ë¦¬ í•¨ìˆ˜
 
 	UFUNCTION()
-	void SelectDroneCharacter(); // µå·Ğ Ä³¸¯ÅÍ ¼±ÅÃ Ã³¸® ÇÔ¼ö
+	void SelectDroneCharacter(); // ë“œë¡  ìºë¦­í„° ì„ íƒ ì²˜ë¦¬ í•¨ìˆ˜
 
-	void UpdateSelectButtonStates(); // ¼±ÅÃµÈ ¹öÆ° »óÅÂ¸¦ È®ÀÎÇÏ°í ±× ¿©ºÎ¿¡ µû¶ó ¾÷µ¥ÀÌÆ®ÇÏ´Â ÇÔ¼ö
+	void UpdateSelectButtonStates(); // ì„ íƒëœ ë²„íŠ¼ ìƒíƒœë¥¼ í™•ì¸í•˜ê³  ê·¸ ì—¬ë¶€ì— ë”°ë¼ ì—…ë°ì´íŠ¸í•˜ëŠ” í•¨ìˆ˜
 
-////////// »ç¿ëÀÚ Á¤ÀÇÇü ÇÔ¼ö ±¸°£ - Ä³¸¯ÅÍ ½ºÆù ¾Ö´Ï¸ŞÀÌ¼Ç °ü·Ã =============================================================================
+////////// ì‚¬ìš©ì ì •ì˜í˜• í•¨ìˆ˜ êµ¬ê°„ - ìºë¦­í„° ìŠ¤í° ì• ë‹ˆë©”ì´ì…˜ ê´€ë ¨ =============================================================================
 	void ShowSpawnWidget();
 };

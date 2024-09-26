@@ -20,8 +20,8 @@ AKJH_GameModeBase::AKJH_GameModeBase()
 	// 플레이어가 게임 시작 시 자동으로 시작되지 않고 관전자로 시작되게 설정
 	bStartPlayersAsSpectators = true;
 
-	// 처음엔 게임이 종료되지 않은 상태로 설정
-	bIsGameEnded = false;
+	//// 처음엔 게임이 종료되지 않은 상태로 설정
+	//bIsGameEnded = false;
 }
 
 void AKJH_GameModeBase::BeginPlay()
@@ -112,60 +112,60 @@ void AKJH_GameModeBase::OnMySpawnRescueNPC()
 	}
 }
 
-// 플레이 종료를 알리는 함수
-void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
-{
-	if (bIsGameEnded)
-	return;
-
-	bIsGameEnded = true;
-
-	// PlayerState에서 결과값 데이터 수집
-	int32  PersonSearchRoomResult = 0, PersonItemUsedResult = 0, PersonDamageResult = 0;
-	int32 DroneDetectedCount = 0, DroneDetectedSafe = 0, DroneDetectedCaution = 0, DroneDetectedDanger = 0;
-
-
-	for (FConstPlayerControllerIterator It = GetWorld()-> GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController* PC = It->Get();
-		if (PC)
-		{
-			AKJH_PlayerState* PS = Cast<AKJH_PlayerState>(PC->PlayerState);
-			if (PS)
-			{
-				if (PS->bIsPersonCharacterSelected)
-				{
-					PersonSearchRoomResult += PS->PersonState_SearchRoomCount;
-					PersonItemUsedResult += PS->PersonState_ItemUsedCount;
-					PersonDamageResult += PS->PersonState_DamageCount;
-				}
-				else
-				{
-					DroneDetectedCount += PS->DroneState_DetectedCount;
-					DroneDetectedSafe += PS->DroneState_DetectedSafeCount;
-					DroneDetectedCaution += PS->DroneState_DetectedCautionCount;
-					DroneDetectedDanger += PS->DroneState_DetectedDangerCount;
-				}
-			}
-		}
-	}
-
-	// 로컬 플레이어 컨트롤러에 대해서만 위젯 생성
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (PC && PC->IsLocalController() && ResultWidgetClass)
-	{
-		UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
-		if (ResultWidget)
-		{
-			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
-			if (GameInstance)
-			ResultWidget->SetMyInterface(GameInstance);
-
-			ResultWidget->Setup();
-			ResultWidget->SetResultData(PersonSearchRoomResult, PersonItemUsedResult, PersonDamageResult,
-										DroneDetectedCount, DroneDetectedSafe, DroneDetectedCaution, DroneDetectedDanger);
-			ResultWidget->PlayResultAnimations(); // 애니메이션 시작
-		}
-	}
-}
-
+//// 플레이 종료를 알리는 함수
+//void AKJH_GameModeBase::Multicast_TriggerGameEnd_Implementation()
+//{
+//	if (bIsGameEnded)
+//	return;
+//
+//	bIsGameEnded = true;
+//
+//	// PlayerState에서 결과값 데이터 수집
+//	int32  PersonSearchRoomResult = 0, PersonItemUsedResult = 0, PersonDamageResult = 0;
+//	int32 DroneDetectedCount = 0, DroneDetectedSafe = 0, DroneDetectedCaution = 0, DroneDetectedDanger = 0;
+//
+//
+//	for (FConstPlayerControllerIterator It = GetWorld()-> GetPlayerControllerIterator(); It; ++It)
+//	{
+//		APlayerController* PC = It->Get();
+//		if (PC)
+//		{
+//			AKJH_PlayerState* PS = Cast<AKJH_PlayerState>(PC->PlayerState);
+//			if (PS)
+//			{
+//				if (PS->bIsPersonCharacterSelected)
+//				{
+//					PersonSearchRoomResult += PS->PersonState_SearchRoomCount;
+//					PersonItemUsedResult += PS->PersonState_ItemUsedCount;
+//					PersonDamageResult += PS->PersonState_DamageCount;
+//				}
+//				else
+//				{
+//					DroneDetectedCount += PS->DroneState_DetectedCount;
+//					DroneDetectedSafe += PS->DroneState_DetectedSafeCount;
+//					DroneDetectedCaution += PS->DroneState_DetectedCautionCount;
+//					DroneDetectedDanger += PS->DroneState_DetectedDangerCount;
+//				}
+//			}
+//		}
+//	}
+//
+//	// 로컬 플레이어 컨트롤러에 대해서만 위젯 생성
+//	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+//	if (PC && PC->IsLocalController() && ResultWidgetClass)
+//	{
+//		UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
+//		if (ResultWidget)
+//		{
+//			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
+//			if (GameInstance)
+//			ResultWidget->SetMyInterface(GameInstance);
+//
+//			ResultWidget->Setup();
+//			ResultWidget->SetResultData(PersonSearchRoomResult, PersonItemUsedResult, PersonDamageResult,
+//										DroneDetectedCount, DroneDetectedSafe, DroneDetectedCaution, DroneDetectedDanger);
+//			ResultWidget->PlayResultAnimations(); // 애니메이션 시작
+//		}
+//	}
+//}
+//

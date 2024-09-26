@@ -75,4 +75,14 @@ public:
 	// 4) 백엔드 팀에게 전달하는 정보 관련 함수 ----------------------------------------------------------
 	void SendDataToServer();
 	void OnDataSendComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+////////// Temp ======================================================================
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<class UKJH_ResultWidget> ResultWidgetClass;
+
+	UFUNCTION(NetMulticast, Reliable)
+    void Multicast_TriggerGameEnd();
+	void ShowResultWidget();
+
 };

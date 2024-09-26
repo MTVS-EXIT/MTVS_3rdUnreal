@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_WidgetSystem.h"
@@ -11,67 +11,66 @@ void UKJH_WidgetSystem::SetMyInterface(IKJH_Interface* Interface)
 
 void UKJH_WidgetSystem::Setup()
 {
-	// UI°¡ À¯È¿ÇÏ´Ù¸é Viewport¿¡ Ãß°¡
+	// UIê°€ ìœ íš¨í•˜ë‹¤ë©´ Viewportì— ì¶”ê°€
 	if (this)
 		this->AddToViewport();
 
-	// GetWorld()°¡ À¯È¿ÇÑÁö È®ÀÎ
+	// GetWorld()ê°€ ìœ íš¨í•œì§€ í™•ì¸
 	UWorld* World = GetWorld();
 	if (!World)
 	{
 		UE_LOG(LogTemp, Error, TEXT("World is not valid in Setup."));
-		return; // World°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é ÇÔ¼ö¸¦ Á¾·á
+		return; // Worldê°€ ìœ íš¨í•˜ì§€ ì•Šìœ¼ë©´ í•¨ìˆ˜ë¥¼ ì¢…ë£Œ
 	}
 
-	// PlayerController°¡ À¯È¿ÇÑÁö È®ÀÎ
+	// PlayerControllerê°€ ìœ íš¨í•œì§€ í™•ì¸
 	APlayerController* PlayerController = World->GetFirstPlayerController();
 	if (!PlayerController)
 	{
 		UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid in Setup."));
-		return; // PlayerController°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é ÇÔ¼ö¸¦ Á¾·á
+		return; // PlayerControllerê°€ ìœ íš¨í•˜ì§€ ì•Šìœ¼ë©´ í•¨ìˆ˜ë¥¼ ì¢…ë£Œ
 	}
 
 	if (PlayerController)
 	{
-		// UI Àü¿ë ÀÔ·Â ¸ðµå ¼³Á¤
-		FInputModeUIOnly InputUIModeData; // UI¿Í »óÈ£ÀÛ¿ëÀ» ÇÒ ¼ö ÀÖ´Â ÀÔ·Â¸ðµå¸¦ 'InputUIModeData'¶õ ÀÌ¸§À¸·Î ¼³Á¤
+		// UI ì „ìš© ìž…ë ¥ ëª¨ë“œ ì„¤ì •
+		FInputModeUIOnly InputUIModeData; // UIì™€ ìƒí˜¸ìž‘ìš©ì„ í•  ìˆ˜ ìžˆëŠ” ìž…ë ¥ëª¨ë“œë¥¼ 'InputUIModeData'ëž€ ì´ë¦„ìœ¼ë¡œ ì„¤ì •
 
-		InputUIModeData.SetWidgetToFocus(this->TakeWidget()); // Æ÷Ä¿½º¸¦ ¹ÞÀ» À§Á¬À» ¼³Á¤. Áï, ¸¶¿ì½º ÀÔ·ÂÀº ServerUI ¿¡¸¸ °¡´ÉÇÔ. ´Ù¸¥ °÷Àº Å¬¸¯ ¸·À½.
-		InputUIModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); // ¸¶¿ì½º°¡ Viewport È­¸é ¹ÛÀ» ¹þ¾î³¯ ¼ö ÀÖ´Â°¡? DoNotLock : Çã¿ë
+		InputUIModeData.SetWidgetToFocus(this->TakeWidget()); // í¬ì»¤ìŠ¤ë¥¼ ë°›ì„ ìœ„ì ¯ì„ ì„¤ì •. ì¦‰, ë§ˆìš°ìŠ¤ ìž…ë ¥ì€ ServerUI ì—ë§Œ ê°€ëŠ¥í•¨. ë‹¤ë¥¸ ê³³ì€ í´ë¦­ ë§‰ìŒ.
+		InputUIModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); // ë§ˆìš°ìŠ¤ê°€ Viewport í™”ë©´ ë°–ì„ ë²—ì–´ë‚  ìˆ˜ ìžˆëŠ”ê°€? DoNotLock : í—ˆìš©
 
-		PlayerController->SetInputMode(InputUIModeData); // UI Àü¿ë ÀÔ·Â ¸ðµå Àû¿ë. ÇÃ·¹ÀÌ¾î´Â °ÔÀÓ ¿ùµå¿Í »óÈ£ÀÛ¿ë ºÒ°¡ÇÏ°í UIÇÏ°í¸¸ »óÈ£ÀÛ¿ë ÇÒ ¼ö ÀÖ°ÔÇÔ.
-		PlayerController->bShowMouseCursor = true; // ¸¶¿ì½º Ä¿¼­¸¦ º¸ÀÌ°Ô ÇÔ.
+		PlayerController->SetInputMode(InputUIModeData); // UI ì „ìš© ìž…ë ¥ ëª¨ë“œ ì ìš©. í”Œë ˆì´ì–´ëŠ” ê²Œìž„ ì›”ë“œì™€ ìƒí˜¸ìž‘ìš© ë¶ˆê°€í•˜ê³  UIí•˜ê³ ë§Œ ìƒí˜¸ìž‘ìš© í•  ìˆ˜ ìžˆê²Œí•¨.
+		PlayerController->bShowMouseCursor = true; // ë§ˆìš°ìŠ¤ ì»¤ì„œë¥¼ ë³´ì´ê²Œ í•¨.
 	}
-
 }
 
 void UKJH_WidgetSystem::Teardown()
 {
-	// GetWorld()°¡ À¯È¿ÇÑÁö È®ÀÎ
+	// GetWorld()ê°€ ìœ íš¨í•œì§€ í™•ì¸
 	UWorld* World = GetWorld();
 	if (!World)
 	{
 		UE_LOG(LogTemp, Error, TEXT("World is not valid in Teardown."));
-		return; // World°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é ÇÔ¼ö¸¦ Á¾·á
+		return; // Worldê°€ ìœ íš¨í•˜ì§€ ì•Šìœ¼ë©´ í•¨ìˆ˜ë¥¼ ì¢…ë£Œ
 	}
 
-	// PlayerController°¡ À¯È¿ÇÑÁö È®ÀÎ
+	// PlayerControllerê°€ ìœ íš¨í•œì§€ í™•ì¸
 	APlayerController* PlayerController = World->GetFirstPlayerController();
 	if (!PlayerController)
 	{
 		UE_LOG(LogTemp, Error, TEXT("PlayerController is not valid in Teardown."));
-		return; // PlayerController°¡ À¯È¿ÇÏÁö ¾ÊÀ¸¸é ÇÔ¼ö¸¦ Á¾·á
+		return; // PlayerControllerê°€ ìœ íš¨í•˜ì§€ ì•Šìœ¼ë©´ í•¨ìˆ˜ë¥¼ ì¢…ë£Œ
 	}
 
 	if (PlayerController)
 	{
-		// °ÔÀÓ Àü¿ë ÀÔ·Â ¸ðµå ¼³Á¤
-		FInputModeGameOnly InputGameModeData; // Game°ú »óÈ£ÀÛ¿ëÀ» ÇÒ ¼ö ÀÖ´Â ÀÔ·Â¸ðµå¸¦ 'InputGameModeData'¶õ ÀÌ¸§À¸·Î ¼³Á¤
-		PlayerController->SetInputMode(InputGameModeData); // ÀÔ·Â ¸ðµå¸¦ °ÔÀÓ ¸ðµå·Î ¼³Á¤
-		PlayerController->bShowMouseCursor = false; // ¸¶¿ì½º Ä¿¼­¸¦ º¸ÀÌ°Ô ÇÏÁö ¾ÊÀ½.
+		// ê²Œìž„ ì „ìš© ìž…ë ¥ ëª¨ë“œ ì„¤ì •
+		FInputModeGameOnly InputGameModeData; // Gameê³¼ ìƒí˜¸ìž‘ìš©ì„ í•  ìˆ˜ ìžˆëŠ” ìž…ë ¥ëª¨ë“œë¥¼ 'InputGameModeData'ëž€ ì´ë¦„ìœ¼ë¡œ ì„¤ì •
+		PlayerController->SetInputMode(InputGameModeData); // ìž…ë ¥ ëª¨ë“œë¥¼ ê²Œìž„ ëª¨ë“œë¡œ ì„¤ì •
+		PlayerController->bShowMouseCursor = false; // ë§ˆìš°ìŠ¤ ì»¤ì„œë¥¼ ë³´ì´ê²Œ í•˜ì§€ ì•ŠìŒ.
 	}
 
-	// Viewport¿¡¼­ UI Á¦°Å
+	// Viewportì—ì„œ UI ì œê±°
 	if (this->IsInViewport())
 		this->RemoveFromParent();
 }

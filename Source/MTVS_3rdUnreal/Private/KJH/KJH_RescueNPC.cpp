@@ -7,6 +7,7 @@
 #include "KJH/KJH_GameModeBase.h"
 #include "JSH/JSH_Player.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "KJH/KJH_PlayerState.h"
 
 // Sets default values
 AKJH_RescueNPC::AKJH_RescueNPC()
@@ -65,18 +66,20 @@ void AKJH_RescueNPC::Server_NotifyPlayerContact_Implementation(AJSH_Player* Cont
 {
 	if (HasAuthority())
 	{
-		AKJH_GameModeBase* GameMode = Cast<AKJH_GameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode)
-			GameMode->Multicast_TriggerGameEnd();
-
 		if (ContactPlayer)
 		{
 			ContactPlayer->GetCharacterMovement()->StopMovementImmediately();
 			ContactPlayer->GetCharacterMovement()->DisableMovement();
-		}
 
-		InteractionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 1회 충돌 시, 콜리전 비활성화
-		InteractionSphere->SetSimulatePhysics(false); // 1회 충돌 시, 물리 비활성화
+			// PlayerState를 통해 게임 종료 처리
+			AKJH_PlayerState* PS = ContactPlayer->GetPlayerState<AKJH_PlayerState>();
+			if (PS)
+			{
+				PS->Multicast_TriggerGameEnd();
+			}
+		}
+		InteractionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		InteractionSphere->SetSimulatePhysics(false);
 	}
 }
 

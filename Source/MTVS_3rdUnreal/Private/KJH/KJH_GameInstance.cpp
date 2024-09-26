@@ -96,6 +96,10 @@ void UKJH_GameInstance::OnMapPreloadComplete()
 
 	// 수혁이 맵으로 listen 서버를 열고 이동한다.
 	//GetWorld()->ServerTravel(TEXT("/Game/Blueprints/Player/JSH_TMap?listen"));
+	
+	StopCurrentSound(); // 기존 사운드 중지
+
+	PlayStageSound(); // 베타맵으로 이동하기 직전에 스테이지 사운드로 전환
 
 	GetWorld()->ServerTravel(TEXT("/Game/MAPS/TA_JSY/00_BetaMap/BetaMap?listen"));
 }
@@ -120,8 +124,8 @@ void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, E
 	// 현재 사운드를 중지
 	StopCurrentSound();
 
-	// 서버 위젯 맵으로 이동 (현재 사운드를 유지하지 않음)
-	LoadServerWidgetMap(false);
+	// 서버 위젯 맵으로 이동
+	LoadServerWidgetMap(false); // false 인자를 통해 현재 사운드를 유지하지 않으며 이동
 
 	// 로비 사운드 재생
 	PlayLobbySound();
@@ -353,7 +357,7 @@ void UKJH_GameInstance::CreateInGameWidget()
 	InGameWidget->Setup();
 }
 
-void UKJH_GameInstance::LoadServerWidgetMap(bool bKeepCurrentSound)
+void UKJH_GameInstance::LoadServerWidgetMap(bool bKeepCurrentSound) // true, false 인자를 통해 기존 사운드를 유지하지 않으면서 이동하겠다고 설정가능
 {
 	// AKJH_PlayerController를 가져온다,
 	AKJH_PlayerController* KJHPlayerController = Cast<AKJH_PlayerController>(GetFirstLocalPlayerController());
@@ -361,7 +365,7 @@ void UKJH_GameInstance::LoadServerWidgetMap(bool bKeepCurrentSound)
 	//APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // 컨트롤러가 있으면,
 	{
-		if (!bKeepCurrentSound)
+		if (false == bKeepCurrentSound) // false 인자인 경우 기존 사운드를 유지하지 않으면서 이동
 		{
 			StopCurrentSound();
 		}
@@ -456,10 +460,7 @@ void UKJH_GameInstance::PlayLobbySound()
 void UKJH_GameInstance::PlayStageSound()
 {
 	if (StageSound)
-	{
-		StopCurrentSound();
 		CurrentPlayingSound = UGameplayStatics::SpawnSound2D(this, StageSound, 1.0f, 1.0f, 0.0f);
-	}
 }
 
 // 현재 사운드 재생 중지 함수
