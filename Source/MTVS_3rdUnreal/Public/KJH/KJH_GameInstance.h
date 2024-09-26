@@ -144,5 +144,7 @@ public:
     FString GetAuthToken() const { return AuthToken; }
 
 
-
+	void SetUserId(const FString& NewUserId);
+	FString GetUserId() const;
+	FString UserId;
 };
