@@ -27,6 +27,8 @@ public:
 
 	virtual void Init() override; // GameInstance의 BeginPlay 시 생성자 함수 선언 (초기화만 해줌)
 
+	virtual void OnStart() override; // 게임이 시작될 때 호출되는 함수 (BeginPlay)
+
 ////////// 델리게이트 바인딩 함수 구간 =============================================================================
 	
 	void OnCreateSessionComplete(FName SessionName, bool Success); // 세션 생성 완료 시 호출될 함수
@@ -64,7 +66,7 @@ public:
 
 	// 3) Travel 관련 함수 ------------------------------------------------------------------------------------
 	UFUNCTION(BlueprintCallable, Category = "Load Widget Map")
-	void LoadServerWidgetMap(); // ServerWidget UI가 있는 맵으로 로드시키는 함수 (UI를 레벨에 Attach 해놓았음.)
+	void LoadServerWidgetMap(bool bKeepCurrentSound); // ServerWidget UI가 있는 맵으로 로드시키는 함수 (UI를 레벨에 Attach 해놓았음.)
 
 
 	// 4) 캐릭터 선택 관련 함수 --------------------------------------------------------------------------------
@@ -80,6 +82,7 @@ public:
 	void PlayLobbySound(); // 로비 사운드 재생 함수
 	void PlayStageSound(); // 시뮬레이션 스테이지 사운드 재생 함수
 	void StopCurrentSound(); // 현재 사운드 재생 중지 함수
+	void ContinueCurrentSound(); // 현재 사운드 유지 함수
 
 ////////// TSubclass & class 참조 구간 ==========================================================================
 	// 1) UI 관련 참조 ------------------------------------------------------------------------------------------
@@ -104,14 +107,14 @@ public:
 	class UKJH_LoadingWidget* LoadingWidget; // CharacterSelectWidget(UI) 참조 선언
 
 	// 2) 사운드 관련 참조 ----------------------------------------------------------------------------------------------
-	UPROPERTY(Transient)
-	class UAudioComponent* AudioComponent; // 여러 사운드 관리를 위한 컴포넌트 참조
-	
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class USoundWave* LobbySound; // 로비 사운드
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class USoundWave* StageSound; // 스테이지(맵) 사운드
+
+	UPROPERTY()
+	class UAudioComponent* CurrentPlayingSound; // 현재 재생 중인 사운드를 추적하기 위한 변수 추가
 
 ////////// 전역 변수 & 인스턴스 선언 구간 -------------------------------------------------------------------------------
 

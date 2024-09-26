@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,10 +23,10 @@ class MTVS_3RDUNREAL_API IKJH_Interface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void Host(FString ServerName) = 0; // = 0 À» ÇÏ¸é ºñ¾îÁ® ÀÖ´Â ±¸ÇöÀ» °¡Áö°í ÀÖ´Ù´Â ¶æ. (¼ø¼ö°¡»ó) ½ÇÁ¦·Î´Â GameInstance¿¡¼­ ±¸ÇöÇØÁÙ°Å´Ù.
+	virtual void Host(FString ServerName) = 0; // = 0 ì„ í•˜ë©´ ë¹„ì–´ì ¸ ìˆëŠ” êµ¬í˜„ì„ ê°€ì§€ê³  ìˆë‹¤ëŠ” ëœ». (ìˆœìˆ˜ê°€ìƒ) ì‹¤ì œë¡œëŠ” GameInstanceì—ì„œ êµ¬í˜„í•´ì¤„ê±°ë‹¤.
 
-	virtual void Join(uint32 Index) = 0; // À§¿Í °°Àº ·ÎÁ÷
-	virtual void LoadServerWidgetMap() = 0; // À§¿Í °°Àº ·ÎÁ÷
-	virtual void RefreshServerList() = 0; // À§¿Í °°Àº ·ÎÁ÷
+	virtual void Join(uint32 Index) = 0; // ìœ„ì™€ ê°™ì€ ë¡œì§
+	virtual void LoadServerWidgetMap(bool bKeepCurrentSound) = 0; // ìœ„ì™€ ê°™ì€ ë¡œì§
+	virtual void RefreshServerList() = 0; // ìœ„ì™€ ê°™ì€ ë¡œì§
 
 };

@@ -432,7 +432,8 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 				if (GameInstance)
 				{
 					GameInstance->SetAuthToken(AuthToken);
-					GameInstance->LoadServerWidgetMap();
+					GameInstance->ContinueCurrentSound(); // 로그인 성공 시에도 현재 사운드 계속 재생
+					GameInstance->LoadServerWidgetMap(true);
 				}
 			}
 		}
@@ -480,5 +481,11 @@ void UKJH_LoginWidget::OnMyGuestLogin()
 {
 	UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
-		GameInstance->LoadServerWidgetMap();
+	{
+		// 현재 사운드를 유지하면서 ServerWidgetMap 로드
+		GameInstance->LoadServerWidgetMap(true);
+
+		// 사운드 계속 재생
+		GameInstance->ContinueCurrentSound();
+	}
 }

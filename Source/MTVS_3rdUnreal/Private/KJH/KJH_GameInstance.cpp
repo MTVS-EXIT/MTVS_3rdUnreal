@@ -20,6 +20,7 @@
 #include "KJH/KJH_PlayerController.h"
 #include "KJH/KJH_LoginWidget.h"
 #include "KJH/KJH_LoadingWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 // 세션 생성에 사용할 수 있는 세션 이름을 전역 상수로 정의
 const static FName SESSION_NAME = TEXT("EXIT Session Game");
@@ -33,18 +34,6 @@ UKJH_GameInstance::UKJH_GameInstance(const FObjectInitializer& ObjectInitializer
 void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생성자. 초기화만 시켜준다.
 {
 	Super::Init();
-
-	// AudioComponent 초기화
-	AudioComponent = NewObject<UAudioComponent>(this, TEXT("BGMAudioComponent"));
-	if (AudioComponent)
-	{
-		AudioComponent->bAutoActivate = false;
-		AudioComponent->bAllowSpatialization = false;
-		AudioComponent->SetVolumeMultiplier(1.f);
-	}
-
-	// 초기에는 1번 사운드 재생
-	PlayLobbySound();
 
 	// ---------------------------------------------------------------------------------------------------------- //
 
@@ -64,6 +53,12 @@ void UKJH_GameInstance::Init() // 플레이를 눌렀을 때만 실행하는 생
 			SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UKJH_GameInstance::OnJoinSessionComplete);
 		}
 	}
+}
+
+void UKJH_GameInstance::OnStart()
+{
+	// 처음에는 로비 사운드 재생
+	PlayLobbySound();
 }
 
 ////////// 델리게이트 바인딩 함수 구간 시작 ------------------------------------------------------------------------------
@@ -122,7 +117,14 @@ void UKJH_GameInstance::OnDestroySessionComplete(FName SessionName, bool Success
 
 void UKJH_GameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
 {
-	LoadServerWidgetMap();
+	// 현재 사운드를 중지
+	StopCurrentSound();
+
+	// 서버 위젯 맵으로 이동 (현재 사운드를 유지하지 않음)
+	LoadServerWidgetMap(false);
+
+	// 로비 사운드 재생
+	PlayLobbySound();
 }
 
 void UKJH_GameInstance::RefreshServerList()
@@ -351,7 +353,7 @@ void UKJH_GameInstance::CreateInGameWidget()
 	InGameWidget->Setup();
 }
 
-void UKJH_GameInstance::LoadServerWidgetMap()
+void UKJH_GameInstance::LoadServerWidgetMap(bool bKeepCurrentSound)
 {
 	// AKJH_PlayerController를 가져온다,
 	AKJH_PlayerController* KJHPlayerController = Cast<AKJH_PlayerController>(GetFirstLocalPlayerController());
@@ -359,6 +361,15 @@ void UKJH_GameInstance::LoadServerWidgetMap()
 	//APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (KJHPlayerController && KJHPlayerController->IsLocalController()) // 컨트롤러가 있으면,
 	{
+		if (!bKeepCurrentSound)
+		{
+			StopCurrentSound();
+		}
+		else
+		{
+			ContinueCurrentSound();
+		}
+
 		// ServerUI가 있는 맵으로 이동시킨다.
 		KJHPlayerController->ClientTravel("/Game/MAPS/KJH/ServerWidgetMap", ETravelType::TRAVEL_Absolute);
 	}
@@ -426,37 +437,54 @@ void UKJH_GameInstance::ServerNotifyCharacterSelected_Implementation(APlayerCont
 // 로비 사운드 재생 함수
 void UKJH_GameInstance::PlayLobbySound()
 {
-	if (LobbySound && AudioComponent)
+	if (LobbySound)
 	{
-		// 이전에 재생 중인 음성을 멈춘 후
-		StopCurrentSound();
-
-		// 오디오 컴포넌트를 로비 사운드로 설정하고 재생
-		AudioComponent->SetSound(LobbySound);
-		AudioComponent->Play();
+		if (CurrentPlayingSound)
+		{
+			CurrentPlayingSound->Stop();
+		}
+		CurrentPlayingSound = UGameplayStatics::SpawnSound2D(this, LobbySound, 1.0f, 1.0f, 0.0f, nullptr, true, false);
+		UE_LOG(LogTemp, Warning, TEXT("Started playing lobby sound"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LobbySound is not set"));
 	}
 }
 
 // 시뮬레이션 스테이지 사운드 재생 함수
 void UKJH_GameInstance::PlayStageSound()
 {
-	if (StageSound && AudioComponent)
+	if (StageSound)
 	{
-		// 이전에 재생 중인 음성을 멈춘 후
 		StopCurrentSound();
-
-		// 오디오 컴포넌트를 스테이지(맵) 사운드로 설정하고 재생
-		AudioComponent->SetSound(StageSound);
-		AudioComponent->Play();
+		CurrentPlayingSound = UGameplayStatics::SpawnSound2D(this, StageSound, 1.0f, 1.0f, 0.0f);
 	}
 }
 
 // 현재 사운드 재생 중지 함수
 void UKJH_GameInstance::StopCurrentSound()
 {
-	// 현재 재생 중인 음성이 있으면 중지
-	if (AudioComponent && AudioComponent->IsPlaying())
-		AudioComponent->Stop();
+	if (CurrentPlayingSound && CurrentPlayingSound->IsPlaying())
+	{
+		CurrentPlayingSound->Stop();
+		UE_LOG(LogTemp, Warning, TEXT("Stopped current sound"));
+	}
+}
+
+// 현재 사운드 유지 함수
+void UKJH_GameInstance::ContinueCurrentSound()
+{
+	// 현재 재생 중인 사운드가 있다면 계속 재생
+	if (CurrentPlayingSound && !CurrentPlayingSound->IsPlaying())
+	{
+		CurrentPlayingSound->Play();
+	}
+	else if (!CurrentPlayingSound)
+	{
+		// 현재 재생 중인 사운드가 없다면 로비 사운드 재생
+		PlayLobbySound();
+	}
 }
 
 ////////// Temp ================================================================================================================================
