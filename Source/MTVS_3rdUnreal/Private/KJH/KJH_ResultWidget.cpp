@@ -14,12 +14,14 @@ bool UKJH_ResultWidget::Initialize()
     if (CommonResultMenu_QuitButton)
         CommonResultMenu_QuitButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::QuitPressed); // Quit 버튼 눌렀을 때 QuitPressed 함수 호출
     
+    if (CommonButton_Report)
+        CommonButton_Report->OnClicked.AddDynamic(this, &UKJH_ResultWidget::MoveToReportWeb); // CommonButton_Report 버튼 눌렀을 때 MoveToReportWeb 함수 호출
+
     if (DroneResultMenu_PersonResultButton)
         DroneResultMenu_PersonResultButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::SwitchToPersonResultMenu); // PersonResultButton 버튼 눌렀을 때 SwitchToPersonResultMenu 함수 호출
 
     if (PersonResultMenu_DroneResultButton)
         PersonResultMenu_DroneResultButton->OnClicked.AddDynamic(this, &UKJH_ResultWidget::SwitchToDroneResultMenu); // DroneResultButton 버튼 눌렀을 때 SwitchToDroneResultMenu 함수 호출
-
 
 	return true;
 }
@@ -29,7 +31,7 @@ void UKJH_ResultWidget::QuitPressed()
 {
     if (MenuInterface)
     {
-        MenuInterface->LoadServerWidgetMap(false); // ServerWidget맵으로 이동
+        MenuInterface->LoadServerWidgetMap(false); // false 인자를 통해 현재 사운드를 유지하지 않으며 이동
         Teardown(); // Widget 파괴
     }
 }
@@ -139,4 +141,9 @@ void UKJH_ResultWidget::SetResultData(int32 PersonSearchRoomResult, int32 Person
 
     if (DroneResultMenu_SafeDetectedNum)
         DroneResultMenu_SafeDetectedNum->SetText(FText::FromString(FormatNumber(DroneDetectedSafeResult)));
+}
+
+void UKJH_ResultWidget::MoveToReportWeb()
+{
+
 }

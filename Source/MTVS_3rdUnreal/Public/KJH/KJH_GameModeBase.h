@@ -37,15 +37,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
 	TSubclassOf<class AActor> BP_RescueNPCClass; // 구조자(NPC) BP 참조
 
-    UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<class UKJH_WidgetSystem> ResultWidgetClass; // 플레이 결과 UI 클래스 참조
+    //UPROPERTY(EditDefaultsOnly, Category = "UI")
+    //TSubclassOf<class UKJH_WidgetSystem> ResultWidgetClass; // 플레이 결과 UI 클래스 참조
 
 ////////// 변수 참조 구간 ===============================================================================================
-	bool bIsGameEnded; // 플레이 종료되었는지 여부 확인
+	//bool bIsGameEnded; // 플레이 종료되었는지 여부 확인
 
 ////////// 사용자 정의형 함수 구간 ===============================================================================================
 	void OnMySpawnRescueNPC();
 
-    UFUNCTION(NetMulticast, Reliable)
-    void Multicast_TriggerGameEnd(); // 플레이 종료를 알리는 RPC 함수
+    //UFUNCTION(NetMulticast, Reliable)
+    //void Multicast_TriggerGameEnd(); // 플레이 종료를 알리는 RPC 함수
 };

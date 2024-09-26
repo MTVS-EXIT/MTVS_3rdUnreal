@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KJH/KJH_CharacterSelectWidget.h"
@@ -9,6 +9,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "KJH/KJH_PlayerController.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 UKJH_CharacterSelectWidget::UKJH_CharacterSelectWidget(const FObjectInitializer& ObjectInitialize)
 {
@@ -18,10 +19,10 @@ UKJH_CharacterSelectWidget::UKJH_CharacterSelectWidget(const FObjectInitializer&
 bool UKJH_CharacterSelectWidget::Initialize()
 {
 
-	bool Success = Super::Initialize(); // Super::Initialize() È£Ãâ·Î ±âº» ÃÊ±âÈ­°¡ Á¤»óÀûÀ¸·Î µÇ´ÂÁö È®ÀÎ
+	bool Success = Super::Initialize(); // Super::Initialize() í˜¸ì¶œë¡œ ê¸°ë³¸ ì´ˆê¸°í™”ê°€ ì •ìƒì ìœ¼ë¡œ ë˜ëŠ”ì§€ í™•ì¸
 	if (!Success) return false;
 
-////////// Ä³¸¯ÅÍ ¼±ÅÃ ¹öÆ° ¹ÙÀÎµù ±¸°£ -------------------------------------------------------------------------------------------------------------
+////////// ìºë¦­í„° ì„ íƒ ë²„íŠ¼ ë°”ì¸ë”© êµ¬ê°„ -------------------------------------------------------------------------------------------------------------
 
 	if (PersonSelectButton)
 		PersonSelectButton->OnClicked.AddDynamic(this, &UKJH_CharacterSelectWidget::SelectPersonCharacter);
@@ -29,19 +30,19 @@ bool UKJH_CharacterSelectWidget::Initialize()
 	if (DroneSelectButton)
 		DroneSelectButton->OnClicked.AddDynamic(this, &UKJH_CharacterSelectWidget::SelectDroneCharacter);
 
-	// Ä³¸¯ÅÍ ¼±ÅÃ ¹öÆ° »óÅÂ ¾÷µ¥ÀÌÆ®
+	// ìºë¦­í„° ì„ íƒ ë²„íŠ¼ ìƒíƒœ ì—…ë°ì´íŠ¸
 	UpdateSelectButtonStates();
 
 	return true;
 }
 
-////////// Ä³¸¯ÅÍ ¼±ÅÃ Ã³¸® °ü·Ã ÇÔ¼ö -------------------------------------------------------------------------------------------
+////////// ìºë¦­í„° ì„ íƒ ì²˜ë¦¬ ê´€ë ¨ í•¨ìˆ˜ -------------------------------------------------------------------------------------------
 void UKJH_CharacterSelectWidget::ShowCharacterSelect()
 {
-	// WidgetSwitcher Å¸ÀÔÀÎ MenuSwitcher°¡ ÀÖÀ¸¸é
+	// WidgetSwitcher íƒ€ì…ì¸ MenuSwitcherê°€ ìˆìœ¼ë©´
 	if (MenuSwitcher)
 	{
-		MenuSwitcher->SetActiveWidget(CharacterSelectMenu); // CharacterSelectMenu·Î ÀüÈ¯ÇÏ¿© È°¼ºÈ­ÇÑ´Ù.
+		MenuSwitcher->SetActiveWidget(CharacterSelectMenu); // CharacterSelectMenuë¡œ ì „í™˜í•˜ì—¬ í™œì„±í™”í•œë‹¤.
 		UE_LOG(LogTemp, Warning, TEXT("CharacterSelectMenu is Activate"));
 	}
 }
@@ -56,7 +57,7 @@ void UKJH_CharacterSelectWidget::SelectPersonCharacter()
 		UE_LOG(LogTemp, Warning, TEXT("Person Character Selected"));
 		UpdateSelectButtonStates();
 
-		// ½ºÆù ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ ÃæºĞÈ÷ Àç»ıµÈ ÈÄ Teardown
+		// ìŠ¤í° ì• ë‹ˆë©”ì´ì…˜ì´ ì¶©ë¶„íˆ ì¬ìƒëœ í›„ Teardown
 		FTimerHandle TimerHandle_TeardownControl;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TeardownControl, [this]()
 		{
@@ -75,7 +76,7 @@ void UKJH_CharacterSelectWidget::SelectDroneCharacter()
 		UE_LOG(LogTemp, Warning, TEXT("Drone Character Selected"));
 		UpdateSelectButtonStates();
 
-		// ½ºÆù ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ ÃæºĞÈ÷ Àç»ıµÈ ÈÄ Teardown
+		// ìŠ¤í° ì• ë‹ˆë©”ì´ì…˜ì´ ì¶©ë¶„íˆ ì¬ìƒëœ í›„ Teardown
 		FTimerHandle TimerHandle_TeardownControl;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TeardownControl, [this]()
 		{
@@ -86,25 +87,25 @@ void UKJH_CharacterSelectWidget::SelectDroneCharacter()
 
 void UKJH_CharacterSelectWidget::UpdateSelectButtonStates()
 {
-	// ÇÃ·¹ÀÌ¾î°¡ ¾î¶² Ä³¸¯ÅÍ¸¦ ¼±ÅÃÇß´ÂÁö ¾Ë±âÀ§ÇØ ±× Á¤º¸¸¦ ´ã°í ÀÖ´Â °ÔÀÓÀÎ½ºÅÏ½º¸¦ °¡Á®¿Â´Ù.
+	// í”Œë ˆì´ì–´ê°€ ì–´ë–¤ ìºë¦­í„°ë¥¼ ì„ íƒí–ˆëŠ”ì§€ ì•Œê¸°ìœ„í•´ ê·¸ ì •ë³´ë¥¼ ë‹´ê³  ìˆëŠ” ê²Œì„ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 	GameInstance = Cast<UKJH_GameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
-		// ¹öÆ° È°¼ºÈ­/ºñÈ°¼ºÈ­ ¼³Á¤ ±¸°£
+		// ë²„íŠ¼ í™œì„±í™”/ë¹„í™œì„±í™” ì„¤ì • êµ¬ê°„
 		if (GameInstance->bIsPersonSelected)
-			PersonSelectButton->SetIsEnabled(false); // »ç¶÷ ÇÃ·¹ÀÌ¾î ¹öÆ°ÀÌ ÀÌ¹Ì ¼±ÅÃµÈ °æ¿ì ºñÈ°¼ºÈ­
+			PersonSelectButton->SetIsEnabled(false); // ì‚¬ëŒ í”Œë ˆì´ì–´ ë²„íŠ¼ì´ ì´ë¯¸ ì„ íƒëœ ê²½ìš° ë¹„í™œì„±í™”
 
 		if (GameInstance->bIsDroneSelected)
-			DroneSelectButton->SetIsEnabled(false); // µå·Ğ ÇÃ·¹ÀÌ¾î ¹öÆ°ÀÌ ÀÌ¹Ì ¼±ÅÃµÈ °æ¿ì ºñÈ°¼ºÈ­
+			DroneSelectButton->SetIsEnabled(false); // ë“œë¡  í”Œë ˆì´ì–´ ë²„íŠ¼ì´ ì´ë¯¸ ì„ íƒëœ ê²½ìš° ë¹„í™œì„±í™”
 	}
 }
 
 void UKJH_CharacterSelectWidget::ShowSpawnWidget()
 {
-	// WidgetSwitcher Å¸ÀÔÀÎ MenuSwitcher°¡ ÀÖÀ¸¸é
+	// WidgetSwitcher íƒ€ì…ì¸ MenuSwitcherê°€ ìˆìœ¼ë©´
 	if (MenuSwitcher)
 	{
-		MenuSwitcher->SetActiveWidget(CharacterSpawnWidget); // CharacterSpawnWidget·Î ÀüÈ¯ÇÏ¿© È°¼ºÈ­ÇÑ´Ù.
+		MenuSwitcher->SetActiveWidget(CharacterSpawnWidget); // CharacterSpawnWidgetë¡œ ì „í™˜í•˜ì—¬ í™œì„±í™”í•œë‹¤.
 		UE_LOG(LogTemp, Warning, TEXT("CharacterSpawnWidget is Activate"));
 	}
 
@@ -114,6 +115,7 @@ void UKJH_CharacterSelectWidget::ShowSpawnWidget()
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_TransitionAnimControl, [this]()
 		{
 			PlayAnimation(ShowSpawnTransitionAnim);
+			UGameplayStatics::PlaySound2D(this, SpawnNoiseSound, 1.0f, 1.0f, 0.0f);
 		}, 2.3f, false);
 	}
 }

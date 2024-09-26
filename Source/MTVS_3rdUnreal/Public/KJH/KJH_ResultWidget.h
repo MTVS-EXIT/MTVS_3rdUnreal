@@ -27,6 +27,9 @@ public :
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	class UButton* CommonResultMenu_QuitButton; // 플레이를 종료하여 메인메뉴로 이동하는 버튼
 
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	class UButton* CommonButton_Report; // 플레이 결과 리더보드를 볼 수 있는 버튼
+
 	// 3) 소방관 플레이어 메뉴 관련 ------------------------------------------------------------------
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* PersonResultMenu; // 소방관 플레이어 결과 메뉴 위젯
@@ -97,5 +100,6 @@ public :
 	void SetResultData(int32  PersonSearchRoomResult, int32 PersonItemUsedResult, int32 PersonDamageResult,
 					   int32 DroneDetectedResult, int32 DroneDetectedSafeResult, int32 DroneDetectedCautionResult, int32 DroneDetectedDangerResult);
 
-
+	UFUNCTION()
+	void MoveToReportWeb();
 };

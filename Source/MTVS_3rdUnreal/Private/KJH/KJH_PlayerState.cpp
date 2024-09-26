@@ -6,6 +6,8 @@
 #include "HttpModule.h"
 #include "KJH/KJH_GameInstance.h"
 #include "HttpFwd.h"
+#include "KJH/KJH_ResultWidget.h"
+#include "Engine/World.h"
 
 
 AKJH_PlayerState::AKJH_PlayerState()
@@ -145,5 +147,59 @@ void AKJH_PlayerState::OnDataSendComplete(FHttpRequestPtr Request, FHttpResponse
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to send data to server."));
+    }
+}
+
+////////// Temp ======================================================================
+void AKJH_PlayerState::Multicast_TriggerGameEnd_Implementation()
+{
+    // 서버에서 실행 중인 경우 (리슨 서버 포함)
+    if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_DedicatedServer)
+    {
+        // 모든 플레이어에 대해 ShowResultWidget 호출
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        {
+            APlayerController* PC = It->Get();
+            if (PC)
+            {
+                AKJH_PlayerState* PS = PC->GetPlayerState<AKJH_PlayerState>();
+                if (PS)
+                {
+                    PS->ShowResultWidget();
+                }
+            }
+        }
+    }
+
+    // 리슨 서버의 로컬 플레이어이거나 일반 클라이언트인 경우
+    if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_Client)
+    {
+        ShowResultWidget();
+    }
+}
+
+void AKJH_PlayerState::ShowResultWidget()
+{
+    APlayerController* PC = Cast<APlayerController>(GetOwner());
+    if (PC && ResultWidgetClass)
+    {
+        UKJH_ResultWidget* ResultWidget = CreateWidget<UKJH_ResultWidget>(PC, ResultWidgetClass);
+        if (ResultWidget)
+        {
+
+            UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+            if (GameInstance)
+            {
+                ResultWidget->SetMyInterface(GameInstance);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to get GameInstance"));
+            }
+            ResultWidget->Setup();
+            ResultWidget->SetResultData(PersonState_SearchRoomCount, PersonState_ItemUsedCount, PersonState_DamageCount,
+                                        DroneState_DetectedCount, DroneState_DetectedSafeCount, DroneState_DetectedCautionCount, DroneState_DetectedDangerCount);
+            ResultWidget->PlayResultAnimations();
+        }
     }
 }

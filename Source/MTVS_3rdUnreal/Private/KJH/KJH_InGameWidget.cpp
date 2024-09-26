@@ -38,7 +38,7 @@ void UKJH_InGameWidget::QuitPressed()
 {
 	if (MenuInterface)
 	{
-		MenuInterface->LoadServerWidgetMap(false); // ServerWidget맵으로 이동
+		MenuInterface->LoadServerWidgetMap(false); // false 인자를 통해 현재 사운드를 유지하지 않으며 이동
 		Teardown(); // Widget 파괴
 	}
 }
