@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "KJH/KJH_WidgetSystem.h"
+#include "HttpModule.h"                   
+#include "Interfaces/IHttpRequest.h"      
+#include "Interfaces/IHttpResponse.h"     
 #include "KJH_ResultWidget.generated.h"
 
 /**
@@ -102,4 +105,7 @@ public :
 
 	UFUNCTION()
 	void MoveToReportWeb();
+
+	// HTTP 요청 완료 후 호출되는 함수
+	void OnReportDataSent(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

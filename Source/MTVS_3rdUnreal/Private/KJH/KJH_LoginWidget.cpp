@@ -382,62 +382,63 @@ void UKJH_LoginWidget::OnLoginResponseReceived(FHttpRequestPtr Request, FHttpRes
 	FString ResponseContent = Response->GetContentAsString();
 	UE_LOG(LogTemp, Log, TEXT("Login Response: %s"), *ResponseContent);  // 받은 응답을 로그로 출력
 
-	//// 새로 추가: 응답 헤더 로깅
-	//TArray<FString> Headers = Response->GetAllHeaders();
-	//UE_LOG(LogTemp, Log, TEXT("Response Headers:"));
-	//for (const FString& Header : Headers)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("%s"), *Header);
-	//}
+	// 새로 추가: 응답 헤더 로깅
+	TArray<FString> Headers = Response->GetAllHeaders();
+	UE_LOG(LogTemp, Log, TEXT("Response Headers:"));
+	for (const FString& Header : Headers)
+	{
+		UE_LOG(LogTemp, Log, TEXT("%s"), *Header);
+	}
 
-	//// 특정 헤더 값 가져오기 (예: Authorization 토큰)
-	//FString AuthToken;
-	//if (Response->GetHeader(TEXT("Authorization")).IsEmpty() == false)
-	//{
-	//	AuthToken = Response->GetHeader(TEXT("Authorization"));
-	//	UE_LOG(LogTemp, Log, TEXT("Authorization Token: %s"), *AuthToken);
+	// 특정 헤더 값 가져오기 (예: Authorization 토큰)
+	FString AuthToken;
+	if (Response->GetHeader(TEXT("Authorization")).IsEmpty() == false)
+	{
+		AuthToken = Response->GetHeader(TEXT("Authorization"));
+		UE_LOG(LogTemp, Log, TEXT("Authorization Token: %s"), *AuthToken);
 
-	//	// GameInstance에 토큰 저장
-	//	if (UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance()))
-	//	{
-	//		GameInstance->SetAuthToken(AuthToken);
-	//		UE_LOG(LogTemp, Log, TEXT("Auth Token saved to GameInstance"));
-	//	}
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Authorization header not found"));
-	//}
+		// GameInstance에 토큰 저장
+		if (UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance()))
+		{
+			GameInstance->SetAuthToken(AuthToken);
+			UE_LOG(LogTemp, Log, TEXT("Auth Token saved to GameInstance"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Authorization header not found"));
+	}
 
 	// 3. JSON 응답을 처리하기 위해 JSON 객체 생성
 	TSharedPtr<FJsonObject> JsonObject;
-
-	// 4. 응답 내용을 Json 형식으로 읽기 위한 리더 객체 생성
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseContent);
 
-	// 5. JSON 응답을 파싱(구문 해석), 성공적으로 파싱 시, JsonObject에 데이터 삽입
+	// 4. JSON 응답을 파싱(구문 해석), 성공적으로 파싱 시, JsonObject에 데이터 삽입
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
-		// 6. 서버 응답에서 "success" 라는 필드를 찾아, 성공 여부를 확인
+		// 5. 서버 응답에서 "success" 라는 필드를 찾아, 성공 여부를 확인
 		bool bSuccess = JsonObject->GetBoolField(TEXT("success"));
 
 		if (bSuccess) // 로그인에 성공 시, 게임 인스턴스를 가져와 ServerWidgetMap으로 이동
 		{
 			// 로그인 성공 처리
-			FString AuthToken;
-			FString UserId;
-			if (JsonObject->TryGetStringField(TEXT("token"), AuthToken) &&
-				JsonObject->TryGetStringField(TEXT("userId"), UserId))
+			UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
+			if (GameInstance)
 			{
-				// 토큰 저장 및 다음 단계로 진행
-				UKJH_GameInstance* GameInstance = Cast<UKJH_GameInstance>(GetWorld()->GetGameInstance());
-				if (GameInstance)
+				// UserId 저장 (JSON 응답에 포함되어 있다고 가정)
+				FString UserId;
+				if (JsonObject->TryGetStringField(TEXT("userId"), UserId))
 				{
-					GameInstance->SetAuthToken(AuthToken);
 					GameInstance->SetUserId(UserId);
-					GameInstance->ContinueCurrentSound(); // 로그인 성공 시에도 현재 사운드 계속 재생
-					GameInstance->LoadServerWidgetMap(true); // true 인자를 통해 현재 사운드를 유지하며 이동
 				}
+
+				GameInstance->ContinueCurrentSound(); // 로그인 성공 시에도 현재 사운드 계속 재생
+				GameInstance->LoadServerWidgetMap(true); // true 인자를 통해 현재 사운드를 유지하며 이동
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Failed to get GameInstance"));
+				ShowLoginFailureUI();
 			}
 		}
 		else

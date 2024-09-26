@@ -90,15 +90,27 @@ void AKJH_PlayerState::SendDataToServer()
     // 2) PlayerState의 모든 관련 데이터를 JSON 객체에 추가
     JsonObject->SetBoolField("bIsPersonCharacterSelected", bIsPersonCharacterSelected);  // 플레이어가 소방관인지 드론인지 여부
 
+    FString URL;
+    if (bIsPersonCharacterSelected)
+    {
+        // 사람 캐릭터 데이터
+        JsonObject->SetNumberField("room", PersonState_SearchRoomCount);  // 소방관이 탐색한 방의 수
+        JsonObject->SetNumberField("item", PersonState_ItemUsedCount);  // 소방관이 사용한 아이템의 수
+        JsonObject->SetNumberField("damage", PersonState_DamageCount);  // 소방관이 받은 데미지 횟수
 
+        // 주의: 이 URL은 Swagger UI를 가리키고 있습니다. 실제 API 엔드포인트로 변경해야 할 수 있습니다.
+        URL = "http://125.132.216.190:7757/api/rank";
+    }
+    else
+    {
+        // 드론 캐릭터 데이터
+        JsonObject->SetNumberField("detection", DroneState_DetectedCount);  // 드론이 감지한 총 횟수
+        JsonObject->SetNumberField("safe", DroneState_DetectedSafeCount);  // 드론이 감지한 안전 물체의 수
+        JsonObject->SetNumberField("caution", DroneState_DetectedCautionCount);  // 드론이 감지한 주의 물체의 수
+        JsonObject->SetNumberField("danger", DroneState_DetectedDangerCount);  // 드론이 감지한 위험 물체의 수
 
-    JsonObject->SetNumberField("PersonState_SearchRoomCount", PersonState_SearchRoomCount);  // 소방관이 탐색한 방의 수
-    JsonObject->SetNumberField("PersonState_ItemUsedCount", PersonState_ItemUsedCount);  // 소방관이 사용한 아이템의 수
-    JsonObject->SetNumberField("PersonState_DamageCount", PersonState_DamageCount);  // 소방관이 받은 데미지 횟수
-    JsonObject->SetNumberField("DroneState_DetectedCount", DroneState_DetectedCount);  // 드론이 감지한 총 횟수
-    JsonObject->SetNumberField("DroneState_DetectedSafeCount", DroneState_DetectedSafeCount);  // 드론이 감지한 안전 물체의 수
-    JsonObject->SetNumberField("DroneState_DetectedCautionCount", DroneState_DetectedCautionCount);  // 드론이 감지한 주의 물체의 수
-    JsonObject->SetNumberField("DroneState_DetectedDangerCount", DroneState_DetectedDangerCount);  // 드론이 감지한 위험 물체의 수
+        URL = "http://125.132.216.190:7757/api/drank";
+    }
 
     // 3) JSON 객체를 문자열로 변환
     FString JsonString;
@@ -112,7 +124,7 @@ void AKJH_PlayerState::SendDataToServer()
     Request->OnProcessRequestComplete().BindUObject(this, &AKJH_PlayerState::OnDataSendComplete);
 
     // 6) 요청을 보낼 서버의 URL 설정
-    Request->SetURL("http://125.132.216.190:7757/api/result/save"); // 백엔드 URL 삽입
+    Request->SetURL(URL); // 백엔드 URL 삽입
 
     // 7) HTTP 메소드를 POST로 설정
     Request->SetVerb("POST");
