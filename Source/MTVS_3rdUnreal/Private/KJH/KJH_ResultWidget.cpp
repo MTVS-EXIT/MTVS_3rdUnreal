@@ -7,7 +7,10 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/TextBlock.h"
 #include "KJH/KJH_GameInstance.h"
-#include "GenericPlatform/GenericPlatformHttp.h"
+#include "KJH/KJH_PlayerState.h"  
+#include "HttpModule.h"                  
+#include "Interfaces/IHttpRequest.h"     
+#include "Interfaces/IHttpResponse.h"           
 
 bool UKJH_ResultWidget::Initialize()
 {
@@ -154,25 +157,93 @@ void UKJH_ResultWidget::MoveToReportWeb()
         return;
     }
 
-    FString UserId = GameInstance->GetUserId();
-    FString AuthToken = GameInstance->GetAuthToken();
-
-    if (UserId.IsEmpty() || AuthToken.IsEmpty())
+    APlayerController* PC = GetOwningPlayer();
+    if (!PC)
     {
-        UE_LOG(LogTemp, Warning, TEXT("User ID or Auth Token is empty"));
+        UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerController"));
         return;
     }
 
-    FString BaseUrl = "";
-    FString FinalUrl = FString::Printf(TEXT("%s?userId=%s"), *BaseUrl, *UserId);
+    AKJH_PlayerState* PlayerState = PC->GetPlayerState<AKJH_PlayerState>();
+    if (!PlayerState)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerState"));
+        return;
+    }
 
-    // URL 인코딩
-    FinalUrl = FGenericPlatformHttp::UrlEncode(FinalUrl);
+    // JSON 객체 생성
+    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 
-    // 웹 브라우저를 열 때 인증 토큰을 헤더에 포함시킬 수 없으므로, 
-    // 백엔드에서 토큰 검증을 위한 별도의 엔드포인트를 구현하는 것이 좋습니다.
-    // 여기서는 간단히 URL을 열기만 합니다.
-    FPlatformProcess::LaunchURL(*FinalUrl, nullptr, nullptr);
+    // 플레이어 데이터 추가
+    if (PlayerState->bIsPersonCharacterSelected)
+    {
+        JsonObject->SetNumberField("room", PlayerState->PersonState_SearchRoomCount);
+        JsonObject->SetNumberField("item", PlayerState->PersonState_ItemUsedCount);
+        JsonObject->SetNumberField("damage", PlayerState->PersonState_DamageCount);
+    }
+    else
+    {
+        JsonObject->SetNumberField("detection", PlayerState->DroneState_DetectedCount);
+        JsonObject->SetNumberField("safe", PlayerState->DroneState_DetectedSafeCount);
+        JsonObject->SetNumberField("caution", PlayerState->DroneState_DetectedCautionCount);
+        JsonObject->SetNumberField("danger", PlayerState->DroneState_DetectedDangerCount);
+    }
 
-    UE_LOG(LogTemp, Log, TEXT("Moving to report web page: %s"), *FinalUrl);
+    // JSON을 문자열로 변환
+    FString JsonString;
+    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+
+    // HTTP 요청 생성
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+
+    // URL 설정
+    FString URL;
+    if (PlayerState->bIsPersonCharacterSelected)
+    {
+        URL = "http://125.132.216.190:7757/api/rank";
+    }
+    else
+    {
+        URL = "http://125.132.216.190:7757/api/drank";
+    }
+    Request->SetURL(URL);
+
+    Request->SetVerb("POST");
+    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+    Request->SetContentAsString(JsonString);
+
+    // 인증 토큰 추가
+    FString AuthToken = GameInstance->GetAuthToken();
+    if (!AuthToken.IsEmpty())
+    {
+        Request->SetHeader(TEXT("Authorization"), FString::Printf(TEXT("Bearer %s"), *AuthToken));
+    }
+
+    // 요청 완료 시 호출될 함수 설정
+    Request->OnProcessRequestComplete().BindUObject(this, &UKJH_ResultWidget::OnReportDataSent);
+
+    // 요청 전송
+    Request->ProcessRequest();
+}
+
+void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+    if (bWasSuccessful)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Data sent successfully to server."));
+
+        // 리더보드 웹 페이지로 이동
+        FPlatformProcess::LaunchURL(TEXT("http://125.132.216.190:7758/"), nullptr, nullptr); // 리더보드 URL로 이동
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to send data to server."));
+
+        // 실패 시 사용자에게 알림 (팝업 메시지 등)
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("데이터 전송에 실패했습니다."));
+        }
+    }
 }
