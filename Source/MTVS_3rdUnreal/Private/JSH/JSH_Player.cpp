@@ -186,8 +186,6 @@ AJSH_Player::AJSH_Player()
 void AJSH_Player::BeginPlay()
 {
 	Super::BeginPlay();
-
-	KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
 	
 	// 태어날 때 모든 AX 목록 기억
 	FName tag = TEXT("AX");
@@ -216,8 +214,8 @@ void AJSH_Player::BeginPlay()
 	}
 
 	
-	KJHPlayerState = Cast<AKJH_PlayerState>(GetPlayerState());
-	
+	// KJHPlayerState = Cast<AKJH_PlayerState>(GetPlayerState());
+
 
 
 	// APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
@@ -225,6 +223,8 @@ void AJSH_Player::BeginPlay()
 	// {
 	// 	KJHPlayerState = Cast<AKJH_PlayerState>(PlayerController->GetPlayerState());
 	// }
+
+	// KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
 }
 
 
@@ -592,8 +592,8 @@ void AJSH_Player::MyTakeAX()
 		{
 			GrabAXActor->Tags.Add(FName("Count"));
 
-			
-			if (KJHPlayerState)
+			KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
+			if (KJHPlayerState && KJHPlayerState != nullptr)
 			{
 				KJHPlayerState->IncrementPersonItemUsedCount();
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
@@ -734,8 +734,9 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 		else
 		{
 			GrabFireActor->Tags.Add(FName("Count"));
-			
-			if (KJHPlayerState)
+
+			 KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
+			if (KJHPlayerState && KJHPlayerState != nullptr)
 			{
 				KJHPlayerState->IncrementPersonItemUsedCount();
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
@@ -950,71 +951,38 @@ void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
 
 	if (OtherActor->ActorHasTag(FName("FRoomPlayer")) && !OtherActor->ActorHasTag(FName("PlayerFinded")))
 	{
-		Server_Overlap_Room(OtherActor);
+		KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
+
+		if (KJHPlayerState && KJHPlayerState != nullptr)
+		{
+			KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
+
+			OtherActor->Tags.Add(FName("PlayerFinded"));
+
+			GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+		}
+
+		
+		// Server_Overlap_Room(OtherActor);
 	}
     
 	if (OtherActor->ActorHasTag(FName("OverlapFire")))
 	{
-		Server_Overlap_Fire(OtherActor);
+		// Server_Overlap_Fire(OtherActor);
+
+		KJHPlayerState = Cast<AKJH_PlayerState>( GetPlayerState());
+
+		if (KJHPlayerState && KJHPlayerState != nullptr)
+		{
+			KJHPlayerState->IncrementPersonDamageCount();
+
+			// 왜인지 모르겠는데 client애서 접촉 시 +2씩 카운트가 됌 .... 모르겠따
+			KJHPlayerState->PersonState_DamageCount -= 1;
+
+			GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
+		}
 	}
 }
 
 
-
-
-// void AJSH_Player::Server_Overlap_Room_Implementation(AActor* OtherActor)
-// {
-// 	// KJHPlayerState->IncrementPersonSearchRoomCount_Implementation()
-//
-// 	NetMulti_Overlap_Room_Implementation(OtherActor);
-// }
-//
-// void AJSH_Player::NetMulti_Overlap_Room_Implementation(AActor* OtherActor)
-// {
-// 	OtherActor->Tags.Add(FName("PlayerFinded"));
-//
-// 	KJHPlayerState->PersonState_SearchRoomCount++;
-//
-// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
-// }
-//
-//
-//
-// void AJSH_Player::Server_Overlap_Fire_Implementation(AActor* OtherActor)
-// {
-// 	// KJHPlayerState->IncrementPersonDamageCount();
-//
-// 	NetMulti_Overlap_Fire_Implementation(OtherActor);
-// 	
-// }
-//
-// void AJSH_Player::NetMulti_Overlap_Fire_Implementation(AActor* OtherActor)
-// {
-// 	KJHPlayerState->PersonState_DamageCount++;
-// 	GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
-// 	// 받을게 없농
-// }
-
-
-
-
-void AJSH_Player::Server_Overlap_Room_Implementation(AActor* OtherActor)
-{
-	
-		KJHPlayerState->IncrementPersonSearchRoomCount_Implementation();
-
-		OtherActor->Tags.Add(FName("PlayerFinded"));
-
-		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
-
-}
-
-
-void AJSH_Player::Server_Overlap_Fire_Implementation(AActor* OtherActor)
-{
-		KJHPlayerState->IncrementPersonDamageCount();
-
-		GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
-
-}
 

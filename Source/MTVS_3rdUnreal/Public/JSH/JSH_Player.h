@@ -361,11 +361,5 @@ public:
 
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-
-
-	UFUNCTION(Server, Reliable)
-	void Server_Overlap_Room(AActor* OtherActor);
 	
-	UFUNCTION(Server, Reliable)
-	void Server_Overlap_Fire(AActor* OtherActor);
 };
