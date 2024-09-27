@@ -517,7 +517,7 @@ void AJSH_Player::Server_Grab_Implementation()
 
 void AJSH_Player::NetMulti_Grab_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
+	//// gengine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("grab")));
 	
 	
 	if ( BHasAX )
@@ -561,7 +561,7 @@ void AJSH_Player::NetMulti_Grab_Implementation()
 
 void AJSH_Player::MyTakeAX()
 {
-	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
+	// // gengine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("take")));
 
 	for ( AActor* AX : AXList )
 	{
@@ -590,7 +590,7 @@ void AJSH_Player::MyTakeAX()
 			if (KJHPlayerState && KJHPlayerState != nullptr)
 			{
 				KJHPlayerState->IncrementPersonItemUsedCount();
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
+				// gengine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
 			}
 		}
 
@@ -602,7 +602,7 @@ void AJSH_Player::MyTakeAX()
 
 void AJSH_Player::MyReleaseAX()
 {
-	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
+	// gengine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("re")));
 
 	if ( false == BHasAX)
 		return;
@@ -630,7 +630,7 @@ void AJSH_Player::MyReleaseAX()
 
 void AJSH_Player::AttachAX(AActor* AXActor)
 {
-	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
+	// gengine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("attach")));
 	GrabAXActor = AXActor;
 	auto* mesh = GrabAXActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
@@ -643,7 +643,7 @@ void AJSH_Player::AttachAX(AActor* AXActor)
 
 void AJSH_Player::DetachAX(AActor* AXActor)
 {
-	GEngine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
+	// gengine->AddOnScreenDebugMessage(9, 3, FColor::Green, FString::Printf(TEXT("detach")));
 	// 도끼의 메쉬를 가져와서
 	auto* mesh = AXActor->GetComponentByClass<UStaticMeshComponent>();
 	check(mesh);
@@ -724,7 +724,7 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 
 		if (GrabFireActor->ActorHasTag(FName("Count")))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("no")));
+			// gengine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("no")));
 		}
 		else
 		{
@@ -734,7 +734,7 @@ void AJSH_Player::AttachFire(AActor* FireActor)
 			if (KJHPlayerState && KJHPlayerState != nullptr)
 			{
 				KJHPlayerState->IncrementPersonItemUsedCount();
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
+				// gengine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ccount: %d"), KJHPlayerState->PersonState_ItemUsedCount));
 			}
 		}
 	}
@@ -778,7 +778,7 @@ void AJSH_Player::Server_LeftMouseAction_Implementation()
 
 void AJSH_Player::NetMulti_LeftMouseAction_Implementation()
 {
-	// GEngine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
+	// // gengine->AddOnScreenDebugMessage(8, 1, FColor::Blue, FString::Printf(TEXT("3")));
 
 	// 도끼를 잡고 있다면
 	if (BHasAX)
@@ -953,7 +953,7 @@ void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
 
 			OtherActor->Tags.Add(FName("PlayerFinded"));
 
-			GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
+			// gengine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("FindRoomCount: %d"), KJHPlayerState->PersonState_SearchRoomCount));
 		}
 
 		
@@ -973,7 +973,7 @@ void AJSH_Player::NotifyActorBeginOverlap(AActor* OtherActor)
 			// 왜인지 모르겠는데 client애서 접촉 시 +2씩 카운트가 됌 .... 모르겠따
 			KJHPlayerState->PersonState_DamageCount -= 1;
 
-			GEngine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
+			// gengine->AddOnScreenDebugMessage(-3, 5.f, FColor::Red, FString::Printf(TEXT("DamageCount: %d"), KJHPlayerState->PersonState_DamageCount));
 		}
 	}
 }
