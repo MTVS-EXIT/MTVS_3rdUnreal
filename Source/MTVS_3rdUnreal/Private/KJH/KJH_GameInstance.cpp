@@ -72,7 +72,7 @@ void UKJH_GameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
 		return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
+	//GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 
 	// 세션이 성공적으로 생성 시,
 	if (ServerWidget) // ServerWidget 제거

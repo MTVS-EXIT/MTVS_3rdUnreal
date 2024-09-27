@@ -183,7 +183,7 @@ void UKJH_ResultWidget::MoveToReportWeb()
         UE_LOG(LogTemp, Error, TEXT("Auth token is empty. Cannot proceed with data submission."));
         if (GEngine)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("인증 정보가 없습니다. 다시 로그인해 주세요."));
+            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("인증 정보가 없습니다. 다시 로그인해 주세요."));
         }
         return;
     }
@@ -262,7 +262,7 @@ void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponseP
 
             if (GEngine)
             {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Data Sent Successfully!"));
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Data Sent Successfully!"));
             }
 
             // 리더보드 웹 페이지로 이동
@@ -273,7 +273,7 @@ void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponseP
             UE_LOG(LogTemp, Warning, TEXT("Authentication failed. Please log in again. Response Code: %d"), ResponseCode);
             if (GEngine)
             {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Authorization Failed"));
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Authorization Failed"));
             }
         }
         else  // 기타 서버 오류 처리
@@ -281,7 +281,7 @@ void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponseP
             UE_LOG(LogTemp, Warning, TEXT("Server error occurred. Response code: %d"), ResponseCode);
             if (GEngine)
             {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server Error: %d"), ResponseCode));
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server Error: %d"), ResponseCode));
             }
         }
     }
@@ -290,7 +290,7 @@ void UKJH_ResultWidget::OnReportDataSent(FHttpRequestPtr Request, FHttpResponseP
         UE_LOG(LogTemp, Error, TEXT("HTTP Request failed or response was invalid."));
         if (GEngine)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Data Sent Failed"));
+            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Data Sent Failed"));
         }
     }
 }
