@@ -668,6 +668,7 @@ void AJSH_Player::MyTakeFire()
 		float tempFireDist = GetDistanceTo(Fire);
 		if ( tempFireDist > GrabDistance )
 			continue;
+		
 		if ( nullptr != Fire->GetOwner() )
 			continue;
 		
