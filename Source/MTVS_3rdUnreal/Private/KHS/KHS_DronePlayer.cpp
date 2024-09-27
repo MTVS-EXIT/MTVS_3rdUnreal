@@ -470,7 +470,7 @@ void AKHS_DronePlayer::SetDronePostProcess()
 		CameraComp->PostProcessSettings.WeightedBlendables.Array.Add(Blendable);
 
 		//속도값 출력
-		GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
+		//GEngine->AddOnScreenDebugMessage(3, 1.0f, FColor::Green, FString::Printf(TEXT("Speed : %f"), CurrentSpeed));
 	}
 }
 //Drone Outline PostProcess 효과 함수
