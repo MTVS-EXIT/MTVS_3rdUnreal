@@ -31,13 +31,7 @@ AJSH_Player::AJSH_Player()
 	SetReplicateMovement(true);
 
 	GetCapsuleComponent()->InitCapsuleSize(38.f, 96.0f);
-
-
-
-
-
-
-
+	
 	
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> TMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/UEFN_Mannequin/Meshes/SKM_UEFN_Mannequin.SKM_UEFN_Mannequin'"));
     if (TMesh.Succeeded())
@@ -191,9 +185,9 @@ void AJSH_Player::BeginPlay()
 	FName tag = TEXT("AX");
 	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , tag , AXList);
 
-	// 태어날 때 모든 GassMask 목록 기억
-	FName GMtag = TEXT("GassMask");
-	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , GMtag , GMList);
+	// // 태어날 때 모든 GassMask 목록 기억
+	// FName GMtag = TEXT("GassMask");
+	// UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld() , AActor::StaticClass() , GMtag , GMList);
 
 	// 태어날 때 모든 FireEX 목록 기억
 	FName Firetag = TEXT("FireEX");
