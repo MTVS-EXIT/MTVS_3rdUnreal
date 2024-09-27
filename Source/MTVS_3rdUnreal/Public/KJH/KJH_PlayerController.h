@@ -56,9 +56,14 @@ public:
     // 3) InGameWidget UI 관련 ---------------------------------------------------------------------------
     void ToggleInGameWidget(const FInputActionValue& Value);
 
+    // 네트워크 복제를 위한 GetLifetimeReplicatedProps 함수 추가
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+    UFUNCTION(Server, Reliable)
+    void Server_UpdateCharacterSelection(bool bIsPerson);
 
 ////////// 전역 변수 구간 ============================================================================================================================
+    UPROPERTY(Replicated)
     bool bIsPersonCharacterSelected; // 캐릭터 선택 상태 변수 (true: 사람, false: 드론)
     bool bIsInGameWidgetVisible; // InGameWidget 가시성 상태 변수
 
